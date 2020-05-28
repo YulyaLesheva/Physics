@@ -31,5 +31,6 @@ private:
 
 	Sprite<Background> _background;
 	Sprite<Quad> _blueQuad;
+	Sprite<Quad> _pinkQuad;
 	
 };

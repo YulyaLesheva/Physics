@@ -13,9 +13,10 @@ TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 
 void TestWidget::Init()
 {
-	//_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
+	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(100, 100));
+	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(Render::device.Width() * 0.5, 500), Gravity::_TRUE);
+	_pinkQuad = Quad::Create(Helper::UseTexture("PinkQuad"), IPoint(Render::device.Width() * 0.5, (Render::device.Height()*0.5)-50));
 
 }
 
@@ -23,11 +24,13 @@ void TestWidget::Draw()
 {
 	_background->Draw();
 	_blueQuad->Draw();
+	_pinkQuad->Draw();
 }
 
 void TestWidget::Update(float dt)
 {
 	_blueQuad->Update(dt);
+	_pinkQuad->Update(dt);
 }
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
