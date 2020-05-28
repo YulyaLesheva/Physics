@@ -3,8 +3,8 @@
 #include "TestWidget.h"
 
 enum {
-	WINDOW_WIDTH = 1024,
-	WINDOW_HEIGHT = 768
+	WINDOW_WIDTH = 1080,
+	WINDOW_HEIGHT = 720
 };
 
 TestAppDelegate::TestAppDelegate()

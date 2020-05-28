@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "TestWidget.h"
+#include "Background.h"
+#include "Helper.h"
+#include "Quad.h"
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
@@ -11,18 +14,20 @@ TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 void TestWidget::Init()
 {
 	//_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
-	
+	_background = Background::Create(Helper::UseTexture("Background"));
+	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(100, 100));
 
 }
 
 void TestWidget::Draw()
 {
-	
+	_background->Draw();
+	_blueQuad->Draw();
 }
 
 void TestWidget::Update(float dt)
 {
-	
+	_blueQuad->Update(dt);
 }
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
@@ -52,14 +57,12 @@ void TestWidget::AcceptMessage(const Message& message)
 
 void TestWidget::KeyPressed(int keyCode)
 {
-	//
-	// keyCode - виртуальный код клавиши.
-	// В качестве значений для проверки нужно использовать константы VK_.
-	//
+	_blueQuad->KeyPressed(keyCode);
+}
 
-	if (keyCode == VK_A) {
-		// Реакция на нажатие кнопки A
-	}
+void TestWidget::KeyReleased(int keyCode)
+{
+	_blueQuad->KeyReleased(keyCode);
 }
 
 void TestWidget::CharPressed(int unicodeChar)

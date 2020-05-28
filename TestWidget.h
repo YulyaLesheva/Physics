@@ -1,9 +1,12 @@
 #pragma once
 
-///
-/// Виджет - основной визуальный элемент на экране.
-/// Он отрисовывает себя, а также может содержать другие виджеты.
-///
+template <typename T>
+using Sprite = std::unique_ptr<T>;
+
+class Background;
+class Quad;
+
+
 class TestWidget : public GUI::Widget
 {
 public:
@@ -20,10 +23,13 @@ public:
 
 	void KeyPressed(int keyCode) override;
 	void CharPressed(int unicodeChar) override;
-
+	void KeyReleased(int keyCode) override;
 private:
 	void Init();
 
 private:
+
+	Sprite<Background> _background;
+	Sprite<Quad> _blueQuad;
 	
 };
