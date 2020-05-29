@@ -14,6 +14,8 @@ public:
 	void Update(float dt);
 	void KeyReleased(int keyCode);
 	Gravity _value;
+	IRect& GetRect();
+	IPoint& GetPos();
 
 private:
 	Render::Texture *_tex;
@@ -21,6 +23,7 @@ private:
 	IPoint _speedVector;
 	const int _speedPixelsPerFrame;
 	const float _gravity;
+	IRect _rect;
 
 };
 

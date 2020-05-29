@@ -15,7 +15,7 @@ void TestWidget::Init()
 {
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(Render::device.Width() * 0.5, 500), Gravity::_TRUE);
+	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(Render::device.Width() * 0.5, 500));
 	_pinkQuad = Quad::Create(Helper::UseTexture("PinkQuad"), IPoint(Render::device.Width() * 0.5, (Render::device.Height()*0.5)-50));
 
 }
@@ -31,6 +31,19 @@ void TestWidget::Update(float dt)
 {
 	_blueQuad->Update(dt);
 	_pinkQuad->Update(dt);
+
+	auto rect1 = _blueQuad->GetRect();
+	auto rect2 = _pinkQuad->GetRect();
+
+	if (rect1.Intersects(rect2)) {
+		Log::Warn("TOUCHTOUCHTUOUCH");
+	}
+	
+	else {
+		Log::Warn("........");
+	}
+	
+	//Log::Info(std::to_string(_blueQuad->GetPos().x));
 }
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)

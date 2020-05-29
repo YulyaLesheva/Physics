@@ -31,10 +31,16 @@ void Quad::Update(float dt) {
 		_pos.y += _gravity;
 
 	}
+
 	_pos += _speedVector;
 
 }
 
+IRect& Quad::GetRect() {
+
+	_rect = IRect(IPoint(_pos.x -_tex->Width()*.5, _pos.y - _tex->Height()*.5), _tex->Width(), _tex->Height());
+	return _rect;
+}
 void Quad::KeyPressed(int keyCode)
 {
 	//
@@ -49,6 +55,14 @@ void Quad::KeyPressed(int keyCode)
 	else if (keyCode == VK_A) {
 		_speedVector.x = -(_speedPixelsPerFrame);
 	}
+
+	else if (keyCode ==VK_W) {
+		_speedVector.y = _speedPixelsPerFrame;
+	}
+
+	else if (keyCode == VK_S) {
+		_speedVector.y = -(_speedPixelsPerFrame);
+	}
 }
 
 void Quad::KeyReleased(int keyCode) {
@@ -60,4 +74,16 @@ void Quad::KeyReleased(int keyCode) {
 	if (keyCode == VK_A) {
 		_speedVector.x = 0;
 	}
+
+	if (keyCode == VK_W) {
+		_speedVector.y = 0;
+	}
+
+	if (keyCode == VK_S) {
+		_speedVector.y = 0;
+	}
+}
+
+IPoint& Quad::GetPos() {
+	return _pos;
 }
