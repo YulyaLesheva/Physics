@@ -1,16 +1,20 @@
 #include "stdafx.h"
 #include "Quad.h"
 
-
+const IPoint GRAVITY_VALUE = IPoint(0, -1);
 
 Quad::Quad(Render::Texture* tex, IPoint& pos, Gravity value)
 	:_tex(tex),
 	_pos(pos),
-	_speedVector(0,0),
+	_speedVector(0, 0),
 	_speedPixelsPerFrame(10),
-	_gravity(-0.7),
-	_value(value)
+	_gravity(-0.1),
+	_value(value),
+	_newGravity(0, 0)
 {
+	if (_value == Gravity::_TRUE) {
+		_newGravity = GRAVITY_VALUE;
+	}
 }
 
 std::unique_ptr<Quad> Quad::Create(Render::Texture* tex, IPoint& pos, Gravity value) {
@@ -26,14 +30,9 @@ void Quad::Draw() {
 }
 
 void Quad::Update(float dt) {
-	
-	if (_value == Gravity::_TRUE) {
-		_pos.y += _gravity;
 
-	}
-
-	_pos += _speedVector;
-
+	_forces = _newGravity + _speedVector;
+	_pos += _forces;
 }
 
 IRect& Quad::GetRect() {
@@ -86,4 +85,8 @@ void Quad::KeyReleased(int keyCode) {
 
 IPoint& Quad::GetPos() {
 	return _pos;
+}
+
+IPoint& Quad::GetForceValue() {
+	return _forces;
 }

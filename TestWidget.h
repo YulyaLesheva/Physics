@@ -28,7 +28,7 @@ private:
 	void Init();
 
 private:
-
+	IPoint _whatsForce;
 	Sprite<Background> _background;
 	Sprite<Quad> _blueQuad;
 	Sprite<Quad> _pinkQuad;

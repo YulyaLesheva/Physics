@@ -16,6 +16,7 @@ public:
 	Gravity _value;
 	IRect& GetRect();
 	IPoint& GetPos();
+	IPoint& GetForceValue();
 
 private:
 	Render::Texture *_tex;
@@ -24,6 +25,10 @@ private:
 	const int _speedPixelsPerFrame;
 	const float _gravity;
 	IRect _rect;
+	IPoint _newGravity;
+	IPoint _testCurrentVector;
+	IPoint _forces;
+
 
 };
 
