@@ -5,8 +5,7 @@
 #include "Quad.h"
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
-	: Widget(name),
-	_whatsForce(0,0)
+	: Widget(name)
 
 {
 	Init();
@@ -16,8 +15,8 @@ void TestWidget::Init()
 {
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), IPoint(Render::device.Width() * 0.5, 500), Gravity::_TRUE);
-	_pinkQuad = Quad::Create(Helper::UseTexture("PinkQuad"), IPoint(Render::device.Width() * 0.5, (Render::device.Height()*0.5)-50));
+	_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), FPoint(Render::device.Width() * 0.5, 500), Gravity::_TRUE);
+	_pinkQuad = Quad::Create(Helper::UseTexture("PinkQuad"), FPoint(Render::device.Width() * 0.5, (Render::device.Height()*0.5)-50));
 
 }
 
@@ -38,7 +37,6 @@ void TestWidget::Update(float dt)
 
 	if (rect1.Intersects(rect2)) {
 		Log::Warn("TOUCHTOUCHTUOUCH");
-		_whatsForce = _blueQuad->GetForceValue();
 	}
 	
 	else {

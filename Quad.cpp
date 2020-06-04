@@ -1,23 +1,23 @@
 #include "stdafx.h"
 #include "Quad.h"
 
-const IPoint GRAVITY_VALUE = IPoint(0, -1);
+const FPoint GRAVITY_VALUE = FPoint(0, -1);
 
-Quad::Quad(Render::Texture* tex, IPoint& pos, Gravity value)
+Quad::Quad(Render::Texture* tex, FPoint& pos, Gravity value)
 	:_tex(tex),
-	_pos(pos),
+	_pos(pos.x, pos.y, 0),
 	_speedVector(0, 0),
 	_speedPixelsPerFrame(10),
-	_gravity(-0.1),
 	_value(value),
-	_newGravity(0, 0)
+	_friction(0.95),
+	_gravity(0.0, -0.7, 0),
+	_mass(1.0), 
+	_bounce(0.7)
 {
-	if (_value == Gravity::_TRUE) {
-		_newGravity = GRAVITY_VALUE;
-	}
+	ApplyForces();
 }
 
-std::unique_ptr<Quad> Quad::Create(Render::Texture* tex, IPoint& pos, Gravity value) {
+std::unique_ptr<Quad> Quad::Create(Render::Texture* tex, FPoint& pos, Gravity value) {
 	return std::unique_ptr<Quad>(new Quad(tex, pos, value));
 }
 
@@ -31,8 +31,15 @@ void Quad::Draw() {
 
 void Quad::Update(float dt) {
 
-	_forces = _newGravity + _speedVector;
-	_pos += _forces;
+	_oldPos = _pos;
+	auto acceleration = _forces * (1.f / _mass);
+	
+	_velocity = _velocity * _friction + acceleration;
+	_pos = _pos + _velocity;
+}
+
+void Quad::ApplyForces() {
+	_forces = _gravity;
 }
 
 IRect& Quad::GetRect() {
@@ -83,10 +90,8 @@ void Quad::KeyReleased(int keyCode) {
 	}
 }
 
-IPoint& Quad::GetPos() {
-	return _pos;
+FPoint& Quad::GetPos() {
+	return FPoint(_pos.x,_pos.y);
 }
 
-IPoint& Quad::GetForceValue() {
-	return _forces;
-}
+
