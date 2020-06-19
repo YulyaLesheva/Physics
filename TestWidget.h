@@ -31,5 +31,20 @@ private:
 	Sprite<Background> _background;
 	Sprite<Quad> _blueQuad;
 	Sprite<Quad> _pinkQuad;
+
+	Render::Texture* _Line;
+	Render::Texture* _BlueQuad;
+
+	IPoint _LinePos;
+	IPoint _BlueQuadPos;
+
+	IRect _LineRect;
+	IRect _BlueQuadRect;
 	
+
+	int _turbo;
+	const float _QuadMass;
+	const float _LineMass;
+	float  _inverseQuadMass;
+	float  _inverseLineMass;
 };

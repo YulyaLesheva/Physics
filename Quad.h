@@ -16,19 +16,21 @@ public:
 	Gravity _value;
 	IRect& GetRect();
 	FPoint& GetPos();
-	void ApplyForces();
-
+	void Collide(std::unique_ptr<Quad>& a, std::unique_ptr<Quad>& b);
+	float DotProduct(FPoint& a, FPoint& b);
+	bool _colissionFound;
+	float GetMass();
+	void SetPos(FPoint newPos);
 private:
 	Render::Texture *_tex;
 	///From the book 
-	math::Vector3 _pos, _oldPos;
-	math::Vector3 _forces, _velocity;
-	float  _mass, bounce;
-	const math::Vector3 _gravity;
-	float _friction, _bounce;
 	///
-	FPoint _speedVector;
-	const int _speedPixelsPerFrame;
 	IRect _rect;
+	float _timer;
+	float _vc;
+	FPoint _pos;
+	float _mass;
+	const float _inverseMass;
+	math::Vector3 _velocity;
 };
 
