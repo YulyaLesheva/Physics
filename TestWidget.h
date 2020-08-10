@@ -5,7 +5,8 @@ using Sprite = std::unique_ptr<T>;
 
 class Background;
 class Quad;
-
+struct Manifold;
+class Body;
 
 class TestWidget : public GUI::Widget
 {
@@ -24,27 +25,21 @@ public:
 	void KeyPressed(int keyCode) override;
 	void CharPressed(int unicodeChar) override;
 	void KeyReleased(int keyCode) override;
+
+
+
 private:
 	void Init();
 
 private:
 	Sprite<Background> _background;
 	Sprite<Quad> _blueQuad;
-	Sprite<Quad> _pinkQuad;
+	Sprite<Quad> _purpleQuad;
+	Sprite<Quad> _yellowQuad;
+	Render::Texture *_greyQuad;
 
-	Render::Texture* _Line;
-	Render::Texture* _BlueQuad;
+	Body* _greyBody;
+	Body* _yellowBody;
 
-	IPoint _LinePos;
-	IPoint _BlueQuadPos;
-
-	IRect _LineRect;
-	IRect _BlueQuadRect;
-	
-
-	int _turbo;
-	const float _QuadMass;
-	const float _LineMass;
-	float  _inverseQuadMass;
-	float  _inverseLineMass;
+	IPoint NORMAL;
 };

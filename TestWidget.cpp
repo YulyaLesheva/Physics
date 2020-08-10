@@ -3,18 +3,13 @@
 #include "Background.h"
 #include "Helper.h"
 #include "Quad.h"
-
+#include "BodyCollision.h"
+#include "Body.h"
 
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name),
-	_LinePos(IPoint(100, 600)),
-	_BlueQuadPos(IPoint(100, 200)),
-	_QuadMass(0),
-	_LineMass(70.5),
-	_inverseLineMass(1/_LineMass),
-	_turbo(0)
-	
+	NORMAL(0,0)
 
 {
 	Init();
@@ -23,92 +18,46 @@ TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 void TestWidget::Init()
 {
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
+	/*_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), FPoint(Render::device.Width() * 0.5, 500));
+	_yellowQuad = Quad::Create(Helper::UseTexture("YellowQuad"), FPoint(_blueQuad->GetTexture()->Width() * 0.5+10, _blueQuad->GetTexture()->Height() * 0.5+10));
+	_purpleQuad = Quad::Create(Helper::UseTexture("PurpleQuad"), FPoint(Render::device.Width() * 0.5 + 400, 500));
+	_greyQuad = Helper::UseTexture("GreyQuad");*/
+
 	_background = Background::Create(Helper::UseTexture("Background"));
-	//_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), FPoint(Render::device.Width() * 0.5, 500), Gravity::_TRUE);
-	//_pinkQuad = Quad::Create(Helper::UseTexture("PinkQuad"), FPoint(Render::device.Width() * 0.5, (Render::device.Height()*0.5)-50));
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), IPoint(0, 200), 25);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), IPoint(500,200), 5);
 
-	_BlueQuad = Helper::UseTexture("BlueQuad");
-	_Line = Helper::UseTexture("PinkQuad");
-
-	if (_QuadMass == 0) {
-		_inverseQuadMass = 0;
-	}
-	else {
-		_inverseQuadMass = 1 / _QuadMass;
-	}
+	_yellowBody->mooveble = false;
+	_greyBody->mooveble = true;
 }
 
 void TestWidget::Draw()
 {
 	_background->Draw();
-	/*_blueQuad->Draw();
-	_pinkQuad->Draw();*/
-
-	Render::device.PushMatrix();
-	Render::device.MatrixTranslate(_BlueQuadPos);
-	_BlueQuad->Draw();
-	Render::device.PopMatrix();	
-	
-	Render::device.PushMatrix();
-	Render::device.MatrixTranslate(_LinePos);
-	_Line->Draw();
-	Render::device.PopMatrix();
-
+	_greyBody->Draw();
+	_yellowBody->Draw();
 }
 
 void TestWidget::Update(float dt)
 {
-	//_blueQuad->Update(dt);
-	//_pinkQuad->Update(dt);
+	
+	//Log::Info("TOUCH TOUCH TOUCH");
 
-	////auto rect1 = _blueQuad->GetRect();
-	////auto rect2 = _pinkQuad->GetRect();
-
-	////if (rect1.Intersects(rect2)) {
-	////	Log::Warn("TOUCHTOUCHTUOUCH");
-	////}
-	////
-	////else {
-	////	Log::Warn("........");
-	////}
-	//_blueQuad->Collide(_pinkQuad, _blueQuad);
-	//
-	_LinePos.y += _turbo;
-
-	_LineRect = IRect(_LinePos, _Line->Width(), _Line->Height());
-	_BlueQuadRect = IRect(_BlueQuadPos, _BlueQuad->Width(), _BlueQuad->Height());
-
-	_LinePos.y -= 0.2;
-
-	if (_BlueQuadRect.Intersects(_LineRect) ){
-		Log::Info("TOUCH");
+		
+	_greyBody->Update(dt);
+	_yellowBody->Update(dt);
+	
+	if (BodyColission::CheckColissionAndGetNormal(_greyBody, _yellowBody)) {
+		BodyColission::ResolveColission(_greyBody, _yellowBody);
+		Log::Info("Normals are " + std::to_string(_greyBody->_normal.x) + " " + std::to_string(_greyBody->_normal.y));
 	}
-
 	else {
-		Log::Info("....");
-	}
-	
-	
-
-	if (_BlueQuadRect.Intersects(_LineRect)) {
-		math::Vector3  rv = math::Vector3(_BlueQuadPos.x - _LinePos.x,
-		_BlueQuadPos.y - _LinePos.y, 0).Normalized(); // relative velocity 
-
-		auto  velAlongNormal = rv.DotProduct(math::Vector3(0, 1, 0));
-
-		if (velAlongNormal > 0) return;
-
-		float e = 0.5f;
-
-		float  j = -(1 + e) * velAlongNormal;
-		j /= _inverseQuadMass + _inverseLineMass;
-
-		math::Vector3 impulse = j * math::Vector3(0, 1, 0);
-		_BlueQuadPos -= IPoint(_inverseQuadMass * impulse.x, _inverseQuadMass * impulse.y);
-		_LinePos += IPoint(_inverseLineMass * impulse.x, _inverseLineMass * impulse.y);
+		Log::Info(".......");
 
 	}
 }
+
+
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
@@ -137,20 +86,12 @@ void TestWidget::AcceptMessage(const Message& message)
 
 void TestWidget::KeyPressed(int keyCode)
 {
-	_blueQuad->KeyPressed(keyCode);
-
-	if (keyCode == VK_W) {
-		_turbo = 10;
-	}
+	
 }
 
 void TestWidget::KeyReleased(int keyCode)
 {
-	_blueQuad->KeyReleased(keyCode);
 
-	if (keyCode == VK_W) {
-		_turbo = 0;
-	}
 }
 
 void TestWidget::CharPressed(int unicodeChar)

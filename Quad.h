@@ -1,36 +1,38 @@
 #pragma once
 
-enum Gravity {
-	_TRUE, _FALSE
+enum MoveState
+{
+	yes, no
+
 };
 
 class Quad
 {
 public:
-	Quad(Render::Texture* tex, FPoint& pos, Gravity value = Gravity::_FALSE);
-	static std::unique_ptr<Quad>Create(Render::Texture* tex, FPoint& pos, Gravity value = Gravity::_FALSE);
+
+	Quad(Render::Texture* tex, FPoint& pos, MoveState state, float m, float e);
+	static std::unique_ptr<Quad>Create(Render::Texture* tex, FPoint& pos, MoveState state = no, float m = 0.5, float e = 0.5);
 	void Draw();
 	void KeyPressed(int keyCode);
 	void Update(float dt);
 	void KeyReleased(int keyCode);
-	Gravity _value;
 	IRect& GetRect();
 	FPoint& GetPos();
-	void Collide(std::unique_ptr<Quad>& a, std::unique_ptr<Quad>& b);
-	float DotProduct(FPoint& a, FPoint& b);
-	bool _colissionFound;
-	float GetMass();
-	void SetPos(FPoint newPos);
+	void ApplyVector(math::Vector3 vector);
+	Render::Texture* GetTexture();
+public:
+	float mass, elastic, inverseMass, penetration;
+	math::Vector3 normal;
+	float PUBLICVAR;
 private:
 	Render::Texture *_tex;
 	///From the book 
 	///
 	IRect _rect;
-	float _timer;
-	float _vc;
 	FPoint _pos;
-	float _mass;
-	const float _inverseMass;
-	math::Vector3 _velocity;
+	MoveState _state;
+
+	float PRIVATEVAR;
+
 };
 
