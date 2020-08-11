@@ -52,12 +52,10 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 
 void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 	
-	auto bTwoPosition = bodyTwo->velocity;
-	auto bOnePosition = bodyOne->velocity;
+	auto bTwoVelocity = bodyTwo->velocity;
+	auto bOneVelocity = bodyOne->velocity;
 
-	math::Vector3 rVelocity = math::Vector3(bTwoPosition.x-bOnePosition.x, bTwoPosition.y - bOnePosition.y, 0);
-	///rVelocity.Normalize();
-	math::Vector3 NORMAL = math::Vector3(-1,0,0);
+	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x-bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
 	math::Vector3 normal = math::Vector3(bodyOne->GetNormal()); //1 , 0,  0
 
 	// что то не то с релатив велосити. должно быть отрицательное значение 
@@ -65,7 +63,7 @@ void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 	 
 	if (velocityAlongNormal > 0) return;
 
-	auto elastic = 2.9;
+	auto elastic = 0.9;
 
 	float j = -(1 + elastic) * velocityAlongNormal;
 

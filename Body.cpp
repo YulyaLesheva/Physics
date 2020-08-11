@@ -52,7 +52,8 @@ void Body::Update(float dt) {
 	if (mooveble) {
 	//	IPoint mouse_position = Core::mainInput.GetMousePos();
 	//	_pos = mouse_position;
-		velocity.x = 1;
+		velocity.x = 4;
+		velocity.y = 1;
 
 	}
 	
