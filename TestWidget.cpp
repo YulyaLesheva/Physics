@@ -7,9 +7,14 @@
 #include "Body.h"
 
 
+	FPoint ABOVE = FPoint(500, 500);
+	FPoint LEFT = FPoint(500, 500);
+	FPoint RIGHT = FPoint(500, 500);
+	FPoint UNDER = FPoint(500, 500);
+
+
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
-	: Widget(name),
-	NORMAL(0,0)
+	: Widget(name)
 
 {
 	Init();
@@ -24,8 +29,8 @@ void TestWidget::Init()
 	_greyQuad = Helper::UseTexture("GreyQuad");*/
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), IPoint(0, 200), 25);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), IPoint(500,200), 5);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(0, 200), 0.5, 1.9, true);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.3);
 
 	_yellowBody->mooveble = false;
 	_greyBody->mooveble = true;
@@ -40,20 +45,11 @@ void TestWidget::Draw()
 
 void TestWidget::Update(float dt)
 {
-	
-	//Log::Info("TOUCH TOUCH TOUCH");
-
-		
 	_greyBody->Update(dt);
 	_yellowBody->Update(dt);
 	
 	if (BodyColission::CheckColissionAndGetNormal(_greyBody, _yellowBody)) {
 		BodyColission::ResolveColission(_greyBody, _yellowBody);
-		Log::Info("Normals are " + std::to_string(_greyBody->_normal.x) + " " + std::to_string(_greyBody->_normal.y));
-	}
-	else {
-		Log::Info(".......");
-
 	}
 }
 
@@ -61,7 +57,7 @@ void TestWidget::Update(float dt)
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
-	
+	_yellowBody->MouseDown(mouse_pos);
 	return false;
 }
 
@@ -71,7 +67,7 @@ void TestWidget::MouseMove(const IPoint &mouse_pos)
 
 void TestWidget::MouseUp(const IPoint &mouse_pos)
 {
-	
+	_yellowBody->MouseUp(mouse_pos);
 }
 
 void TestWidget::AcceptMessage(const Message& message)

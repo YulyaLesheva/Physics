@@ -34,7 +34,7 @@ void Quad::Draw() {
 void Quad::Update(float dt) {
 
 	if (_state == MoveState::yes) {
-		IPoint mouse_position = Core::mainInput.GetMousePos();
+		FPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 }
@@ -60,7 +60,7 @@ FPoint& Quad::GetPos() {
 }
 
 void Quad::ApplyVector(math::Vector3 vector) {
-	_pos += IPoint(vector.x, vector.y);
+	_pos += FPoint(vector.x, vector.y);
 }
 
 Render::Texture* Quad::GetTexture() {

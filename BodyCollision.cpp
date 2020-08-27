@@ -63,7 +63,7 @@ void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 	 
 	if (velocityAlongNormal > 0) return;
 
-	auto elastic = 0.9;
+	auto elastic = MinElastic(bodyOne, bodyTwo);
 
 	float j = -(1 + elastic) * velocityAlongNormal;
 
@@ -71,6 +71,12 @@ void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 
 	math::Vector3 impulse = j * normal;
 
-	bodyOne->velocity -= IPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
-	bodyTwo->velocity += IPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
+	bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
+	bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
+}
+
+float BodyColission::MinElastic(Body* bodyOne, Body* bodyTwo){
+	
+	if (bodyOne->elastic < bodyTwo->elastic) return bodyOne->elastic;
+	else return bodyTwo->elastic;
 }

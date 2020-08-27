@@ -3,12 +3,15 @@
 class Body {
 public:
 	Body(Render::Texture* tex);
-	Body(Render::Texture* tex, IPoint& pos);
-	Body(Render::Texture* tex, IPoint& pos, float mass);
+	Body(Render::Texture* tex, FPoint& pos);
+	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState);
 
 	static Body* Create(Render::Texture* tex);
-	static Body* Create(Render::Texture* tex, IPoint& pos);
-	static Body* Create(Render::Texture* tex, IPoint& pos, float mass);
+	static Body* Create(Render::Texture* tex, FPoint& pos);
+	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState = false);
+
+	bool MouseDown(const IPoint& mouse_pos);
+	bool MouseUp(const IPoint& mouse_pos);
 
 public:
 	//FUNCTIONS
@@ -18,20 +21,25 @@ public:
 public:
 	//GETTERS
 	IRect& GetRect();
-	IPoint& GetPos();
+	FPoint& GetPos();
 	Render::Texture* GetTex();
 	math::Vector3 GetNormal();
 public:
 	//VARIABLES
-	float mass, inverseMass;
+	float mass, inverseMass, elastic;
 	bool mooveble;
 	math::Vector3& _normal;
-	IPoint velocity;
+	FPoint velocity;
 
 private:
 	//VARIABLES
 	Render::Texture* _tex;
-	IPoint _pos;
+	FPoint _pos;
 	IRect _rect;
+	IPoint _lastPos;
+	FPoint moving;
 
+	bool _anchored;
+
+	const float _gravity;
 };
