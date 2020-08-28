@@ -25,13 +25,15 @@ public:
 	IRect& GetRect();
 	FPoint& GetPos();
 	Render::Texture* GetTex();
-	math::Vector3 GetNormal();
+	math::Vector3& GetNormal();
 public:
 	//VARIABLES
 	float mass, inverseMass, elastic;
 	bool mooveble;
 	math::Vector3& _normal;
 	FPoint velocity;
+	void ReverseCurrentVectorX();
+	void ReverseCurrentVectorY();
 
 private:
 	//VARIABLES

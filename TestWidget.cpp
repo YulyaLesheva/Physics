@@ -53,7 +53,7 @@ void TestWidget::Update(float dt)
 	}
 
 	_greyBody->KeepInBorders();
-	//_yellowBody->KeepInBorders();
+	_yellowBody->KeepInBorders();
 }
 
 
