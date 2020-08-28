@@ -17,6 +17,8 @@ public:
 	//FUNCTIONS
 	void Draw();
 	void Update(float dt);
+	void KeepInBorders();
+	bool OnBorder();
 
 public:
 	//GETTERS
@@ -38,8 +40,9 @@ private:
 	IRect _rect;
 	IPoint _lastPos;
 	FPoint moving;
-
 	bool _anchored;
-
-	const float _gravity;
+	FPoint _gravity;
+private:
+	//FUNCTIONS 
+	
 };

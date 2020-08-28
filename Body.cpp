@@ -5,7 +5,7 @@ Body::Body(Render::Texture* tex) :
 	_tex(tex),
 	velocity(0, 0),
 	_normal(math::Vector3(0, 0, 0)),
-	_gravity(-0.7)
+	_gravity(0, -0.7)
 
 {
 }
@@ -15,7 +15,7 @@ Body::Body(Render::Texture* tex, FPoint& pos) :
 	_pos(pos),
 	velocity(0,0),
 	_normal(math::Vector3(0, 0, 0)),
-	_gravity(-0.7)
+	_gravity(0, -0.7)
 
 {
 }
@@ -31,7 +31,7 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	elastic(elastic),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
-	_gravity(-0.7)
+	_gravity(0, -0.7)
 
 {
 	if (mass == 0) inverseMass = 0;
@@ -70,7 +70,6 @@ void Body::Update(float dt) {
 	//	/*moving.x += 0.04;
 	//	moving.y += 0.01;*/
 	//}
-
 	//by mouse
 
 	/*if (mooveble) {
@@ -84,9 +83,9 @@ void Body::Update(float dt) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
-	_pos += velocity;
-	_pos.y += _gravity;
+	_pos += velocity + _gravity;
 	//if(mooveble) velocity.y -= 0.3;
+
 }
 
 IRect& Body::GetRect() {
@@ -123,4 +122,48 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
 	return false;
+}
+
+//void Body::KeepInBorders() {
+//	/*
+//	if left bottom < 0 or right bottom > width of the screen COLLIDE
+//	or left top > heigth of the screen collide or botton left < 0 COLLIDE
+//*/
+//
+//	auto rect = GetRect();
+//	// x 
+//	if (rect.LeftBottom().x < 0 || rect.RightBottom().x > Render::device.Width()) {
+//		velocity = FPoint(0,0);
+//	}
+//	// y 
+//	if (rect.LeftTop().y > Render::device.Height() || rect.LeftBottom().y < 0) {
+//		_gravity = FPoint(0,0);
+//	}
+//	
+//}
+
+bool Body::OnBorder() {
+	auto rect = GetRect();
+
+	if (rect.LeftBottom().x < 0 || rect.RightBottom().x > Render::device.Width()) {
+		return true;
+	}
+
+	if (rect.LeftTop().y > Render::device.Height() || rect.LeftBottom().y < 0) {
+		return true;
+	}
+	return false;
+}
+
+void Body::KeepInBorders() {
+	auto rect = GetRect();
+
+	if (rect.LeftBottom().x <= 0) _pos.x = _tex->Width() * 0.5;
+
+	if (rect.RightBottom().x >= Render::device.Width()) _pos.x = Render::device.Width() - _tex->Width() * 0.5;
+
+	if (rect.LeftTop().y >= Render::device.Height()) _pos.y = Render::device.Height() - _tex->Height() * 0.5;
+
+	if (rect.LeftBottom().y < 0) _pos.y = _tex->Height() * 0.5;
+
 }

@@ -29,7 +29,7 @@ void TestWidget::Init()
 	_greyQuad = Helper::UseTexture("GreyQuad");*/
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(0, 200), 0.5, 1.9, true);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 1.9, true);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.3);
 
 	_yellowBody->mooveble = false;
@@ -51,6 +51,9 @@ void TestWidget::Update(float dt)
 	if (BodyColission::CheckColissionAndGetNormal(_greyBody, _yellowBody)) {
 		BodyColission::ResolveColission(_greyBody, _yellowBody);
 	}
+
+	_greyBody->KeepInBorders();
+	//_yellowBody->KeepInBorders();
 }
 
 
@@ -58,6 +61,7 @@ void TestWidget::Update(float dt)
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
 	_yellowBody->MouseDown(mouse_pos);
+	_greyBody->MouseDown(mouse_pos);
 	return false;
 }
 
@@ -68,6 +72,7 @@ void TestWidget::MouseMove(const IPoint &mouse_pos)
 void TestWidget::MouseUp(const IPoint &mouse_pos)
 {
 	_yellowBody->MouseUp(mouse_pos);
+	_greyBody->MouseUp(mouse_pos);
 }
 
 void TestWidget::AcceptMessage(const Message& message)
