@@ -30,7 +30,7 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 1.9, true);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.3);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.2);
 
 	_yellowBody->mooveble = false;
 	_greyBody->mooveble = true;
@@ -50,8 +50,14 @@ void TestWidget::Update(float dt)
 	
 	if (BodyColission::CheckColissionAndGetNormal(_greyBody, _yellowBody)) {
 		BodyColission::ResolveColission(_greyBody, _yellowBody);
+	//	Log::Info(std::to_string(_greyBody->penetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
+	}
+	else {
+		//Log::Info("..");
 	}
 
+	Log::Info(std::to_string(_greyBody->GetGravity().y));
+	
 	_greyBody->KeepInBorders();
 	_yellowBody->KeepInBorders();
 }

@@ -5,7 +5,7 @@ Body::Body(Render::Texture* tex) :
 	_tex(tex),
 	velocity(0, 0),
 	_normal(math::Vector3(0, 0, 0)),
-	_gravity(0, -0.7)
+	_gravity(0, 0)
 
 {
 }
@@ -15,7 +15,7 @@ Body::Body(Render::Texture* tex, FPoint& pos) :
 	_pos(pos),
 	velocity(0,0),
 	_normal(math::Vector3(0, 0, 0)),
-	_gravity(0, -0.7)
+	_gravity(0, 0)
 
 {
 }
@@ -31,11 +31,13 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	elastic(elastic),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
-	_gravity(0, -0.7)
+	_gravity(0, -0.4)
 
 {
 	if (mass == 0) inverseMass = 0;
 	if (moveState == true) velocity = FPoint(10.0, 3.0);
+	
+	_gravity.y =  mass * - 1.9;
 }
 
 
@@ -61,7 +63,7 @@ void Body::Draw() {
 }
 
 void Body::Update(float dt) {
-	
+	FPoint forces(0,0);
 	// by direction
 	//if (mooveble) {
 	//	velocity.x += 0.04;
@@ -80,12 +82,20 @@ void Body::Update(float dt) {
 	}*/
 
 	if (_anchored) {
+		_gravity = FPoint(0, 0);
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
-	_pos += velocity + _gravity;
+
+	
+	
+	velocity = velocity + _gravity;
+	_pos += velocity;
+	
 	//if(mooveble) velocity.y -= 0.3;
 
+	//Log::Info(std::to_string(penetrationDepth));
+	
 }
 
 IRect& Body::GetRect() {
@@ -108,12 +118,12 @@ math::Vector3& Body::GetNormal() {
 bool Body::MouseDown(const IPoint& mouse_pos) {
 	
 	if (GetRect().Contains(mouse_pos)) {
-		Log::Info("CONTAINS CONTAINS");
+		//Log::Info("CONTAINS CONTAINS");
 		_anchored = true;
 		return true;
 	}
 	else {
-		Log::Info("......");
+//		Log::Info("......");
 		return false;
 
 	}
@@ -121,6 +131,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
+	_gravity.y = mass * -1.9;
 	return false;
 }
 
@@ -142,21 +153,25 @@ void Body::KeepInBorders() {
 
 	if (rect.LeftBottom().x <= 0) {
 		_pos.x = _tex->Width() * 0.5;
+		//_pos.x = _pos.x + 1;
 		ReverseCurrentVectorX();
 	}
 
 	if (rect.RightBottom().x >= Render::device.Width()) {
 		_pos.x = Render::device.Width() - _tex->Width() * 0.5;
+		//_pos.x = _pos.x - 1;
 		ReverseCurrentVectorX();
 	}
 
 	if (rect.LeftTop().y >= Render::device.Height()) {
 		_pos.y = Render::device.Height() - _tex->Height() * 0.5;
+		//_pos.y = _pos.y - 1;
 		ReverseCurrentVectorY();
 	}
 
-	if (rect.LeftBottom().y < 0) {
+	if (rect.LeftBottom().y <= 0) {
 		_pos.y = _tex->Height() * 0.5;
+		//_pos.y = _pos.y + 1;
 		ReverseCurrentVectorY();
 	}
 }
@@ -167,4 +182,8 @@ void Body::ReverseCurrentVectorY() {
 
 void Body::ReverseCurrentVectorX() {
 	velocity.x = velocity.x * -1;
+}
+
+FPoint Body::GetGravity() {
+	return _gravity;
 }

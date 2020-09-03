@@ -19,6 +19,8 @@ public:
 	void Update(float dt);
 	void KeepInBorders();
 	bool OnBorder();
+	void ReverseCurrentVectorX();
+	void ReverseCurrentVectorY();
 
 public:
 	//GETTERS
@@ -26,19 +28,19 @@ public:
 	FPoint& GetPos();
 	Render::Texture* GetTex();
 	math::Vector3& GetNormal();
+	FPoint GetGravity();
 public:
 	//VARIABLES
+	FPoint _pos; 
 	float mass, inverseMass, elastic;
 	bool mooveble;
 	math::Vector3& _normal;
 	FPoint velocity;
-	void ReverseCurrentVectorX();
-	void ReverseCurrentVectorY();
+	float penetrationDepth;
 
 private:
 	//VARIABLES
 	Render::Texture* _tex;
-	FPoint _pos;
 	IRect _rect;
 	IPoint _lastPos;
 	FPoint moving;

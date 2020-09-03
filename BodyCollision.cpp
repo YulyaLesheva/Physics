@@ -23,8 +23,9 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 		float bTwoExtent = (bTwoTex->Height() * 0.5);
 
 		float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
-
+		
 		if (yOverlap > 0) {
+
 			if (xOverlap < yOverlap) {
 				if (n.x < 0) {
 					bodyOne->_normal = math::Vector3(-1, 0, 0); 
@@ -32,6 +33,7 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 				}
 				else {
 					bodyOne->_normal = math::Vector3(1, 0, 0);
+					bodyOne->penetrationDepth = xOverlap;
 					return true;
 				}
 			}
@@ -42,6 +44,7 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 				}
 				else {
 					bodyOne->_normal = math::Vector3(0, 1, 0);
+					bodyOne->penetrationDepth = yOverlap;
 					return true;
 				}
 			}
@@ -73,10 +76,23 @@ void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 
 	bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
 	bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
+	   
+	PosCorrection(bodyOne, bodyTwo);
 }
 
 float BodyColission::MinElastic(Body* bodyOne, Body* bodyTwo){
 	
 	if (bodyOne->elastic < bodyTwo->elastic) return bodyOne->elastic;
 	else return bodyTwo->elastic;
+}
+
+void BodyColission::PosCorrection(Body* bodyOne, Body* bodyTwo) {
+	
+	const float percent = 0.7;
+	FPoint correction = FPoint(bodyOne->penetrationDepth / (bodyOne->inverseMass + bodyTwo->inverseMass)
+		* percent * bodyOne->_normal.x, bodyOne->penetrationDepth / (bodyOne->inverseMass + bodyTwo->inverseMass)
+		* percent * bodyOne->_normal.y);
+
+	bodyOne->_pos -= bodyOne->inverseMass * correction;
+	bodyTwo->_pos += bodyTwo->inverseMass * correction;
 }
