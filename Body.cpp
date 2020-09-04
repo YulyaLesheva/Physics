@@ -31,13 +31,14 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	elastic(elastic),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
-	_gravity(0, -0.4)
+	_gravity(0, -0.4),
+	penetrationDepth(0)
 
 {
 	if (mass == 0) inverseMass = 0;
 	if (moveState == true) velocity = FPoint(10.0, 3.0);
 	
-	_gravity.y =  mass * - 1.9;
+	_gravity.y =  - 9.8;
 }
 
 
@@ -63,7 +64,6 @@ void Body::Draw() {
 }
 
 void Body::Update(float dt) {
-	FPoint forces(0,0);
 	// by direction
 	//if (mooveble) {
 	//	velocity.x += 0.04;
@@ -87,14 +87,15 @@ void Body::Update(float dt) {
 		_pos = mouse_position;
 	}
 
+	FPoint forces = _gravity * mass;
+	auto accleration = forces * inverseMass;
+	const float damping = 0.98f;
+	velocity += accleration;
+	velocity *= damping;
+	_pos = _pos + velocity;
 	
-	
-	velocity = velocity + _gravity;
-	_pos += velocity;
-	
-	//if(mooveble) velocity.y -= 0.3;
-
-	//Log::Info(std::to_string(penetrationDepth));
+	/*velocity += _gravity * mass;
+	_pos += velocity;*/
 	
 }
 
@@ -131,7 +132,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	_gravity.y = mass * -1.9;
+	_gravity.y = -9.8;
 	return false;
 }
 

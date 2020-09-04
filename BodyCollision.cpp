@@ -29,6 +29,7 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 			if (xOverlap < yOverlap) {
 				if (n.x < 0) {
 					bodyOne->_normal = math::Vector3(-1, 0, 0); 
+					bodyOne->penetrationDepth = xOverlap;
 					return true;
 				}
 				else {
@@ -40,6 +41,7 @@ bool BodyColission::CheckColissionAndGetNormal(Body* bodyOne, Body* bodyTwo) {
 			else {
 				if (n.y < 0) {
 					bodyOne->_normal = math::Vector3(0, -1, 0);
+					bodyOne->penetrationDepth = yOverlap;
 					return true;
 				}
 				else {
@@ -76,8 +78,11 @@ void BodyColission::ResolveColission(Body* bodyOne, Body* bodyTwo) {
 
 	bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
 	bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
-	   
-	PosCorrection(bodyOne, bodyTwo);
+	
+	//LATER HERE WILL BE A FRICTION IMPLIMENTING
+
+	PositionalCorrection(bodyOne, bodyTwo);
+
 }
 
 float BodyColission::MinElastic(Body* bodyOne, Body* bodyTwo){
@@ -86,13 +91,20 @@ float BodyColission::MinElastic(Body* bodyOne, Body* bodyTwo){
 	else return bodyTwo->elastic;
 }
 
-void BodyColission::PosCorrection(Body* bodyOne, Body* bodyTwo) {
-	
-	const float percent = 0.7;
-	FPoint correction = FPoint(bodyOne->penetrationDepth / (bodyOne->inverseMass + bodyTwo->inverseMass)
-		* percent * bodyOne->_normal.x, bodyOne->penetrationDepth / (bodyOne->inverseMass + bodyTwo->inverseMass)
-		* percent * bodyOne->_normal.y);
+void BodyColission::PositionalCorrection(Body* bodyOne, Body* bodyTwo) {
 
-	bodyOne->_pos -= bodyOne->inverseMass * correction;
-	bodyTwo->_pos += bodyTwo->inverseMass * correction;
+	auto totalMass = bodyOne->mass + bodyTwo->mass;
+	auto linearProjeectionPercent = 0.3f;
+	auto penetrationSlack = 0.01f;
+	auto impulseIteration = 5;
+
+	float depth = math::max(bodyOne->penetrationDepth - penetrationSlack, 0.0f);
+
+	float scalar = depth / totalMass;
+
+	FPoint correction = FPoint(bodyOne->_normal.x * scalar * linearProjeectionPercent,
+		bodyOne->_normal.y * scalar * linearProjeectionPercent);
+
+	bodyOne->_pos -= correction * bodyOne->inverseMass;
+	bodyTwo->_pos += correction * bodyTwo->inverseMass;
 }
