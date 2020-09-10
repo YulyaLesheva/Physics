@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Body.h"
 
+float GRAVITY = -0.9;
+
 Body::Body(Render::Texture* tex) :
 	_tex(tex),
 	velocity(0, 0),
@@ -31,14 +33,14 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	elastic(elastic),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
-	_gravity(0, -0.4),
+	_gravity(0, 0),
 	penetrationDepth(0)
 
 {
 	if (mass == 0) inverseMass = 0;
 	if (moveState == true) velocity = FPoint(10.0, 3.0);
 	
-	_gravity.y =  - 9.8;
+	_gravity.y =  GRAVITY;
 }
 
 
@@ -82,14 +84,14 @@ void Body::Update(float dt) {
 	}*/
 
 	if (_anchored) {
-		_gravity = FPoint(0, 0);
+		_gravity.y = 0;
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 
 	FPoint forces = _gravity * mass;
 	auto accleration = forces * inverseMass;
-	const float damping = 0.98f;
+	const float damping = 0.98;
 	velocity += accleration;
 	velocity *= damping;
 	_pos = _pos + velocity;
@@ -132,7 +134,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	_gravity.y = -9.8;
+	_gravity.y = GRAVITY;
 	return false;
 }
 
