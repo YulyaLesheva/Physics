@@ -26,8 +26,6 @@ public:
 	void CharPressed(int unicodeChar) override;
 	void KeyReleased(int keyCode) override;
 
-
-
 private:
 	void Init();
 
@@ -38,8 +36,9 @@ private:
 	Sprite<Quad> _yellowQuad;
 	Render::Texture *_greyQuad;
 
+	Manifold* mmm;
+
 	Body* _greyBody;
 	Body* _yellowBody;
-
 	IPoint NORMAL;
 };

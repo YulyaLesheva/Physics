@@ -34,6 +34,11 @@ void TestWidget::Init()
 
 	_yellowBody->mooveble = false;
 	_greyBody->mooveble = true;
+
+	mmm = Manifold::Create();
+
+	mmm->bodyOne = _greyBody;
+	mmm->bodyTwo = _yellowBody;
 }
 
 void TestWidget::Draw()
@@ -50,14 +55,17 @@ void TestWidget::Update(float dt)
 	
 	
 
-	if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
-		BodyColission::ResolveColission(*_greyBody, *_yellowBody);
-	//	Log::Info(std::to_string(_greyBody->penetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
-	}
-	else {
-		//Log::Info("..");
-	}
+	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
+	//	BodyColission::ResolveColission(*_greyBody, *_yellowBody);
+	//	//Log::Info(std::to_string(_greyBodypenetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
+	//}
+	//else {
+	//	Log::Info("..");
+	//}
 
+	if (BodyColission::CheckColission(mmm)) {
+		BodyColission::ResolveCollide(mmm);
+	}
 	Log::Info(std::to_string(_greyBody->velocity.x)  + " " + std::to_string(_greyBody->velocity.y));
 	
 	_greyBody->KeepInBorders();
