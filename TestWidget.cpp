@@ -40,7 +40,7 @@ void TestWidget::Init()
 	std::vector<Body*>  CheckVector;
 	CheckVector.push_back(_yellowBody);
 	CheckVector.push_back(_greyBody);
-
+	SapAlgorithm::SAP(CheckVector);
 
 }
 
