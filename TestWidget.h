@@ -15,6 +15,7 @@ public:
 
 	void Draw() override;
 	void Update(float dt) override;
+	void ProcessInteraction(float dt);
 	
 	void AcceptMessage(const Message& message) override;
 	
@@ -25,6 +26,9 @@ public:
 	void KeyPressed(int keyCode) override;
 	void CharPressed(int unicodeChar) override;
 	void KeyReleased(int keyCode) override;
+
+	std::vector<Body> bodies;
+	std::vector<Body> bodiesToRemove;
 
 private:
 	void Init();

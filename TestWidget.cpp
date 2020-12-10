@@ -5,6 +5,7 @@
 #include "Quad.h"
 #include "BodyCollision.h"
 #include "Body.h"
+#include "SapAlgorithm.h"
 
 
 	FPoint ABOVE = FPoint(500, 500);
@@ -23,10 +24,6 @@ TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 void TestWidget::Init()
 {
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
-	/*_blueQuad = Quad::Create(Helper::UseTexture("BlueQuad"), FPoint(Render::device.Width() * 0.5, 500));
-	_yellowQuad = Quad::Create(Helper::UseTexture("YellowQuad"), FPoint(_blueQuad->GetTexture()->Width() * 0.5+10, _blueQuad->GetTexture()->Height() * 0.5+10));
-	_purpleQuad = Quad::Create(Helper::UseTexture("PurpleQuad"), FPoint(Render::device.Width() * 0.5 + 400, 500));
-	_greyQuad = Helper::UseTexture("GreyQuad");*/
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 1.9, true);
@@ -39,6 +36,12 @@ void TestWidget::Init()
 
 	mmm->bodyOne = _greyBody;
 	mmm->bodyTwo = _yellowBody;
+	
+	std::vector<Body*>  CheckVector;
+	CheckVector.push_back(_yellowBody);
+	CheckVector.push_back(_greyBody);
+
+
 }
 
 void TestWidget::Draw()
@@ -72,6 +75,13 @@ void TestWidget::Update(float dt)
 	_yellowBody->KeepInBorders();
 }
 
+void TestWidget::ProcessInteraction(float dt) {
+	//remove entities to remove
+	//find highest variance axis for aabb
+	//sorts abbs by min on highest variance axis
+	// go thrpigh the list test intersection in range
+
+}
 
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
