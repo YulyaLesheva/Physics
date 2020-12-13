@@ -37,10 +37,11 @@ void TestWidget::Init()
 	mmm->bodyOne = _greyBody;
 	mmm->bodyTwo = _yellowBody;
 	
-	std::vector<Body*>  CheckVector;
+
 	CheckVector.push_back(_yellowBody);
 	CheckVector.push_back(_greyBody);
-	SapAlgorithm::SAP(CheckVector);
+	
+
 
 }
 
@@ -56,8 +57,8 @@ void TestWidget::Update(float dt)
 	_greyBody->Update(dt);
 	_yellowBody->Update(dt);
 	
-	
 
+	auto bbbb = SapAlgorithm::SAP(CheckVector);
 	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
 	//	BodyColission::ResolveColission(*_greyBody, *_yellowBody);
 	//	//Log::Info(std::to_string(_greyBodypenetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));

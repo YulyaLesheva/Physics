@@ -45,4 +45,6 @@ private:
 	Body* _greyBody;
 	Body* _yellowBody;
 	IPoint NORMAL;
+
+	std::vector<Body*>  CheckVector;
 };
