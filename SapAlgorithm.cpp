@@ -29,7 +29,6 @@ std::vector <std::vector<Body*>> SapAlgorithm::SAP(std::vector<Body*>& axisList)
 				mPair.push_back(axisList[i]);
 				mPair.push_back(activeList[j]);
 				allPairs.push_back(mPair);
-				mPair.push_back(axisList[i]);
 			}
 		}
 		activeList.push_back(axisList[i]);

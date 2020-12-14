@@ -203,17 +203,20 @@ void BodyColission::PosCorr(Manifold *m) {
 	Body *bodyTwo = m->bodyTwo;
 
 	auto totalMass = bodyOne->mass + bodyTwo->mass;
-	auto linearProjeectionPercent = 0.3f;
+	auto linearProjeectionPercent = 0.45f; //при значении 0.8 проникновение меньше. стр.400 книги
 	auto penetrationSlack = 0.01f;
-	auto impulseIteration = 5;
+	auto impulseIteration = 9;
+	
+	for (auto i = 0; i < impulseIteration; i++) {
+		
+		float depth = math::max(m->penetration - penetrationSlack, 0.0f);
 
-	float depth = math::max(m->penetration - penetrationSlack, 0.0f);
+		float scalar = depth / totalMass;
 
-	float scalar = depth / totalMass;
+		FPoint correction = FPoint(m->normal.x * scalar * linearProjeectionPercent,
+			m->normal.y * scalar * linearProjeectionPercent);
 
-	FPoint correction = FPoint(m->normal.x * scalar * linearProjeectionPercent,
-		m->normal.y * scalar * linearProjeectionPercent);
-
-	bodyOne->_pos -= correction * bodyOne->inverseMass;
-	bodyTwo->_pos += correction * bodyTwo->inverseMass;
+		bodyOne->_pos -= correction * bodyOne->inverseMass;
+		bodyTwo->_pos += correction * bodyTwo->inverseMass;
+	}
 }
