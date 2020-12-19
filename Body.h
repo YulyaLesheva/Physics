@@ -6,6 +6,8 @@ public:
 	Body(Render::Texture* tex, FPoint& pos);
 	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState);
 
+	~Body();
+	
 	static Body* Create(Render::Texture* tex);
 	static Body* Create(Render::Texture* tex, FPoint& pos);
 	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState = false);

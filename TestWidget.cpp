@@ -32,33 +32,35 @@ void TestWidget::Init()
 	_yellowBody->mooveble = false;
 	_greyBody->mooveble = true;
 
+	AllBodies.push_back(_greyBody);
+	AllBodies.push_back(_yellowBody);
+
+
+
 	mmm = Manifold::Create();
 
 	mmm->bodyOne = _greyBody;
 	mmm->bodyTwo = _yellowBody;
 	
 
-	CheckVector.push_back(_yellowBody);
-	CheckVector.push_back(_greyBody);
-	
-
-
 }
 
 void TestWidget::Draw()
 {
 	_background->Draw();
-	_greyBody->Draw();
-	_yellowBody->Draw();
+	for (auto &body : AllBodies) {
+		body->Draw();
+	}
 }
 
 void TestWidget::Update(float dt)
 {
-	_greyBody->Update(dt);
-	_yellowBody->Update(dt);
+	for (auto &body : AllBodies) {
+		body->Update(dt);
+	}
 	
 
-	auto bbbb = SapAlgorithm::SAP(CheckVector);
+	auto bbbb = SapAlgorithm::SAP(AllBodies);
 	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
 	//	BodyColission::ResolveColission(*_greyBody, *_yellowBody);
 	//	//Log::Info(std::to_string(_greyBodypenetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
@@ -69,11 +71,13 @@ void TestWidget::Update(float dt)
 
 	if (BodyColission::CheckColission(mmm)) {
 		BodyColission::ResolveCollide(mmm);
-	}
+	} 
 	Log::Info(std::to_string(_greyBody->velocity.x)  + " " + std::to_string(_greyBody->velocity.y));
 	
-	_greyBody->KeepInBorders();
-	_yellowBody->KeepInBorders();
+	for (auto &body : AllBodies) {
+		body->KeepInBorders();
+	}
+	
 }
 
 void TestWidget::ProcessInteraction(float dt) {

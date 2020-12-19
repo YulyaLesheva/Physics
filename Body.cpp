@@ -43,6 +43,9 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	_gravity.y =  GRAVITY;
 }
 
+Body::~Body() {
+	delete this;
+}
 
 Body* Body::Create(Render::Texture* tex) {
 	return new Body(tex);

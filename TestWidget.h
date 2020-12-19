@@ -47,4 +47,5 @@ private:
 	IPoint NORMAL;
 
 	std::vector<Body*>  CheckVector;
+	std::vector<Body*> AllBodies;
 };
