@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "Body.h"
 
-float GRAVITY = -0.9;
+float GRAVITY = -9.82;
+//#define GRAVITY_CONST float (-9.82f);
 
 Body::Body(Render::Texture* tex) :
 	_tex(tex),
@@ -40,7 +41,7 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 	if (mass == 0) inverseMass = 0;
 	if (moveState == true) velocity = FPoint(10.0, 3.0);
 	
-	_gravity.y =  GRAVITY;
+	_gravity.y =  GRAVITY * mass;
 }
 
 Body::~Body() {
@@ -92,17 +93,23 @@ void Body::Update(float dt) {
 		_pos = mouse_position;
 	}
 
-	FPoint forces = _gravity * mass;
+	FPoint forces = _gravity;
 	auto accleration = forces * inverseMass;
 	const float damping = 0.98;
+	
 	velocity += accleration;
 	velocity *= damping;
-	_pos = _pos + velocity;
+	_pos += velocity;
 	
-	/*velocity += _gravity * mass;
-	_pos += velocity;*/
-	
+
 }
+
+
+void Body::AddLinearImpulse(const FPoint& impulse) {
+	velocity += impulse;
+}
+
+
 
 IRect& Body::GetRect() {
 	_rect = IRect(IPoint(_pos.x - _tex->Width()*.5, _pos.y - _tex->Height()*.5), _tex->Width(), _tex->Height());
@@ -188,8 +195,4 @@ void Body::ReverseCurrentVectorY() {
 
 void Body::ReverseCurrentVectorX() {
 	velocity.x = velocity.x * -1;
-}
-
-FPoint Body::GetGravity() {
-	return _gravity;
 }

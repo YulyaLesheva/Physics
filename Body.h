@@ -30,11 +30,10 @@ public:
 	FPoint& GetPos();
 	Render::Texture* GetTex();
 	math::Vector3& GetNormal();
-	FPoint GetGravity();
 public:
 	//VARIABLES
 	FPoint _pos; 
-	float mass, inverseMass, elastic;
+	float mass, inverseMass, elastic; 
 	bool mooveble;
 	math::Vector3& _normal;
 	FPoint velocity;
@@ -48,7 +47,11 @@ private:
 	FPoint moving;
 	bool _anchored;
 	FPoint _gravity;
+	
 private:
 	//FUNCTIONS 
+	void AddLinearImpulse(const FPoint& impulse);
+
+	FPoint impulse;
 	
 };
