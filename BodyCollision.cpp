@@ -3,6 +3,7 @@
 
 //using namespace BodyColission;
 
+
 bool BodyColission::CheckColissionAndGetNormal(Body& bodyOne, Body& bodyTwo) {
 
 	auto bTwoPosition = bodyTwo.GetPos();
@@ -109,6 +110,64 @@ void BodyColission::PositionalCorrection(Body& bodyOne, Body& bodyTwo) {
 	bodyTwo._pos += correction * bodyTwo.inverseMass;
 }
 
+void BodyColission::ApplyImpulse(Body& a, Body& b, Manifold* m, int c) {
+
+	auto invMassA = a.inverseMass;
+	auto invMassB = b.inverseMass;
+
+	auto invMassSum = invMassA + invMassB;
+
+	if (invMassSum == 0) return;
+
+	//relative velocity
+	auto relativeVel = b.velocity - a.velocity;
+	//relativecollision normal 
+	auto relativeNorm = m->normal;
+	relativeNorm.Normalize();
+	
+	auto dotProduct = relativeVel.GetDotProduct(FPoint(relativeNorm.x, relativeNorm.y));
+	
+	if (dotProduct > 0) return;
+
+	float e = math::min(a.elastic, b.elastic); //coefficient of restitution
+	float numerator = (-(1.f + e) * relativeNorm.DotProduct(relativeNorm));
+	float j = numerator / invMassSum;
+	
+	//// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
+
+	FPoint impulse = FPoint (relativeNorm.x * j, relativeNorm.y * j);
+	
+	a.velocity -= impulse * invMassA;
+	b.velocity += impulse * invMassB;
+
+	////friction 
+	//math::Vector3 t = math::Vector3(relativeVel.x, relativeVel.y, 0) 
+	//	- (relativeNorm * relativeNorm.DotProduct(math::Vector3(relativeVel.x, relativeVel.y, 0)));
+
+	//t.Normalize();
+	//numerator = -relativeVel.GetDotProduct(FPoint(t.x, t.y));
+	//float jt = numerator / invMassSum;
+	////// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
+	//
+	//float friction = sqrtf(a->friction * b->friction);
+	//
+	//if (jt > j * friction) {
+	//	jt = j * friction;
+	//}
+	//else if (jt < -j * friction) {
+	//	jt = -j * friction;
+	//}
+
+	//FPoint tangentImpuse = FPoint(t.x * jt, t.y * jt);
+	//a->velocity -=  tangentImpuse * invMassA;
+	//b->velocity += tangentImpuse * invMassB;
+
+}
+
+Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
+	Manifold result;
+	return result;
+}
 
 bool BodyColission::CheckColission(Manifold *m){
 	

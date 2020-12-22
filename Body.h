@@ -33,7 +33,7 @@ public:
 public:
 	//VARIABLES
 	FPoint _pos; 
-	float mass, inverseMass, elastic; 
+	float mass, inverseMass, elastic, friction; 
 	bool mooveble;
 	math::Vector3& _normal;
 	FPoint velocity;
