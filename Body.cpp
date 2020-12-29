@@ -25,13 +25,14 @@ Body::Body(Render::Texture* tex, FPoint& pos) :
 
 
 
-Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState) :
+Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction) :
 	_tex(tex),
 	_pos(pos),
 	mass(mass),
 	inverseMass(1 / mass),
 	velocity(0, 0),
 	elastic(elastic),
+	friction(friction),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
 	_gravity(0, 0),
@@ -39,7 +40,6 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool mo
 
 {
 	if (mass == 0) inverseMass = 0;
-	if (moveState == true) velocity = FPoint(10.0, 3.0);
 	
 	_gravity.y =  GRAVITY * mass;
 }
@@ -57,8 +57,8 @@ Body* Body::Create(Render::Texture * tex, FPoint & pos){
 }
 
 
-Body* Body::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, bool moveState) {
-	return new Body(tex, pos, mass, elastic, moveState);
+Body* Body::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, float friction) {
+	return new Body(tex, pos, mass, elastic, friction);
 }
 
 void Body::Draw() {
@@ -78,6 +78,7 @@ void Body::Update(float dt) {
 	//	/*moving.x += 0.04;
 	//	moving.y += 0.01;*/
 	//}
+	//by mouse
 	//by mouse
 
 	/*if (mooveble) {

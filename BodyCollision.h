@@ -12,7 +12,7 @@ namespace BodyColission {
 	void PositionalCorrection(Body& bodyOne, Body& bodyTwo);
 	void PosCorr(Manifold *m); 
 	
-	void ApplyImpulse(Body& a, Body& b, Manifold* m, int c=0);
+	void ApplyImpulse(Body* a, Body* b, Manifold* m, int c=0);
 
 	Manifold ColissionFeatures(Body& a, Body& b);
 }

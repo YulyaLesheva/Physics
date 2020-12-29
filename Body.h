@@ -4,13 +4,13 @@ class Body {
 public:
 	Body(Render::Texture* tex);
 	Body(Render::Texture* tex, FPoint& pos);
-	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState);
+	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction);
 
 	~Body();
 	
 	static Body* Create(Render::Texture* tex);
 	static Body* Create(Render::Texture* tex, FPoint& pos);
-	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, bool moveState = false);
+	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.6);
 
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
