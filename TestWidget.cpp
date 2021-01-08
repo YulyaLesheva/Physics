@@ -47,7 +47,7 @@ void TestWidget::Update(float dt)
 	for (auto &body : AllBodies) {
 		body->Update(dt);
 	}
-	
+
 
 	auto bbbb = SapAlgorithm::SAP(AllBodies);
 	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
@@ -58,15 +58,11 @@ void TestWidget::Update(float dt)
 	//	Log::Info("..");
 	//}
 
-	//if (BodyColission::CheckColission(mmm)) {
-	//	BodyColission::ResolveCollide(mmm);
-	//}
-
-	if (BodyColission::CheckColission(mmm)) {
-		BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm);
+	
+	if (BodyColission::CheckColission(mmm)) {	
+		BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm, 7);
 	}
 
-	Log::Info(std::to_string(_greyBody->velocity.x)  + " " + std::to_string(_greyBody->velocity.y));
 	
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();

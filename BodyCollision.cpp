@@ -105,6 +105,8 @@ void BodyColission::PositionalCorrection(Manifold *m) {
 	float penetrationSlack = 0.01;
 	auto impulseIteration = 5;
 
+	auto penetrationCheck = m->penetration;
+
 	float depth = math::max(m->penetration - penetrationSlack, 0.f);
 	float scalar = depth / totalMass;
 	auto correction = m->normal * scalar * linearProjectionPercent;
@@ -112,6 +114,26 @@ void BodyColission::PositionalCorrection(Manifold *m) {
 	bodyOne->_pos -= FPoint(correction.x * bodyOne->inverseMass, correction.y * bodyOne->inverseMass);
 	bodyTwo->_pos += FPoint(correction.x * bodyTwo->inverseMass, correction.y * bodyTwo->inverseMass);
 	
+}
+float BodyColission::GetCurrentPenetrationValue(Manifold *m) {
+	
+	Body *bodyOne = m->bodyOne;
+	Body *bodyTwo = m->bodyTwo;
+
+	auto bOneTex = bodyOne->GetTex();
+	auto bTwoTex = bodyTwo->GetTex();
+
+	float bOneExtent = (bOneTex->Height() * 0.5);
+	float bTwoExtent = (bTwoTex->Height() * 0.5);
+
+	auto bOnePos = bodyOne->GetPos();
+	auto bTwoPos = bodyTwo->GetPos();
+
+	auto n = math::Vector3(bTwoPos.x - bOnePos.x, bTwoPos.y - bOnePos.y, 0);
+
+	float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
+
+	return yOverlap;
 }
 
 void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
@@ -122,36 +144,37 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	auto invMassSum = invMassA + invMassB;
 
 	if (invMassSum == 0) return;
-
-	//relative velocity
-	auto relativeVel = math::Vector3(b->velocity.x - a->velocity.x, 
-		b->velocity.y - a->velocity.y, 0);
-	//relative collision normal 
-	auto relativeNorm = m->normal.Normalized();
-
-	auto dotProduct = relativeVel.DotProduct(relativeNorm);
-
-	if (dotProduct > 0) return;
-
-	float e = math::min(a->elastic, b->elastic); //coefficient of restitution
-	float numerator = (-(1.f + e) * dotProduct);
-	float j = numerator / invMassSum;
-
-	//// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
-	 // на количество точек или хз что там стрю 394 и это должно работать;
-
-	if(j != 0.0f) j /= invMassSum;
-
-	auto impulse = relativeNorm * j;
-
-	a->velocity -= FPoint(impulse.x * invMassA, impulse.y * invMassA);
-	b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
-
-	//add friction implementation
-
-	PositionalCorrection(m);
 	
-	//poscorr(m);
+	for (auto i = 0; i < c; i++) {
+		//relative velocity
+		auto relativeVel = math::Vector3(b->velocity.x - a->velocity.x,
+			b->velocity.y - a->velocity.y, 0);
+		//relative collision normal 
+		auto relativeNorm = m->normal.Normalized();
+
+		auto dotProduct = relativeVel.DotProduct(relativeNorm);
+
+		if (dotProduct > 0) return;
+
+		float e = math::min(a->elastic, b->elastic); //coefficient of restitution
+		float numerator = (-(1.f + e) * dotProduct);
+		float j = numerator / invMassSum;
+
+		//// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
+		 // на количество точек или хз что там стрю 394 и это должно работать;
+
+		if (j != 0.0f) j /= invMassSum;
+
+		auto impulse = relativeNorm * j;
+
+		a->velocity -= FPoint(impulse.x * invMassA, impulse.y * invMassA);
+		b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
+
+		//add friction implementation
+
+		PositionalCorrection(m);
+
+	}
 }
 
 Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
