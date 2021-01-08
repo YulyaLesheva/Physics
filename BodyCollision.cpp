@@ -82,7 +82,7 @@ void BodyColission::ResolveColission(Body& bodyOne, Body& bodyTwo) {
 	
 	//LATER HERE WILL BE A FRICTION IMPLIMENTING
 
-	PositionalCorrection(bodyOne, bodyTwo);
+	//PositionalCorrection(bodyOne, bodyTwo);
 
 }
 
@@ -92,22 +92,26 @@ float BodyColission::MinElastic(Body& bodyOne, Body& bodyTwo){
 	else return bodyTwo.elastic;
 }
 
-void BodyColission::PositionalCorrection(Body& bodyOne, Body& bodyTwo) {
+void BodyColission::PositionalCorrection(Manifold *m) {
+	
+	Body *bodyOne = m->bodyOne;
+	Body *bodyTwo = m->bodyTwo;
+	
+	auto totalMass = bodyOne->mass + bodyTwo->mass;
 
-	auto totalMass = bodyOne.mass + bodyTwo.mass;
-	auto linearProjeectionPercent = 0.3f;
-	auto penetrationSlack = 0.01f;
+	if (totalMass == 0.f) return;
+	
+	auto linearProjectionPercent = 0.45;
+	float penetrationSlack = 0.01;
 	auto impulseIteration = 5;
 
-	float depth = math::max(bodyOne.penetrationDepth - penetrationSlack, 0.0f);
-
+	float depth = math::max(m->penetration - penetrationSlack, 0.f);
 	float scalar = depth / totalMass;
+	auto correction = m->normal * scalar * linearProjectionPercent;
 
-	FPoint correction = FPoint(bodyOne._normal.x * scalar * linearProjeectionPercent,
-		bodyOne._normal.y * scalar * linearProjeectionPercent);
-
-	bodyOne._pos -= correction * bodyOne.inverseMass;
-	bodyTwo._pos += correction * bodyTwo.inverseMass;
+	bodyOne->_pos -= FPoint(correction.x * bodyOne->inverseMass, correction.y * bodyOne->inverseMass);
+	bodyTwo->_pos += FPoint(correction.x * bodyTwo->inverseMass, correction.y * bodyTwo->inverseMass);
+	
 }
 
 void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
@@ -120,27 +124,34 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	if (invMassSum == 0) return;
 
 	//relative velocity
-	auto relativeVel = math::Vector3(b->velocity.x - a->velocity.x, b->velocity.y - a->velocity.y, 0);
+	auto relativeVel = math::Vector3(b->velocity.x - a->velocity.x, 
+		b->velocity.y - a->velocity.y, 0);
 	//relative collision normal 
 	auto relativeNorm = m->normal.Normalized();
-	
+
 	auto dotProduct = relativeVel.DotProduct(relativeNorm);
-	
+
 	if (dotProduct > 0) return;
 
 	float e = math::min(a->elastic, b->elastic); //coefficient of restitution
 	float numerator = (-(1.f + e) * dotProduct);
 	float j = numerator / invMassSum;
-	
+
 	//// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
-	
-	//j /= на количество точек или хз что там стрю 394 и это должно работать ;
+	 // на количество точек или хз что там стрю 394 и это должно работать;
+
+	if(j != 0.0f) j /= invMassSum;
 
 	auto impulse = relativeNorm * j;
-	
+
 	a->velocity -= FPoint(impulse.x * invMassA, impulse.y * invMassA);
 	b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
 
+	//add friction implementation
+
+	PositionalCorrection(m);
+	
+	//poscorr(m);
 }
 
 Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
@@ -211,6 +222,8 @@ void BodyColission::ResolveCollide(Manifold *m) {
 	auto bTwoVelocity = bodyTwo->velocity;
 	auto bOneVelocity = bodyOne->velocity;
 
+	auto inverseMassSum = bodyOne->inverseMass + bodyTwo->inverseMass;
+
 	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x - bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
 	math::Vector3 normal = m->normal; //1 , 0,  0
 
@@ -219,11 +232,11 @@ void BodyColission::ResolveCollide(Manifold *m) {
 
 	if (velocityAlongNormal > 0) return;
 
-	auto elastic = MinElastic(*bodyOne, *bodyTwo);
+	auto elastic = math::min(bodyOne->elastic, bodyTwo->elastic);
 
 	float j = -(1 + elastic) * velocityAlongNormal;
 
-	j /= bodyOne->inverseMass + bodyTwo->inverseMass;
+	j /= inverseMassSum;
 
 	math::Vector3 impulse = j * normal;
 
@@ -231,8 +244,8 @@ void BodyColission::ResolveCollide(Manifold *m) {
 	bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
 
 	//LATER HERE WILL BE A FRICTION IMPLIMENTING
-
-	PosCorr(m);
+	PositionalCorrection(m);
+	
 }
 
 void BodyColission::PosCorr(Manifold *m) {
@@ -241,21 +254,16 @@ void BodyColission::PosCorr(Manifold *m) {
 	Body *bodyTwo = m->bodyTwo;
 
 	auto totalMass = bodyOne->mass + bodyTwo->mass;
-	auto linearProjeectionPercent = 0.45f; //при значении 0.8 проникновение меньше. стр.400 книги
-	auto penetrationSlack = 0.01f;
+	auto linearProjeectionPercent = 0.8f; //при значении 0.8 проникновение меньше. стр.400 книги
+	auto penetrationSlack = 0.02f;
 	auto impulseIteration = 7;
 		 //0.45 0.01 7 - works good
 	
-	/*for (auto i = 0; i < impulseIteration; i++) {*/
-		
-		float depth = math::max(m->penetration - penetrationSlack, 0.0f);
+	
+	auto checkDepth = math::max(m->penetration - penetrationSlack, 0.0f);
+	auto depth = math::max(m->penetration - penetrationSlack, 0.0f) /(totalMass) * linearProjeectionPercent * m->normal;
 
-		float scalar = depth / totalMass;
-
-		FPoint correction = FPoint(m->normal.x * scalar * linearProjeectionPercent,
-			m->normal.y * scalar * linearProjeectionPercent);
-
-		bodyOne->_pos -= correction * bodyOne->inverseMass;
-		bodyTwo->_pos += correction * bodyTwo->inverseMass;
-	//}
+	bodyOne->_pos -= FPoint(depth.x * bodyOne->inverseMass, depth.y * bodyOne->inverseMass);
+	bodyTwo->_pos += FPoint(depth.x * bodyTwo->inverseMass, depth.y * bodyTwo->inverseMass);
+	
 }

@@ -9,7 +9,7 @@ namespace BodyColission {
 	bool CheckColission(Manifold *m);
 	void ResolveCollide(Manifold *m);
 	float MinElastic(Body& bodyOne, Body& bodyTwo);
-	void PositionalCorrection(Body& bodyOne, Body& bodyTwo);
+	void PositionalCorrection(Manifold *m);
 	void PosCorr(Manifold *m); 
 	
 	void ApplyImpulse(Body* a, Body* b, Manifold* m, int c=0);

@@ -8,12 +8,6 @@
 #include "SapAlgorithm.h"
 
 
-	FPoint ABOVE = FPoint(500, 500);
-	FPoint LEFT = FPoint(500, 500);
-	FPoint RIGHT = FPoint(500, 500);
-	FPoint UNDER = FPoint(500, 500);
-
-
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
 
@@ -26,7 +20,7 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 0.5);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.0, 0.5);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 1.0, 0.9);
 
 	AllBodies.push_back(_greyBody);
@@ -64,13 +58,13 @@ void TestWidget::Update(float dt)
 	//	Log::Info("..");
 	//}
 
-	if (BodyColission::CheckColission(mmm)) {
-		BodyColission::ResolveCollide(mmm);
-	}
+	//if (BodyColission::CheckColission(mmm)) {
+	//	BodyColission::ResolveCollide(mmm);
+	//}
 
-	/*if (BodyColission::CheckColission(mmm)) {
+	if (BodyColission::CheckColission(mmm)) {
 		BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm);
-	}*/
+	}
 
 	Log::Info(std::to_string(_greyBody->velocity.x)  + " " + std::to_string(_greyBody->velocity.y));
 	

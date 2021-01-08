@@ -47,11 +47,11 @@ private:
 	FPoint moving;
 	bool _anchored;
 	FPoint _gravity;
-	
+	FPoint _forces;
 private:
 	//FUNCTIONS 
 	void AddLinearImpulse(const FPoint& impulse);
-
+	void ApplyForces();
 	FPoint impulse;
 	
 };
