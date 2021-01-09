@@ -171,6 +171,24 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
 
 		//add friction implementation
+		auto t = relativeVel - (relativeNorm * (dotProduct));
+		t.Normalize();
+		numerator = -(relativeVel.DotProduct(t));
+		float jt = numerator / invMassSum;
+		jt /= invMassSum;
+		
+		float friction = sqrtf(a->friction * b->friction);
+		if (jt > j * friction) {
+			jt = j * friction;
+		}
+		else if (jt < -j * friction) {
+			jt = -j * friction;
+		}
+		
+		auto tangetImpulse = t * jt;
+
+		a->velocity -= FPoint(tangetImpulse.x * invMassA, tangetImpulse.y * invMassA);
+		b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
 
 		PositionalCorrection(m);
 

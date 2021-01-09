@@ -20,8 +20,8 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.0, 0.5);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 1.0, 0.9);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.5, 0.5);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.5, 0.9);
 
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
