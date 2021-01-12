@@ -216,25 +216,25 @@ void BodyColission::ResolveCollide(Manifold *m) {
 	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x - bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
 	math::Vector3 normal = m->normal; //1 , 0,  0
 
-	// что то не то с релатив велосити. должно быть отрицательное значение 
-	auto velocityAlongNormal = rVelocity.DotProduct(normal);
+// что то не то с релатив велосити. должно быть отрицательное значение 
+auto velocityAlongNormal = rVelocity.DotProduct(normal);
 
-	if (velocityAlongNormal > 0) return;
+if (velocityAlongNormal > 0) return;
 
-	auto elastic = math::min(bodyOne->elastic, bodyTwo->elastic);
+auto elastic = math::min(bodyOne->elastic, bodyTwo->elastic);
 
-	float j = -(1 + elastic) * velocityAlongNormal;
+float j = -(1 + elastic) * velocityAlongNormal;
 
-	j /= inverseMassSum;
+j /= inverseMassSum;
 
-	math::Vector3 impulse = j * normal;
+math::Vector3 impulse = j * normal;
 
-	bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
-	bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
+bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
+bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
 
-	//LATER HERE WILL BE A FRICTION IMPLIMENTING
-	PositionalCorrection(m);
-	
+//LATER HERE WILL BE A FRICTION IMPLIMENTING
+PositionalCorrection(m);
+
 }
 
 void BodyColission::PosCorr(Manifold *m) {
@@ -246,15 +246,15 @@ void BodyColission::PosCorr(Manifold *m) {
 	auto linearProjeectionPercent = 0.8f; //при значении 0.8 проникновение меньше. стр.400 книги
 	auto penetrationSlack = 0.02f;
 	auto impulseIteration = 7;
-		 //0.45 0.01 7 - works good
-	
-	
+	//0.45 0.01 7 - works good
+
+
 	auto checkDepth = math::max(m->penetration - penetrationSlack, 0.0f);
-	auto depth = math::max(m->penetration - penetrationSlack, 0.0f) /(totalMass) * linearProjeectionPercent * m->normal;
+	auto depth = math::max(m->penetration - penetrationSlack, 0.0f) / (totalMass)* linearProjeectionPercent * m->normal;
 
 	bodyOne->_pos -= FPoint(depth.x * bodyOne->inverseMass, depth.y * bodyOne->inverseMass);
 	bodyTwo->_pos += FPoint(depth.x * bodyTwo->inverseMass, depth.y * bodyTwo->inverseMass);
-	
+
 }
 
 Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
@@ -264,7 +264,7 @@ Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
 }
 
 Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
-	
+
 	Interval result;
 
 	FPoint min = a->GetMin();
@@ -276,7 +276,7 @@ Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
 	};
 
 	result.min = result.max = axis.GetDotProduct(verst[0]);
-	
+
 	for (int i = 1; i < 4; ++i) {
 		float projection = axis.GetDotProduct(verst[i]);
 		if (projection < result.min) result.min = projection;
@@ -287,7 +287,7 @@ Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
 }
 
 bool BodyColission::OverlapOnAxis(Body*a, Body*b, const FPoint &axis) {
-	
+
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
 
@@ -309,4 +309,75 @@ bool BodyColission::SAT(Body* a, Body* b) {
 	}
 	Log::Info("It's a colission!");
 	return true;
+}
+
+float BodyColission::PenetrationDepth(Body *a, Body* b, FPoint& axis, bool* outShouldFlip) {
+	
+	
+	
+	Interval iA = GetInterval(a, axis);
+	Interval iB = GetInterval(b, axis);
+
+	if (!((iB.min <= iA.max) && (iA.min <= iB.max))){
+		return 0.0f;
+	}
+	
+	float lengthA = iA.max - iA.min;
+	float lengthB = iB.max - iB.min;
+
+	float min = fminf(iA.min, iB.min);
+	float max = fmaxf(iA.max, iB.max);
+
+	float length = max - min;
+
+	if (outShouldFlip != 0) {
+		*outShouldFlip = (iB.min < iA.min);
+	}
+
+	auto total = (lengthA + lengthB) - length;
+	
+	return total;
+}
+
+Manifold BodyColission::FindCollisionFeatures(Body* a, Body* b) {
+
+	Manifold result;
+	//here function reset collision manifold
+	result.ResetManifold(&result);
+	
+	FPoint axisXY[] = {
+	FPoint(1, 0), FPoint(0, 1)
+	};
+
+	FPoint* hitNormal = 0; 
+	bool shouldFlip;
+
+	for (int i = 0; i < 2; ++i) {
+		
+		float depth = PenetrationDepth(a, b, axisXY[i], &shouldFlip);
+
+		if (depth <= 0.f) {
+			return result;
+		}
+		
+		else if (depth < result.depth) {
+			if (shouldFlip) {
+				axisXY[i] = axisXY[i] * -1;
+			}
+			result.depth = depth;
+			hitNormal = &axisXY[i];
+		}
+	}
+
+	if (hitNormal == 0) return result;
+	
+	FPoint axis = hitNormal->Normalized();
+	Interval i = GetInterval(a, axis);
+	float distance = (i.max - i.min) * 0.5 - result.depth * 0.5;
+	FPoint pointOnPlane = a->_pos + axis * distance;
+
+	result.colliding = true;
+	result.mNormal = axis;
+
+	return result;
 }

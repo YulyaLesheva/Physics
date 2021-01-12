@@ -19,4 +19,6 @@ namespace BodyColission {
 	bool OverlapOnAxis(Body*a, Body*b, const FPoint &axis);
 	Manifold ColissionFeatures(Body& a, Body& b);
 	bool SAT(Body* a, Body* b);
+	float PenetrationDepth(Body* a, Body* b, FPoint& axis, bool* outShouldFlip);
+	Manifold FindCollisionFeatures(Body* a, Body* b);
 }
