@@ -42,6 +42,8 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float f
 	if (mass == 0) inverseMass = 0;
 	
 	_gravity.y =  GRAVITY * mass;
+	
+
 }
 
 Body::~Body() {
@@ -196,4 +198,29 @@ void Body::ReverseCurrentVectorY() {
 
 void Body::ReverseCurrentVectorX() {
 	velocity.x = velocity.x * -1;
+}
+
+FPoint Body::GetMin() {
+	
+	FPoint resultMin;
+
+	auto rect = GetRect();
+	auto minX = rect.LeftBottom().x;
+	auto minY = rect.LeftBottom().y;
+
+	resultMin = FPoint(minX, minY);
+
+	return resultMin;
+}
+
+FPoint Body::GetMax() {
+
+	FPoint resultMax;
+	
+	auto rect = GetRect();
+	auto maxX = rect.RightBottom().x;
+	auto maxY = rect.RightTop().y;
+
+	resultMax = FPoint(maxX, maxY);
+	return resultMax;
 }

@@ -56,85 +56,8 @@ bool BodyColission::CheckColissionAndGetNormal(Body& bodyOne, Body& bodyTwo) {
 	return false;
 }
 
-void BodyColission::ResolveColission(Body& bodyOne, Body& bodyTwo) {
-	
-	auto bTwoVelocity = bodyTwo.velocity;
-	auto bOneVelocity = bodyOne.velocity;
 
-	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x-bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
-	math::Vector3 normal = math::Vector3(bodyOne.GetNormal()); //1 , 0,  0
 
-	// что то не то с релатив велосити. должно быть отрицательное значение 
-	auto velocityAlongNormal = rVelocity.DotProduct(normal);
-	 
-	if (velocityAlongNormal > 0) return;
-
-	auto elastic = MinElastic(bodyOne, bodyTwo);
-
-	float j = -(1 + elastic) * velocityAlongNormal;
-
-	j /= bodyOne.inverseMass + bodyTwo.inverseMass;
-
-	math::Vector3 impulse = j * normal;
-
-	bodyOne.velocity -= FPoint(bodyOne.inverseMass * impulse.x, bodyOne.inverseMass * impulse.y);
-	bodyTwo.velocity += FPoint(bodyTwo.inverseMass * impulse.x, bodyTwo.inverseMass * impulse.y);
-	
-	//LATER HERE WILL BE A FRICTION IMPLIMENTING
-
-	//PositionalCorrection(bodyOne, bodyTwo);
-
-}
-
-float BodyColission::MinElastic(Body& bodyOne, Body& bodyTwo){
-	
-	if (bodyOne.elastic < bodyTwo.elastic) return bodyOne.elastic;
-	else return bodyTwo.elastic;
-}
-
-void BodyColission::PositionalCorrection(Manifold *m) {
-	
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
-	
-	auto totalMass = bodyOne->mass + bodyTwo->mass;
-
-	if (totalMass == 0.f) return;
-	
-	auto linearProjectionPercent = 0.45;
-	float penetrationSlack = 0.01;
-	auto impulseIteration = 5;
-
-	auto penetrationCheck = m->penetration;
-
-	float depth = math::max(m->penetration - penetrationSlack, 0.f);
-	float scalar = depth / totalMass;
-	auto correction = m->normal * scalar * linearProjectionPercent;
-
-	bodyOne->_pos -= FPoint(correction.x * bodyOne->inverseMass, correction.y * bodyOne->inverseMass);
-	bodyTwo->_pos += FPoint(correction.x * bodyTwo->inverseMass, correction.y * bodyTwo->inverseMass);
-	
-}
-float BodyColission::GetCurrentPenetrationValue(Manifold *m) {
-	
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
-
-	auto bOneTex = bodyOne->GetTex();
-	auto bTwoTex = bodyTwo->GetTex();
-
-	float bOneExtent = (bOneTex->Height() * 0.5);
-	float bTwoExtent = (bTwoTex->Height() * 0.5);
-
-	auto bOnePos = bodyOne->GetPos();
-	auto bTwoPos = bodyTwo->GetPos();
-
-	auto n = math::Vector3(bTwoPos.x - bOnePos.x, bTwoPos.y - bOnePos.y, 0);
-
-	float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
-
-	return yOverlap;
-}
 
 void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
@@ -171,34 +94,59 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
 
 		//add friction implementation
-		auto t = relativeVel - (relativeNorm * (dotProduct));
-		t.Normalize();
-		numerator = -(relativeVel.DotProduct(t));
-		float jt = numerator / invMassSum;
-		jt /= invMassSum;
-		
-		float friction = sqrtf(a->friction * b->friction);
-		if (jt > j * friction) {
-			jt = j * friction;
-		}
-		else if (jt < -j * friction) {
-			jt = -j * friction;
-		}
-		
-		auto tangetImpulse = t * jt;
+		//relativeVel = math::Vector3(b->velocity.x - a->velocity.x,
+		//	b->velocity.y - a->velocity.y, 0);
+		//
+		//dotProduct = relativeNorm.DotProduct(relativeVel);
 
-		a->velocity -= FPoint(tangetImpulse.x * invMassA, tangetImpulse.y * invMassA);
-		b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
+		//auto t = relativeVel - (relativeNorm * (dotProduct));
+		//t.Normalize();
+		//numerator = -(relativeVel.DotProduct(t));
+		//float jt = numerator / invMassSum;
+		//jt /= invMassSum;
+		//
+		//float friction = sqrtf(a->friction * b->friction);
+		//if (jt > j * friction) {
+		//	jt = j * friction;
+		//}
+		//else if (jt < -j * friction) {
+		//	jt = -j * friction;
+		//}
+		//
+		//auto tangetImpulse = t * jt;
+
+		//a->velocity -= FPoint(tangetImpulse.x * invMassA, tangetImpulse.y * invMassA);
+		//b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
 
 		PositionalCorrection(m);
 
 	}
 }
 
-Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
-	Manifold result;
-	return result;
+void BodyColission::PositionalCorrection(Manifold *m) {
+
+	Body *bodyOne = m->bodyOne;
+	Body *bodyTwo = m->bodyTwo;
+
+	auto totalMass = bodyOne->mass + bodyTwo->mass;
+
+	if (totalMass == 0.f) return;
+
+	auto linearProjectionPercent = 0.45;
+	float penetrationSlack = 0.01;
+	auto impulseIteration = 5;
+
+	auto penetrationCheck = m->penetration;
+
+	float depth = math::max(m->penetration - penetrationSlack, 0.f);
+	float scalar = depth / totalMass;
+	auto correction = m->normal * scalar * linearProjectionPercent;
+
+	bodyOne->_pos -= FPoint(correction.x * bodyOne->inverseMass, correction.y * bodyOne->inverseMass);
+	bodyTwo->_pos += FPoint(correction.x * bodyTwo->inverseMass, correction.y * bodyTwo->inverseMass);
+
 }
+
 
 bool BodyColission::CheckColission(Manifold *m){
 	
@@ -307,4 +255,58 @@ void BodyColission::PosCorr(Manifold *m) {
 	bodyOne->_pos -= FPoint(depth.x * bodyOne->inverseMass, depth.y * bodyOne->inverseMass);
 	bodyTwo->_pos += FPoint(depth.x * bodyTwo->inverseMass, depth.y * bodyTwo->inverseMass);
 	
+}
+
+Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
+	Manifold result;
+
+	return result;
+}
+
+Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
+	
+	Interval result;
+
+	FPoint min = a->GetMin();
+	FPoint max = a->GetMax();
+
+	FPoint verst[] = {
+	FPoint(min.x, min.y), FPoint(min.x, max.y),
+	FPoint(max.x, max.y), FPoint(max.x, min.y)
+	};
+
+	result.min = result.max = axis.GetDotProduct(verst[0]);
+	
+	for (int i = 1; i < 4; ++i) {
+		float projection = axis.GetDotProduct(verst[i]);
+		if (projection < result.min) result.min = projection;
+		if (projection > result.max) result.max = projection;
+	}
+
+	return result;
+}
+
+bool BodyColission::OverlapOnAxis(Body*a, Body*b, const FPoint &axis) {
+	
+	Interval iA = GetInterval(a, axis);
+	Interval iB = GetInterval(b, axis);
+
+	return ((iB.min <= iA.max) && (iA.min <= iB.max));
+}
+
+bool BodyColission::SAT(Body* a, Body* b) {
+
+	FPoint axisXY[] = {
+	FPoint(1, 0), FPoint(0, 1)
+	}; //добавить две дополнительные оси для вращающихся квадов позже
+
+	for (int i = 0; i < 2; ++i) {
+		if (!OverlapOnAxis(a, b, axisXY[i])) {
+			Log::Info(".....");
+			return false;
+
+		}
+	}
+	Log::Info("It's a colission!");
+	return true;
 }

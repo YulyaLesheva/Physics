@@ -30,6 +30,8 @@ public:
 	FPoint& GetPos();
 	Render::Texture* GetTex();
 	math::Vector3& GetNormal();
+	FPoint GetMin();
+	FPoint GetMax();
 public:
 	//VARIABLES
 	FPoint _pos; 
@@ -48,10 +50,11 @@ private:
 	bool _anchored;
 	FPoint _gravity;
 	FPoint _forces;
+
 private:
 	//FUNCTIONS 
 	void AddLinearImpulse(const FPoint& impulse);
-	void ApplyForces();
 	FPoint impulse;
+
 	
 };

@@ -20,8 +20,8 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.5, 0.5);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.5, 0.9);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 0.8);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 1.0, 0.3);
 
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
@@ -60,10 +60,18 @@ void TestWidget::Update(float dt)
 
 	
 	if (BodyColission::CheckColission(mmm)) {	
-		BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm, 7);
+		BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm, 3);
+		//Log::Info(std::to_string(mmm->normal.x) + "  " + std::to_string(mmm->normal.y));
+		Log::Info("It's a colission!");
+	}
+	else {
+		Log::Info(".....");
 	}
 
+	//BodyColission::CheckColissionAndGetNormal(*_yellowBody, *_greyBody);
 	
+	//BodyColission::SAT(_greyBody, _yellowBody);
+
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
