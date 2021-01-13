@@ -313,8 +313,6 @@ bool BodyColission::SAT(Body* a, Body* b) {
 
 float BodyColission::PenetrationDepth(Body *a, Body* b, FPoint& axis, bool* outShouldFlip) {
 	
-	
-	
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
 

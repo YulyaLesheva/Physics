@@ -2,7 +2,7 @@
 #include "Body.h"
 
 float GRAVITY = -9.82;
-//#define GRAVITY_CONST float (-9.82f);
+#define GRAVITY_CONST FPoint(0, -9.82f)
 
 Body::Body(Render::Texture* tex) :
 	_tex(tex),
@@ -106,7 +106,9 @@ void Body::Update(float dt) {
 	
 
 }
-
+void Body::ApplyForces() {
+	_forces = GRAVITY_CONST * mass;
+}
 
 void Body::AddLinearImpulse(const FPoint& impulse) {
 	velocity += impulse;

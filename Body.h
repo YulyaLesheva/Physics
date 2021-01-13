@@ -40,7 +40,6 @@ public:
 	math::Vector3& _normal;
 	FPoint velocity;
 	float penetrationDepth;
-
 private:
 	//VARIABLES
 	Render::Texture* _tex;
@@ -53,7 +52,9 @@ private:
 
 private:
 	//FUNCTIONS 
-	void AddLinearImpulse(const FPoint& impulse);
+	void AddLinearImpulse(const FPoint& impulse);//new
+	void ApplyForces();//new
+
 	FPoint impulse;
 
 	
