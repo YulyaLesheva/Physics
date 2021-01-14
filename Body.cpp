@@ -104,6 +104,15 @@ void Body::Update(float dt) {
 	velocity *= damping;
 	_pos += velocity;
 	
+	/*ApplyForces();
+
+	const float mDamping = 0.98f;
+	FPoint mAcceleration = _forces * inverseMass;
+	velocity += mAcceleration;
+	velocity *= mDamping;
+
+	_pos += velocity;*/
+
 
 }
 void Body::ApplyForces() {
@@ -113,8 +122,6 @@ void Body::ApplyForces() {
 void Body::AddLinearImpulse(const FPoint& impulse) {
 	velocity += impulse;
 }
-
-
 
 IRect& Body::GetRect() {
 	_rect = IRect(IPoint(_pos.x - _tex->Width()*.5, _pos.y - _tex->Height()*.5), _tex->Width(), _tex->Height());

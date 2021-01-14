@@ -72,15 +72,19 @@ void TestWidget::Update(float dt)
 	
 	//BodyColission::SAT(_greyBody, _yellowBody);
 
-	for (auto &body : AllBodies) {
-		body->KeepInBorders();
-	}
+	
 
 	
 		auto m = BodyColission::FindCollisionFeatures(_yellowBody, _greyBody);
 		Log::Info("NORMAL IS  " + std::to_string(m.mNormal.x) + "  " + std::to_string(m.mNormal.y));
 		Log::Info("PENETRATION DEPTH IS  " + std::to_string(m.depth));
-	
+		if (m.colliding) {
+			BodyColission::ApplyImpulse(_yellowBody, _greyBody, &m, 7);
+	}
+
+	for (auto &body : AllBodies) {
+		body->KeepInBorders();
+	}
 
 }
 

@@ -70,12 +70,11 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	
 	for (auto i = 0; i < c; i++) {
 		//relative velocity
-		auto relativeVel = math::Vector3(b->velocity.x - a->velocity.x,
-			b->velocity.y - a->velocity.y, 0);
+		auto relativeVel = FPoint(b->velocity - a->velocity);
 		//relative collision normal 
-		auto relativeNorm = m->normal.Normalized();
+		auto relativeNorm = m->mNormal.Normalized();
 
-		auto dotProduct = relativeVel.DotProduct(relativeNorm);
+		auto dotProduct = relativeVel.GetDotProduct(relativeNorm);
 
 		if (dotProduct > 0) return;
 
@@ -90,8 +89,8 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
 		auto impulse = relativeNorm * j;
 
-		a->velocity -= FPoint(impulse.x * invMassA, impulse.y * invMassA);
-		b->velocity += FPoint(impulse.x * invMassB, impulse.y *invMassB);
+		a->velocity -= FPoint(impulse * invMassA);
+		b->velocity += FPoint(impulse * invMassA);
 
 		//add friction implementation
 		//relativeVel = math::Vector3(b->velocity.x - a->velocity.x,
@@ -118,17 +117,14 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		//a->velocity -= FPoint(tangetImpulse.x * invMassA, tangetImpulse.y * invMassA);
 		//b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
 
-		PositionalCorrection(m);
+		PositionalCorrection(a, b, m);
 
 	}
 }
 
-void BodyColission::PositionalCorrection(Manifold *m) {
+void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
 
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
-
-	auto totalMass = bodyOne->mass + bodyTwo->mass;
+	auto totalMass = a->mass + b->mass;
 
 	if (totalMass == 0.f) return;
 
@@ -136,14 +132,14 @@ void BodyColission::PositionalCorrection(Manifold *m) {
 	float penetrationSlack = 0.01;
 	auto impulseIteration = 5;
 
-	auto penetrationCheck = m->penetration;
+	//auto penetrationCheck = m->depth;
 
-	float depth = math::max(m->penetration - penetrationSlack, 0.f);
+	float depth = math::max(m->depth - penetrationSlack, 0.f);
 	float scalar = depth / totalMass;
-	auto correction = m->normal * scalar * linearProjectionPercent;
+	auto correction = m->mNormal * scalar * linearProjectionPercent;
 
-	bodyOne->_pos -= FPoint(correction.x * bodyOne->inverseMass, correction.y * bodyOne->inverseMass);
-	bodyTwo->_pos += FPoint(correction.x * bodyTwo->inverseMass, correction.y * bodyTwo->inverseMass);
+	a->_pos -= FPoint(correction * a->inverseMass);
+	b->_pos += FPoint(correction * b->inverseMass);
 
 }
 
@@ -233,7 +229,7 @@ bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMa
 bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
 
 //LATER HERE WILL BE A FRICTION IMPLIMENTING
-PositionalCorrection(m);
+//PositionalCorrection(m);
 
 }
 
@@ -255,12 +251,6 @@ void BodyColission::PosCorr(Manifold *m) {
 	bodyOne->_pos -= FPoint(depth.x * bodyOne->inverseMass, depth.y * bodyOne->inverseMass);
 	bodyTwo->_pos += FPoint(depth.x * bodyTwo->inverseMass, depth.y * bodyTwo->inverseMass);
 
-}
-
-Manifold BodyColission::ColissionFeatures(Body& a, Body& b) {
-	Manifold result;
-
-	return result;
 }
 
 Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
