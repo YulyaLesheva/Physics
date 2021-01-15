@@ -32,6 +32,8 @@ public:
 	math::Vector3& GetNormal();
 	FPoint GetMin();
 	FPoint GetMax();
+	void ApplyForces();//new
+
 public:
 	//VARIABLES
 	FPoint _pos; 
@@ -53,7 +55,6 @@ private:
 private:
 	//FUNCTIONS 
 	void AddLinearImpulse(const FPoint& impulse);//new
-	void ApplyForces();//new
 
 	FPoint impulse;
 

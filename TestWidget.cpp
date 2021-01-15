@@ -73,15 +73,27 @@ void TestWidget::Update(float dt)
 	//BodyColission::SAT(_greyBody, _yellowBody);
 
 	
-
-	
 		auto m = BodyColission::FindCollisionFeatures(_yellowBody, _greyBody);
 		Log::Info("NORMAL IS  " + std::to_string(m.mNormal.x) + "  " + std::to_string(m.mNormal.y));
 		Log::Info("PENETRATION DEPTH IS  " + std::to_string(m.depth));
+		
 		if (m.colliding) {
-			BodyColission::ApplyImpulse(_yellowBody, _greyBody, &m, 7);
-	}
+			BodyColission::ApplyImpulse(_yellowBody, _greyBody, &m, 2);
+			Log::Info("COLLIDING");
 
+		}
+		
+	/*	FPoint axisXY[] = {
+	FPoint(1, 0), FPoint(0, 1)
+		};
+		
+		BodyColission::SAT(_yellowBody, _greyBody);
+
+		bool* blyat = false;
+
+		auto depth = BodyColission::PenetrationDepth(_yellowBody, _greyBody, *axisXY, blyat);
+		Log::Info("PENETRATION DEPTH IS  " + std::to_string(depth));
+*/
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}

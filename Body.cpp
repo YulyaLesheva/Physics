@@ -115,6 +115,7 @@ void Body::Update(float dt) {
 
 
 }
+
 void Body::ApplyForces() {
 	_forces = GRAVITY_CONST * mass;
 }

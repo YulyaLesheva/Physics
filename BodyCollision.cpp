@@ -88,9 +88,11 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		if (j != 0.0f) j /= invMassSum;
 
 		auto impulse = relativeNorm * j;
+		
+		m->mImpulse = impulse;
 
 		a->velocity -= FPoint(impulse * invMassA);
-		b->velocity += FPoint(impulse * invMassA);
+		b->velocity += FPoint(impulse * invMassB);
 
 		//add friction implementation
 		//relativeVel = math::Vector3(b->velocity.x - a->velocity.x,
@@ -118,7 +120,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		//b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
 
 		PositionalCorrection(a, b, m);
-
+		//NewPositionCorrection(a,b,m);
 	}
 }
 
@@ -128,9 +130,8 @@ void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
 
 	if (totalMass == 0.f) return;
 
-	auto linearProjectionPercent = 0.45;
-	float penetrationSlack = 0.01;
-	auto impulseIteration = 5;
+	auto linearProjectionPercent = 0.8;
+	float penetrationSlack = 0.1;
 
 	//auto penetrationCheck = m->depth;
 
@@ -143,6 +144,13 @@ void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
 
 }
 
+void BodyColission::NewPositionCorrection(Body* a, Body* b, Manifold* m) {
+
+	auto normalForce = m->mImpulse * m->mNormal;
+
+	a->velocity -= normalForce;
+	b->velocity += normalForce;
+}
 
 bool BodyColission::CheckColission(Manifold *m){
 	
@@ -173,24 +181,24 @@ bool BodyColission::CheckColission(Manifold *m){
 			if (xOverlap < yOverlap) {
 				if (n.x < 0) {
 					m->normal = math::Vector3(-1, 0, 0);
-					m->penetration = xOverlap;
+					//m->penetration = xOverlap;
 					return true;
 				}
 				else {
 					m->normal = math::Vector3(1, 0, 0);
-					m->penetration = xOverlap;
+					//m->penetration = xOverlap;
 					return true;
 				}
 			}
 			else {
 				if (n.y < 0) {
 					m->normal = math::Vector3(0, -1, 0);
-					m->penetration = yOverlap;
+					//m->penetration = yOverlap;
 					return true;
 				}
 				else {
 					m->normal = math::Vector3(0, 1, 0);
-					m->penetration = yOverlap;
+					//m->penetration = yOverlap;
 					return true;
 				}
 			}
@@ -233,24 +241,22 @@ bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMa
 
 }
 
-void BodyColission::PosCorr(Manifold *m) {
+void BodyColission::PosCorr(Body* a, Body* b, Manifold *m) {
 
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
 
-	auto totalMass = bodyOne->mass + bodyTwo->mass;
+
+	auto totalMass = a->mass + b->mass;
 	auto linearProjeectionPercent = 0.8f; //при значении 0.8 проникновение меньше. стр.400 книги
 	auto penetrationSlack = 0.02f;
 	auto impulseIteration = 7;
 	//0.45 0.01 7 - works good
 
 
-	auto checkDepth = math::max(m->penetration - penetrationSlack, 0.0f);
-	auto depth = math::max(m->penetration - penetrationSlack, 0.0f) / (totalMass)* linearProjeectionPercent * m->normal;
+	auto checkDepth = math::max(m->depth - penetrationSlack, 0.0f);
+	auto depth = math::max(m->depth - penetrationSlack, 0.0f) / (totalMass)* linearProjeectionPercent * m->mNormal;
 
-	bodyOne->_pos -= FPoint(depth.x * bodyOne->inverseMass, depth.y * bodyOne->inverseMass);
-	bodyTwo->_pos += FPoint(depth.x * bodyTwo->inverseMass, depth.y * bodyTwo->inverseMass);
-
+	a->_pos -= FPoint(depth * a->inverseMass);
+	b->_pos += FPoint(depth * b->inverseMass);
 }
 
 Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
@@ -306,7 +312,7 @@ float BodyColission::PenetrationDepth(Body *a, Body* b, FPoint& axis, bool* outS
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
 
-	if (!((iB.min <= iA.max) && (iA.min <= iB.max))){
+	if (!OverlapOnAxis(a,b,axis)){
 		return 0.0f;
 	}
 	
@@ -360,9 +366,6 @@ Manifold BodyColission::FindCollisionFeatures(Body* a, Body* b) {
 	if (hitNormal == 0) return result;
 	
 	FPoint axis = hitNormal->Normalized();
-	Interval i = GetInterval(a, axis);
-	float distance = (i.max - i.min) * 0.5 - result.depth * 0.5;
-	FPoint pointOnPlane = a->_pos + axis * distance;
 
 	result.colliding = true;
 	result.mNormal = axis;
