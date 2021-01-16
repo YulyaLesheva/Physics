@@ -26,12 +26,6 @@ void TestWidget::Init()
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 
-	mmm = Manifold::Create();
-
-	mmm->bodyOne = _greyBody;
-	mmm->bodyTwo = _yellowBody;
-	
-
 }
 
 void TestWidget::Draw()
@@ -44,12 +38,10 @@ void TestWidget::Draw()
 
 void TestWidget::Update(float dt)
 {
-	for (auto &body : AllBodies) {
-		body->Update(dt);
-	}
+	
 
 
-	auto bbbb = SapAlgorithm::SAP(AllBodies);
+	//auto bbbb = SapAlgorithm::SAP(AllBodies);
 	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
 	//	BodyColission::ResolveColission(*_greyBody, *_yellowBody);
 	//	//Log::Info(std::to_string(_greyBodypenetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
@@ -73,7 +65,7 @@ void TestWidget::Update(float dt)
 	//BodyColission::SAT(_greyBody, _yellowBody);
 
 	
-		auto m = BodyColission::FindCollisionFeatures(_yellowBody, _greyBody);
+	/*	auto m = BodyColission::FindCollisionFeatures(_yellowBody, _greyBody);
 		Log::Info("NORMAL IS  " + std::to_string(m.mNormal.x) + "  " + std::to_string(m.mNormal.y));
 		Log::Info("PENETRATION DEPTH IS  " + std::to_string(m.depth));
 		
@@ -81,7 +73,7 @@ void TestWidget::Update(float dt)
 			BodyColission::ApplyImpulse(_yellowBody, _greyBody, &m, 2);
 			Log::Info("COLLIDING");
 
-		}
+		}*/
 		
 	/*	FPoint axisXY[] = {
 	FPoint(1, 0), FPoint(0, 1)
@@ -94,9 +86,46 @@ void TestWidget::Update(float dt)
 		auto depth = BodyColission::PenetrationDepth(_yellowBody, _greyBody, *axisXY, blyat);
 		Log::Info("PENETRATION DEPTH IS  " + std::to_string(depth));
 */
+
+
+
+	Collider1.clear();
+	Collider2.clear();
+	Result.clear();
+	
+	Manifold* result(0);
+	for (int i = 0; i < AllBodies.size(); ++i) {
+		for (int j = i; j < AllBodies.size(); ++j) {
+			if (AllBodies[i] == AllBodies[j]) continue;
+			result->ResetManifold(result);
+			Body* a = AllBodies[i];
+			Body* b = (Body*)AllBodies[j];
+			result = &BodyColission::FindCollisionFeatures(a, b);
+			if (result->colliding) {
+				Collider1.push_back(a);
+				Collider2.push_back(b);
+				Result.push_back(result);
+			}
+		}
+	}
+
+	for (int i = 0; i < Result.size(); ++i) {
+		Body* a = Collider1[i];
+		Body* b = Collider2[i];
+		BodyColission::ApplyImpulse(a,b, &result[i], 1);
+	}
+
+
+	
+
+	for (auto &body : AllBodies) {
+		body->Update(dt);
+	}
+	
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
+
 
 }
 

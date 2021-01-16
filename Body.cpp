@@ -234,3 +234,7 @@ FPoint Body::GetMax() {
 	resultMax = FPoint(maxX, maxY);
 	return resultMax;
 }
+
+void Body::SynchPosition(Body* body) {
+	body->_pos = _pos;
+}

@@ -27,8 +27,6 @@ public:
 	void CharPressed(int unicodeChar) override;
 	void KeyReleased(int keyCode) override;
 
-	std::vector<Body> bodies;
-	std::vector<Body> bodiesToRemove;
 
 private:
 	void Init();
@@ -40,12 +38,19 @@ private:
 	Sprite<Quad> _yellowQuad;
 	Render::Texture *_greyQuad;
 
-	Manifold* mmm;
 
 	Body* _greyBody;
 	Body* _yellowBody;
-	IPoint NORMAL;
 
 	std::vector<Body*>  CheckVector;
+
+
+	///all brand new 
 	std::vector<Body*> AllBodies;
+	std::vector<Body*> Collider1;
+	std::vector<Body*> Collider2;
+	std::vector<Manifold*> Result;
+
+
+
 };
