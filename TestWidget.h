@@ -41,6 +41,8 @@ private:
 
 	Body* _greyBody;
 	Body* _yellowBody;
+	Body* _DarkBlueBody;
+	Body* _PinkBody;
 
 	std::vector<Body*>  CheckVector;
 
@@ -49,7 +51,7 @@ private:
 	std::vector<Body*> AllBodies;
 	std::vector<Body*> Collider1;
 	std::vector<Body*> Collider2;
-	std::vector<Manifold*> Result;
+	std::vector<Manifold> Results;
 
 
 

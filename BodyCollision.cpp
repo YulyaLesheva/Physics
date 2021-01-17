@@ -72,7 +72,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		//relative velocity
 		auto relativeVel = FPoint(b->velocity - a->velocity);
 		//relative collision normal 
-		auto relativeNorm = m->mNormal.Normalized();
+		auto relativeNorm = m->mNormal;
 
 		auto dotProduct = relativeVel.GetDotProduct(relativeNorm);
 
@@ -88,8 +88,6 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		if (j != 0.0f) j /= invMassSum;
 
 		auto impulse = relativeNorm * j;
-		
-		m->mImpulse = impulse;
 
 		a->velocity -= FPoint(impulse * invMassA);
 		b->velocity += FPoint(impulse * invMassB);
@@ -144,97 +142,89 @@ void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
 
 }
 
-void BodyColission::NewPositionCorrection(Body* a, Body* b, Manifold* m) {
-
-	auto normalForce = m->mImpulse * m->mNormal;
-
-	a->velocity -= normalForce;
-	b->velocity += normalForce;
-}
-
 bool BodyColission::CheckColission(Manifold *m){
-	
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
+	//
+	//Body *bodyOne = m->bodyOne;
+	//Body *bodyTwo = m->bodyTwo;
 
-	auto bOnePos = bodyOne->GetPos();
-	auto bTwoPos = bodyTwo->GetPos();
+	//auto bOnePos = bodyOne->GetPos();
+	//auto bTwoPos = bodyTwo->GetPos();
 
-	auto bOneTex = bodyOne->GetTex();
-	auto bTwoTex = bodyTwo->GetTex();
+	//auto bOneTex = bodyOne->GetTex();
+	//auto bTwoTex = bodyTwo->GetTex();
 
-	auto n = math::Vector3(bTwoPos.x - bOnePos.x, bTwoPos.y-bOnePos.y, 0);
-	
-	float bOneExtent = (bOneTex->Width() * 0.5);
-	float bTwoExtent = (bTwoTex->Width() * 0.5);
+	//auto n = math::Vector3(bTwoPos.x - bOnePos.x, bTwoPos.y-bOnePos.y, 0);
+	//
+	//float bOneExtent = (bOneTex->Width() * 0.5);
+	//float bTwoExtent = (bTwoTex->Width() * 0.5);
 
-	float xOverlap = bOneExtent + bTwoExtent - abs(n.x);
+	//float xOverlap = bOneExtent + bTwoExtent - abs(n.x);
 
-	if (xOverlap > 0) {
-		float bOneExtent = (bOneTex->Height() * 0.5);
-		float bTwoExtent = (bTwoTex->Height() * 0.5);
+	//if (xOverlap > 0) {
+	//	float bOneExtent = (bOneTex->Height() * 0.5);
+	//	float bTwoExtent = (bTwoTex->Height() * 0.5);
 
-		float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
+	//	float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
 
-		if (yOverlap > 0) {
+	//	if (yOverlap > 0) {
 
-			if (xOverlap < yOverlap) {
-				if (n.x < 0) {
-					m->normal = math::Vector3(-1, 0, 0);
-					//m->penetration = xOverlap;
-					return true;
-				}
-				else {
-					m->normal = math::Vector3(1, 0, 0);
-					//m->penetration = xOverlap;
-					return true;
-				}
-			}
-			else {
-				if (n.y < 0) {
-					m->normal = math::Vector3(0, -1, 0);
-					//m->penetration = yOverlap;
-					return true;
-				}
-				else {
-					m->normal = math::Vector3(0, 1, 0);
-					//m->penetration = yOverlap;
-					return true;
-				}
-			}
-		}
-	}
+	//		if (xOverlap < yOverlap) {
+	//			if (n.x < 0) {
+	//				m->normal = math::Vector3(-1, 0, 0);
+	//				//m->penetration = xOverlap;
+	//				return true;
+	//			}
+	//			else {
+	//				m->normal = math::Vector3(1, 0, 0);
+	//				//m->penetration = xOverlap;
+	//				return true;
+	//			}
+	//		}
+	//		else {
+	//			if (n.y < 0) {
+	//				m->normal = math::Vector3(0, -1, 0);
+	//				//m->penetration = yOverlap;
+	//				return true;
+	//			}
+	//			else {
+	//				m->normal = math::Vector3(0, 1, 0);
+	//				//m->penetration = yOverlap;
+	//				return true;
+	//			}
+	//		}
+	//	}
+	//}
 	return false;
 }
 
 void BodyColission::ResolveCollide(Manifold *m) {
-
-	Body *bodyOne = m->bodyOne;
-	Body *bodyTwo = m->bodyTwo;
-	
-	auto bTwoVelocity = bodyTwo->velocity;
-	auto bOneVelocity = bodyOne->velocity;
-
-	auto inverseMassSum = bodyOne->inverseMass + bodyTwo->inverseMass;
-
-	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x - bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
-	math::Vector3 normal = m->normal; //1 , 0,  0
-
-// что то не то с релатив велосити. должно быть отрицательное значение 
-auto velocityAlongNormal = rVelocity.DotProduct(normal);
-
-if (velocityAlongNormal > 0) return;
-
-auto elastic = math::min(bodyOne->elastic, bodyTwo->elastic);
-
-float j = -(1 + elastic) * velocityAlongNormal;
-
-j /= inverseMassSum;
-
-math::Vector3 impulse = j * normal;
-
-bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
-bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
+//
+//	Body *bodyOne = m->bodyOne;
+//	Body *bodyTwo = m->bodyTwo;
+//	
+//	auto bTwoVelocity = bodyTwo->velocity;
+//	auto bOneVelocity = bodyOne->velocity;
+//
+//	auto inverseMassSum = bodyOne->inverseMass + bodyTwo->inverseMass;
+//
+//	math::Vector3 rVelocity = math::Vector3(bTwoVelocity.x - bOneVelocity.x, bTwoVelocity.y - bOneVelocity.y, 0);
+//	math::Vector3 normal = m->normal; //1 , 0,  0
+//
+//// что то не то с релатив велосити. должно быть отрицательное значение 
+//auto velocityAlongNormal = rVelocity.DotProduct(normal);
+//
+//if (velocityAlongNormal > 0) return;
+//
+//auto elastic = math::min(bodyOne->elastic, bodyTwo->elastic);
+//
+//float j = -(1 + elastic) * velocityAlongNormal;
+//
+//j /= inverseMassSum;
+//
+//math::Vector3 impulse = j * normal;
+//
+//bodyOne->velocity -= FPoint(bodyOne->inverseMass * impulse.x, bodyOne->inverseMass * impulse.y);
+//bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMass * impulse.y);
 
 //LATER HERE WILL BE A FRICTION IMPLIMENTING
 //PositionalCorrection(m);
@@ -242,8 +232,6 @@ bodyTwo->velocity += FPoint(bodyTwo->inverseMass * impulse.x, bodyTwo->inverseMa
 }
 
 void BodyColission::PosCorr(Body* a, Body* b, Manifold *m) {
-
-
 
 	auto totalMass = a->mass + b->mass;
 	auto linearProjeectionPercent = 0.8f; //при значении 0.8 проникновение меньше. стр.400 книги

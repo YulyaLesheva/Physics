@@ -4,13 +4,9 @@
 
 struct  Manifold
 {
-	Body* bodyOne = NULL;
-	Body* bodyTwo = NULL;
-	float depth = 0;
+	float depth;
 	bool colliding = false;
-	math::Vector3 normal;
 	FPoint mNormal;
-	FPoint mImpulse;
 
 	static Manifold* Create() {
 		return new Manifold;
@@ -21,7 +17,6 @@ struct  Manifold
 			result->colliding = false;
 			result->mNormal = FPoint(0, 0);
 			result->depth = FLT_MAX;
-			result->mImpulse = FPoint(0,0);
 		}
 	}
 };

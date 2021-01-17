@@ -21,10 +21,15 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 0.8);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 1.0, 0.3);
-
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.3);
+//	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 5.2, 0.3);
+	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.0, 0.3);
+	
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
+	AllBodies.push_back(_PinkBody);
+
+//	AllBodies.push_back(_DarkBlueBody);
 
 }
 
@@ -91,28 +96,31 @@ void TestWidget::Update(float dt)
 
 	Collider1.clear();
 	Collider2.clear();
-	Result.clear();
+	Results.clear();
 	
-	Manifold* result(0);
+
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
 			if (AllBodies[i] == AllBodies[j]) continue;
-			result->ResetManifold(result);
-			Body* a = AllBodies[i];
+		
+			Manifold result;
+			result.ResetManifold(&result);
+			Body* a = (Body*)AllBodies[i];
 			Body* b = (Body*)AllBodies[j];
-			result = &BodyColission::FindCollisionFeatures(a, b);
-			if (result->colliding) {
+			result = BodyColission::FindCollisionFeatures(a, b);
+			if (result.colliding) {
 				Collider1.push_back(a);
 				Collider2.push_back(b);
-				Result.push_back(result);
+				Results.push_back(result);
+				auto s = Results.size();
 			}
 		}
 	}
 
-	for (int i = 0; i < Result.size(); ++i) {
+	for (int i = 0; i < Results.size(); ++i) {
 		Body* a = Collider1[i];
 		Body* b = Collider2[i];
-		BodyColission::ApplyImpulse(a,b, &result[i], 1);
+		BodyColission::ApplyImpulse(a,b, &Results[i], 1);
 	}
 
 
@@ -140,8 +148,9 @@ void TestWidget::ProcessInteraction(float dt) {
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
-	_yellowBody->MouseDown(mouse_pos);
-	_greyBody->MouseDown(mouse_pos);
+	for (auto &body : AllBodies) {
+		body->MouseDown(mouse_pos);
+	}
 	return false;
 }
 
@@ -151,8 +160,9 @@ void TestWidget::MouseMove(const IPoint &mouse_pos)
 
 void TestWidget::MouseUp(const IPoint &mouse_pos)
 {
-	_yellowBody->MouseUp(mouse_pos);
-	_greyBody->MouseUp(mouse_pos);
+	for (auto &body : AllBodies) {
+		body->MouseUp(mouse_pos);
+	}
 }
 
 void TestWidget::AcceptMessage(const Message& message)

@@ -20,5 +20,4 @@ namespace BodyColission {
 	bool SAT(Body* a, Body* b);
 	float PenetrationDepth(Body* a, Body* b, FPoint& axis, bool* outShouldFlip);
 	Manifold FindCollisionFeatures(Body* a, Body* b);
-	void NewPositionCorrection(Body* a, Body* b, Manifold* m);
 }
