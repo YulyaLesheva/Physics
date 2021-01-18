@@ -53,6 +53,10 @@ private:
 	std::vector<Body*> Collider2;
 	std::vector<Manifold> Results;
 
+	float LinearProjectionPercent;
+	float PenetrationSlack;
+	int impulseIteration;
+
 
 
 };

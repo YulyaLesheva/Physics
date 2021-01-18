@@ -23,7 +23,7 @@ public:
 	bool OnBorder();
 	void ReverseCurrentVectorX();
 	void ReverseCurrentVectorY();
-	void SynchPosition(Body* body);
+	void SynchPosition();
 
 public:
 	//GETTERS

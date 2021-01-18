@@ -68,7 +68,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
 	if (invMassSum == 0) return;
 	
-	for (auto i = 0; i < c; i++) {
+	
 		//relative velocity
 		auto relativeVel = FPoint(b->velocity - a->velocity);
 		//relative collision normal 
@@ -117,9 +117,9 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 		//a->velocity -= FPoint(tangetImpulse.x * invMassA, tangetImpulse.y * invMassA);
 		//b->velocity += FPoint(tangetImpulse.x * invMassB, tangetImpulse.y * invMassB);
 
-		PositionalCorrection(a, b, m);
+		//PositionalCorrection(a, b, m);
 		//NewPositionCorrection(a,b,m);
-	}
+	
 }
 
 void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {

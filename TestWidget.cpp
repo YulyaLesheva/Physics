@@ -20,16 +20,19 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 0.5, 0.8);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.0, 0.5);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.3);
-//	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 5.2, 0.3);
+	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.0, 0.3);
 	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.0, 0.3);
 	
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
+	AllBodies.push_back(_DarkBlueBody);
 
-//	AllBodies.push_back(_DarkBlueBody);
+	LinearProjectionPercent = 0.45;
+	PenetrationSlack = 0.01f;
+	impulseIteration = 8;
 
 }
 
@@ -112,15 +115,33 @@ void TestWidget::Update(float dt)
 				Collider1.push_back(a);
 				Collider2.push_back(b);
 				Results.push_back(result);
-				auto s = Results.size();
 			}
 		}
 	}
 
+	for (int k = 0; k < impulseIteration; ++k) {
+		for (int i = 0; i < Results.size(); ++i) {
+			Body* a = Collider1[i];
+			Body* b = Collider2[i];
+			BodyColission::ApplyImpulse(a, b, &Results[i]);
+		}
+	}
+	
 	for (int i = 0; i < Results.size(); ++i) {
 		Body* a = Collider1[i];
 		Body* b = Collider2[i];
-		BodyColission::ApplyImpulse(a,b, &Results[i], 1);
+		float totalMass = a->inverseMass + b->inverseMass;
+		if (totalMass == 0.f) continue;
+
+		float depth = fmaxf(Results[i].depth - PenetrationSlack, 0.0f);
+		float scalar = depth / totalMass;
+		FPoint correction = Results[i].mNormal * scalar * 
+			LinearProjectionPercent;
+		a->_pos -= correction * a->inverseMass;
+		b->_pos += correction * b->inverseMass;
+
+		a->SynchPosition();
+		b->SynchPosition();
 	}
 
 
