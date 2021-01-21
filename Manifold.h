@@ -7,6 +7,7 @@ struct  Manifold
 	float depth;
 	bool colliding = false;
 	FPoint mNormal;
+	std::vector<FPoint> contacts;
 
 	static Manifold* Create() {
 		return new Manifold;
@@ -17,6 +18,7 @@ struct  Manifold
 			result->colliding = false;
 			result->mNormal = FPoint(0, 0);
 			result->depth = FLT_MAX;
+			result->contacts.clear();
 		}
 	}
 };

@@ -57,6 +57,4 @@ private:
 	float PenetrationSlack;
 	int impulseIteration;
 
-
-
 };
