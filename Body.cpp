@@ -35,8 +35,7 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float f
 	friction(friction),
 	_normal(math::Vector3(0, 0, 0)),
 	_anchored(false),
-	_gravity(0, 0),
-	penetrationDepth(0)
+	_gravity(0, 0)
 
 {
 	if (mass == 0) inverseMass = 0;
@@ -104,16 +103,15 @@ void Body::Update(float dt) {
 	velocity *= damping;
 	_pos += velocity;
 	
-	/*ApplyForces();
+	
 
-	const float mDamping = 0.98f;
+	/*const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
 	velocity += mAcceleration;
 	velocity *= mDamping;
 
-	_pos += velocity;*/
-
-
+	_pos += velocity;
+*/
 }
 
 void Body::ApplyForces() {

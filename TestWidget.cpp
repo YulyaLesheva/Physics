@@ -20,10 +20,10 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.5, 0.5);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.1, 0.80);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.5);
-	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.0, 0.5);
-	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.2, 0.5);
+	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.0, 0.88);
+	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.0, 0.70);
 	
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
@@ -31,8 +31,8 @@ void TestWidget::Init()
 	//AllBodies.push_back(_DarkBlueBody);
 
 	LinearProjectionPercent = 0.8;
-	PenetrationSlack = 0.02f;
-	impulseIteration = 10;
+	PenetrationSlack = 1.02f;
+	impulseIteration = 8;
 }
 
 void TestWidget::Draw()
@@ -119,6 +119,10 @@ void TestWidget::Update(float dt)
 		}
 	}
 
+	/*for (int i = 0; i < AllBodies.size(); ++i) {
+		AllBodies[i]->ApplyForces();
+	}*/
+
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
 			Body* a = Collider1[i];
@@ -127,7 +131,6 @@ void TestWidget::Update(float dt)
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
 		}
 	}
-
 
 	for (auto &body : AllBodies) {
 		body->Update(dt);
@@ -143,22 +146,15 @@ void TestWidget::Update(float dt)
 		float scalar = depth / totalMass;
 		FPoint correction = Results[i].mNormal * scalar * 
 			LinearProjectionPercent;
+		
 		a->_pos -= correction * a->inverseMass;
 		b->_pos += correction * b->inverseMass; // если сorrection умножить на два, то результат лучше, но получается джиттер аааааааааааааааааааааа
-
-		a->SynchPosition();
-		b->SynchPosition();
-	}
-
-
 	
-
+	}
 	
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
-
-
 }
 
 void TestWidget::ProcessInteraction(float dt) {

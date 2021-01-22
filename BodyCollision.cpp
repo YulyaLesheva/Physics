@@ -68,50 +68,41 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
 	if (invMassSum == 0) return;
 	
+	//relative velocity
+	FPoint relativeVelocity = b->velocity - a->velocity;
+	//relative collision normal 
+	float velocityAlnogNormal = relativeVelocity.GetDotProduct(m->mNormal);
 	
-		//relative velocity
-		auto relativeVel = FPoint(b->velocity - a->velocity);
-		//relative collision normal 
-		auto relativeNorm = m->mNormal;
-
-		auto dotProduct = relativeVel.GetDotProduct(relativeNorm);
-
-		if (dotProduct > 0) return;
-
-		float e = math::min(a->elastic, b->elastic); //coefficient of restitution
-		float numerator = (-(1.f + e) * dotProduct);
-		float j = numerator / invMassSum;
-
-		//// при соприкосновнеии нескольких точек, добавить условие уменьшения значения j \\\\
-		 // на количество точек или хз что там стрю 394 и это должно работать;
-
-		if (j != 0.0f) j /= 2;
-
-		auto impulse = relativeNorm * j;
-
-		a->velocity -= FPoint(impulse * invMassA);
-		b->velocity += FPoint(impulse * invMassB);
-
-		//add friction implementation
-
-		auto t = relativeVel - (relativeNorm * relativeNorm.GetDotProduct(relativeVel));
-		numerator = -relativeVel.GetDotProduct(t);
-		float jt = numerator / invMassSum;
-		jt /= invMassSum;
-		
-		float friction = sqrtf(a->friction * b->friction);
-		if (jt > j * friction) {
-			jt = j * friction;
-		}
-		else if (jt < -j * friction) {
-			jt = -j * friction;
-		}
-		
-		auto tangetImpulse = t * jt;
-
-		a->velocity -= FPoint(tangetImpulse * invMassA);
-		b->velocity += FPoint(tangetImpulse * invMassB);
+	if (velocityAlnogNormal > 0) return;
 	
+	float e = math::min(a->elastic, b->elastic);
+	float j = -(1 + e) * velocityAlnogNormal;
+	
+	if (j != 0.0f) j /= invMassSum;
+	
+	FPoint impulse = j * m->mNormal;
+	a->velocity -= impulse * a->inverseMass;
+	b->velocity += impulse * b->inverseMass;
+
+	//add friction implementation
+
+	//	auto t = relativeVel - (relativeNorm * relativeNorm.GetDotProduct(relativeVel));
+	//	numerator = -relativeVel.GetDotProduct(t);
+	//	float jt = numerator / invMassSum;
+	//	jt /= invMassSum;
+	//	
+	//	float friction = sqrtf(a->friction * b->friction);
+	//	if (jt > j * friction) {
+	//		jt = j * friction;
+	//	}
+	//	else if (jt < -j * friction) {
+	//		jt = -j * friction;
+	//	}
+	//	
+	//	auto tangetImpulse = t * jt;
+
+	//	a->velocity -= FPoint(tangetImpulse * invMassA);
+	//	b->velocity += FPoint(tangetImpulse * invMassB);
 }
 
 void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
