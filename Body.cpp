@@ -6,9 +6,7 @@ float GRAVITY = -9.82;
 
 Body::Body(Render::Texture* tex) :
 	_tex(tex),
-	velocity(0, 0),
-	_normal(math::Vector3(0, 0, 0)),
-	_gravity(0, 0)
+	velocity(0, 0)
 
 {
 }
@@ -16,9 +14,7 @@ Body::Body(Render::Texture* tex) :
 Body::Body(Render::Texture* tex, FPoint& pos) :
 	_tex(tex),
 	_pos(pos),
-	velocity(0,0),
-	_normal(math::Vector3(0, 0, 0)),
-	_gravity(0, 0)
+	velocity(0,0)
 
 {
 }
@@ -33,16 +29,10 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float f
 	velocity(0, 0),
 	elastic(elastic),
 	friction(friction),
-	_normal(math::Vector3(0, 0, 0)),
-	_anchored(false),
-	_gravity(0, 0)
+	_anchored(false)
 
 {
 	if (mass == 0) inverseMass = 0;
-	
-	_gravity.y =  GRAVITY * mass;
-	
-
 }
 
 Body::~Body() {
@@ -90,28 +80,28 @@ void Body::Update(float dt) {
 	}*/
 
 	if (_anchored) {
-		_gravity.y = 0;
+		_forces = FPoint(0,0);
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 
-	FPoint forces = _gravity;
-	auto accleration = forces * inverseMass;
-	const float damping = 0.98;
-	
-	velocity += accleration;
-	velocity *= damping;
-	_pos += velocity;
+	//FPoint forces = _gravity;
+	//auto accleration = forces * inverseMass;
+	//const float damping = 0.98;
+	//
+	//velocity += accleration;
+	//velocity *= damping;
+	//_pos += velocity;
 	
 	
 
-	/*const float mDamping = 0.98f;
+	const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
 	velocity += mAcceleration;
 	velocity *= mDamping;
 
 	_pos += velocity;
-*/
+
 }
 
 void Body::ApplyForces() {
@@ -135,10 +125,6 @@ Render::Texture* Body::GetTex() {
 	return _tex;
 }
 
-math::Vector3& Body::GetNormal() {
-	return _normal;
-}
-
 bool Body::MouseDown(const IPoint& mouse_pos) {
 	
 	if (GetRect().Contains(mouse_pos)) {
@@ -155,7 +141,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	_gravity.y = GRAVITY;
+	ApplyForces();
 	return false;
 }
 

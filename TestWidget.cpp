@@ -20,10 +20,10 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.1, 0.80);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 0.5);
-	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.0, 0.88);
-	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.0, 0.70);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9, 1.0);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 1.0);
+	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 0.1, 1.0);
+	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5, 1.0);
 	
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
@@ -119,16 +119,18 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	/*for (int i = 0; i < AllBodies.size(); ++i) {
+	for (int i = 0; i < AllBodies.size(); ++i) {
 		AllBodies[i]->ApplyForces();
-	}*/
+	}
 
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
 			Body* a = Collider1[i];
 			Body* b = Collider2[i];
-			Log::Info("PENETRATION DEPTH IS  " + std::to_string(Results[i].depth));
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
+			Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
+			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
+
 		}
 	}
 
@@ -149,7 +151,6 @@ void TestWidget::Update(float dt)
 		
 		a->_pos -= correction * a->inverseMass;
 		b->_pos += correction * b->inverseMass; // если сorrection умножить на два, то результат лучше, но получается джиттер аааааааааааааааааааааа
-	
 	}
 	
 	for (auto &body : AllBodies) {

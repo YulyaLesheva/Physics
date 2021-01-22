@@ -9,7 +9,6 @@ struct Interval {
 
 namespace BodyColission {
 
-	bool CheckColissionAndGetNormal(Body& bodyOne, Body& bodyTwo);
 	bool CheckColission(Manifold *m);
 	void ResolveCollide(Manifold *m);
 	void PositionalCorrection(Body* a, Body* b, Manifold *m);

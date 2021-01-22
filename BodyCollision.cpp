@@ -3,62 +3,6 @@
 
 //using namespace BodyColission;
 
-
-bool BodyColission::CheckColissionAndGetNormal(Body& bodyOne, Body& bodyTwo) {
-
-	auto bTwoPosition = bodyTwo.GetPos();
-	auto bOnePosition = bodyOne.GetPos();
-	
-	auto bOneTex = bodyOne.GetTex();
-	auto bTwoTex = bodyTwo.GetTex();
-
-	auto n = math::Vector3(bTwoPosition.x - bOnePosition.x, bTwoPosition.y - bOnePosition.y, 0);
-
-	float bOneExtent = (bOneTex->Width() * 0.5);
-	float bTwoExtent = (bTwoTex->Width() * 0.5);
-
-	float xOverlap = bOneExtent + bTwoExtent - abs(n.x);
-
-	if (xOverlap > 0) {
-		float bOneExtent = (bOneTex->Height() * 0.5);
-		float bTwoExtent = (bTwoTex->Height() * 0.5);
-
-		float yOverlap = bOneExtent + bTwoExtent - abs(n.y);
-		
-		if (yOverlap > 0) {
-
-			if (xOverlap < yOverlap) {
-				if (n.x < 0) {
-					bodyOne._normal = math::Vector3(-1, 0, 0); 
-					bodyOne.penetrationDepth = xOverlap;
-					return true;
-				}
-				else {
-					bodyOne._normal = math::Vector3(1, 0, 0);
-					bodyOne.penetrationDepth = xOverlap;
-					return true;
-				}
-			}
-			else {
-				if (n.y < 0) {
-					bodyOne._normal = math::Vector3(0, -1, 0);
-					bodyOne.penetrationDepth = yOverlap;
-					return true;
-				}
-				else {
-					bodyOne._normal = math::Vector3(0, 1, 0);
-					bodyOne.penetrationDepth = yOverlap;
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-}
-
-
-
-
 void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
 	auto invMassA = a->inverseMass;
@@ -81,28 +25,24 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	if (j != 0.0f) j /= invMassSum;
 	
 	FPoint impulse = j * m->mNormal;
+	
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
 
 	//add friction implementation
 
-	//	auto t = relativeVel - (relativeNorm * relativeNorm.GetDotProduct(relativeVel));
-	//	numerator = -relativeVel.GetDotProduct(t);
-	//	float jt = numerator / invMassSum;
-	//	jt /= invMassSum;
-	//	
-	//	float friction = sqrtf(a->friction * b->friction);
-	//	if (jt > j * friction) {
-	//		jt = j * friction;
-	//	}
-	//	else if (jt < -j * friction) {
-	//		jt = -j * friction;
-	//	}
-	//	
-	//	auto tangetImpulse = t * jt;
+	FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
+	float jt = -relativeVelocity.GetDotProduct(t);
+	jt /= invMassSum;
+	if (jt == 0.f) return;
 
-	//	a->velocity -= FPoint(tangetImpulse * invMassA);
-	//	b->velocity += FPoint(tangetImpulse * invMassB);
+	float friction = sqrtf(a->friction * b->friction);
+	if (jt > j*friction) jt = j * friction;
+	else if (jt < -j * friction) jt = -j * friction;
+	
+	FPoint tangetImpulse = t * jt;
+	a->velocity -= tangetImpulse * a->inverseMass;
+	b->velocity += tangetImpulse * b->inverseMass;
 }
 
 void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {

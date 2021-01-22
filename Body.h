@@ -30,7 +30,6 @@ public:
 	IRect& GetRect();
 	FPoint& GetPos();
 	Render::Texture* GetTex();
-	math::Vector3& GetNormal();
 	FPoint GetMin();
 	FPoint GetMax();
 	void ApplyForces();//new
@@ -40,7 +39,6 @@ public:
 	FPoint _pos; 
 	float mass, inverseMass, elastic, friction; 
 	bool mooveble;
-	math::Vector3& _normal;
 	FPoint velocity;
 	float penetrationDepth;
 private:
