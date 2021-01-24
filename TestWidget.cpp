@@ -20,19 +20,20 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9, 1.0);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0, 1.0);
-	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 0.1, 1.0);
-	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5, 1.0);
+	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
+	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
+	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.0);
+	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 1.0);
 	
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
-	LinearProjectionPercent = 0.8;
-	PenetrationSlack = 1.02f;
-	impulseIteration = 8;
+	LinearProjectionPercent = 0.45f;
+	PenetrationSlack = 0.01f;
+	impulseIteration = 5;
+	beta = 0;
 }
 
 void TestWidget::Draw()
@@ -128,9 +129,9 @@ void TestWidget::Update(float dt)
 			Body* a = Collider1[i];
 			Body* b = Collider2[i];
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
-			Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
-			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
-
+			//Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
+			//Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
+					
 		}
 	}
 
@@ -139,18 +140,31 @@ void TestWidget::Update(float dt)
 	}
 	
 	for (int i = 0; i < Results.size(); ++i) {
+		Log::Info("Penetration value is " + std::to_string(Results[i].depth));
 		Body* a = Collider1[i];
-		Body* b = Collider2[i];
+		Body* b = Collider2[i]; 
+		
 		float totalMass = a->inverseMass + b->inverseMass;
+		
 		if (totalMass == 0.f) continue;
 
-		float depth = fmaxf(Results[i].depth - PenetrationSlack, 0.0f);
-		float scalar = depth / totalMass;
-		FPoint correction = Results[i].mNormal * scalar * 
-			LinearProjectionPercent;
-		
+		float depth = fmaxf(Results[i].depth + PenetrationSlack, 0.0f);
+		FPoint correction = Results[i].mNormal * depth;
+
+		auto correctionA = correction * a->inverseMass;
+		auto correctionB = correction * b->inverseMass;
+	
+		Log::Info("Correction value A is " + std::to_string(correctionA.x) + " " + std::to_string(correctionA.y));
+		Log::Info("Correction value B is " + std::to_string(correctionB.x) + " " + std::to_string(correctionB.y));
+
 		a->_pos -= correction * a->inverseMass;
-		b->_pos += correction * b->inverseMass; // если сorrection умножить на два, то результат лучше, но получается джиттер аааааааааааааааааааааа
+		b->_pos += correction * b->inverseMass; 
+
+	// если сorrection умножить на два, то результат лучше, но получается джиттер аааааааааааааааааааааа
+	/*	FPoint correction = math::max(Results[i].depth - PenetrationSlack, 0.0f) /
+			(totalMass) * LinearProjectionPercent * Results[i].mNormal;
+		a->_pos -= correction * a->inverseMass;
+		b->_pos += correction * b->inverseMass;*/
 	}
 	
 	for (auto &body : AllBodies) {

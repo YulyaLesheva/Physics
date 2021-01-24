@@ -56,5 +56,5 @@ private:
 	float LinearProjectionPercent;
 	float PenetrationSlack;
 	int impulseIteration;
-
+	float beta;
 };

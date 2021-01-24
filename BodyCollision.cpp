@@ -30,9 +30,10 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	b->velocity += impulse * b->inverseMass;
 
 	//add friction implementation
-
+	
 	FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
 	float jt = -relativeVelocity.GetDotProduct(t);
+	
 	jt /= invMassSum;
 	if (jt == 0.f) return;
 
@@ -43,6 +44,8 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	FPoint tangetImpulse = t * jt;
 	a->velocity -= tangetImpulse * a->inverseMass;
 	b->velocity += tangetImpulse * b->inverseMass;
+
+
 }
 
 void BodyColission::PositionalCorrection(Body* a, Body* b, Manifold *m) {
