@@ -93,7 +93,7 @@ void Body::Update(float dt) {
 	//velocity *= damping;
 	//_pos += velocity;
 	
-	
+	if (!isAwake) return;
 
 	const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
@@ -219,6 +219,14 @@ FPoint Body::GetMax() {
 	return resultMax;
 }
 
-void Body::SynchPosition() {
-	_pos = _pos;
+void Body::SetAwake(const bool awake) {
+	if (awake) {
+		isAwake = true;
+		motion = sleepEpsilon * 2.0f;
+
+	}
+	else {
+		isAwake = false;
+		velocity = FPoint(0,0);
+	}
 }

@@ -22,7 +22,7 @@ void TestWidget::Init()
 	_background = Background::Create(Helper::UseTexture("Background"));
 	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
-	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.0);
+	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
 	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 1.0);
 	
 	AllBodies.push_back(_greyBody);
@@ -30,7 +30,7 @@ void TestWidget::Init()
 	AllBodies.push_back(_PinkBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
-	LinearProjectionPercent = 0.45f;
+	LinearProjectionPercent = 0.8f;
 	PenetrationSlack = 0.01f;
 	impulseIteration = 5;
 	beta = 0;
@@ -140,6 +140,7 @@ void TestWidget::Update(float dt)
 	}
 	
 	for (int i = 0; i < Results.size(); ++i) {
+		
 		Log::Info("Penetration value is " + std::to_string(Results[i].depth));
 		Body* a = Collider1[i];
 		Body* b = Collider2[i]; 
@@ -148,23 +149,11 @@ void TestWidget::Update(float dt)
 		
 		if (totalMass == 0.f) continue;
 
-		float depth = fmaxf(Results[i].depth + PenetrationSlack, 0.0f);
-		FPoint correction = Results[i].mNormal * depth;
-
-		auto correctionA = correction * a->inverseMass;
-		auto correctionB = correction * b->inverseMass;
-	
-		Log::Info("Correction value A is " + std::to_string(correctionA.x) + " " + std::to_string(correctionA.y));
-		Log::Info("Correction value B is " + std::to_string(correctionB.x) + " " + std::to_string(correctionB.y));
-
-		a->_pos -= correction * a->inverseMass;
-		b->_pos += correction * b->inverseMass; 
-
-	// если сorrection умножить на два, то результат лучше, но получается джиттер аааааааааааааааааааааа
-	/*	FPoint correction = math::max(Results[i].depth - PenetrationSlack, 0.0f) /
-			(totalMass) * LinearProjectionPercent * Results[i].mNormal;
-		a->_pos -= correction * a->inverseMass;
-		b->_pos += correction * b->inverseMass;*/
+		float depth = math::max(Results[i].depth + PenetrationSlack, 0.f) * LinearProjectionPercent;
+		float scalar = depth / totalMass;
+		FPoint projection = scalar * Results[i].mNormal;
+		a->_pos -= a->inverseMass * projection;
+		b->_pos += b->inverseMass * projection;
 	}
 	
 	for (auto &body : AllBodies) {

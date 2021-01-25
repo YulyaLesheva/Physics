@@ -51,11 +51,21 @@ private:
 	FPoint _gravity;
 	FPoint _forces;
 
+	////For sleep stage
+	bool isAwake;
+	bool canSleep;
+	FPoint motion;
+
+	void SetAwake(const bool awake);
+	FPoint sleepEpsilon;
+
+
 private:
 	//FUNCTIONS 
 	void AddLinearImpulse(const FPoint& impulse);//new
 
 	FPoint impulse;
+
 
 	
 };

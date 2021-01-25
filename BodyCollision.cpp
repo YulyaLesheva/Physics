@@ -26,6 +26,8 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	
 	FPoint impulse = j * m->mNormal;
 	
+	//j += (m->depth * 1.5f);
+
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
 
