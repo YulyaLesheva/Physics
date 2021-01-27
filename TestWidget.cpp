@@ -33,7 +33,6 @@ void TestWidget::Init()
 	LinearProjectionPercent = 0.8f;
 	PenetrationSlack = 0.01f;
 	impulseIteration = 5;
-	beta = 0;
 }
 
 void TestWidget::Draw()
@@ -46,56 +45,6 @@ void TestWidget::Draw()
 
 void TestWidget::Update(float dt)
 {
-	
-
-
-	//auto bbbb = SapAlgorithm::SAP(AllBodies);
-	//if (BodyColission::CheckColissionAndGetNormal(*_greyBody, *_yellowBody)) {
-	//	BodyColission::ResolveColission(*_greyBody, *_yellowBody);
-	//	//Log::Info(std::to_string(_greyBodypenetrationDepth.x) + "  " + std::to_string(_greyBody->penetrationDepth.y));
-	//}
-	//else {
-	//	Log::Info("..");
-	//}
-
-	
-	//if (BodyColission::CheckColission(mmm)) {	
-	//	BodyColission::ApplyImpulse(_greyBody, _yellowBody, mmm, 3);
-	//	//Log::Info(std::to_string(mmm->normal.x) + "  " + std::to_string(mmm->normal.y));
-	//	Log::Info("It's a colission!");
-	//}
-	//else {
-	//	Log::Info(".....");
-	//}
-
-	//BodyColission::CheckColissionAndGetNormal(*_yellowBody, *_greyBody);
-	
-	//BodyColission::SAT(_greyBody, _yellowBody);
-
-	
-	/*	auto m = BodyColission::FindCollisionFeatures(_yellowBody, _greyBody);
-		Log::Info("NORMAL IS  " + std::to_string(m.mNormal.x) + "  " + std::to_string(m.mNormal.y));
-		Log::Info("PENETRATION DEPTH IS  " + std::to_string(m.depth));
-		
-		if (m.colliding) {
-			BodyColission::ApplyImpulse(_yellowBody, _greyBody, &m, 2);
-			Log::Info("COLLIDING");
-
-		}*/
-		
-	/*	FPoint axisXY[] = {
-	FPoint(1, 0), FPoint(0, 1)
-		};
-		
-		BodyColission::SAT(_yellowBody, _greyBody);
-
-		bool* blyat = false;
-
-		auto depth = BodyColission::PenetrationDepth(_yellowBody, _greyBody, *axisXY, blyat);
-		Log::Info("PENETRATION DEPTH IS  " + std::to_string(depth));
-*/
-
-
 
 	Collider1.clear();
 	Collider2.clear();
@@ -129,11 +78,22 @@ void TestWidget::Update(float dt)
 			Body* a = Collider1[i];
 			Body* b = Collider2[i];
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
-			//Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
-			//Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
+			Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
+			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
 					
 		}
 	}
+
+	for (auto f :AllBodies) {
+		if (!f->isAwake) {
+			if (f->mass != 0) {
+				Log::Info("SLEEEEEEEEEEEP");
+
+			}
+		}
+	}
+
+
 
 	for (auto &body : AllBodies) {
 		body->Update(dt);
@@ -141,7 +101,7 @@ void TestWidget::Update(float dt)
 	
 	for (int i = 0; i < Results.size(); ++i) {
 		
-		Log::Info("Penetration value is " + std::to_string(Results[i].depth));
+		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
 		Body* a = Collider1[i];
 		Body* b = Collider2[i]; 
 		
@@ -149,11 +109,17 @@ void TestWidget::Update(float dt)
 		
 		if (totalMass == 0.f) continue;
 
-		float depth = math::max(Results[i].depth + PenetrationSlack, 0.f) * LinearProjectionPercent;
+		/*float depth = math::max(Results[i].depth + PenetrationSlack, 0.f) * LinearProjectionPercent;
 		float scalar = depth / totalMass;
 		FPoint projection = scalar * Results[i].mNormal;
 		a->_pos -= a->inverseMass * projection;
-		b->_pos += b->inverseMass * projection;
+		b->_pos += b->inverseMass * projection;*/
+
+		const float percent = 0.2;
+		const float slop = 0.01;
+		FPoint corr = math::max(Results[i].depth - slop, 0.0f) / totalMass * percent * Results[i].mNormal;
+		a->_pos -= a->inverseMass * corr;
+		b->_pos += b->inverseMass * corr;
 	}
 	
 	for (auto &body : AllBodies) {

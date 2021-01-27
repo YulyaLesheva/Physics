@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Body.h"
 
-float GRAVITY = -9.82;
 #define GRAVITY_CONST FPoint(0, -9.82f)
 
 Body::Body(Render::Texture* tex) :
@@ -33,6 +32,10 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float f
 
 {
 	if (mass == 0) inverseMass = 0;
+	
+	sleepEpsilon = 0.8f;
+
+	rwaMotion = 2 * sleepEpsilon;
 }
 
 Body::~Body() {
@@ -61,16 +64,6 @@ void Body::Draw() {
 }
 
 void Body::Update(float dt) {
-	// by direction
-	//if (mooveble) {
-	//	velocity.x += 0.04;
-	//	velocity.y += 0.01;
-	//	
-	//	/*moving.x += 0.04;
-	//	moving.y += 0.01;*/
-	//}
-	//by mouse
-	//by mouse
 
 	/*if (mooveble) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
@@ -80,28 +73,36 @@ void Body::Update(float dt) {
 	}*/
 
 	if (_anchored) {
-		_forces = FPoint(0,0);
+		velocity = FPoint(0,0);
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 
-	//FPoint forces = _gravity;
-	//auto accleration = forces * inverseMass;
-	//const float damping = 0.98;
-	//
-	//velocity += accleration;
-	//velocity *= damping;
-	//_pos += velocity;
 	
-	if (!isAwake) return;
-
+	//if (!isAwake) return;
+	
 	const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
 	velocity += mAcceleration;
 	velocity *= mDamping;
-
 	_pos += velocity;
 
+	float motion = velocity.GetDotProduct(velocity);
+	float bias = 0.98f;
+	rwaMotion = bias * rwaMotion + (1 - bias) * motion;
+	
+	if (rwaMotion > 50.f) rwaMotion = 5.0f;
+	
+	if (rwaMotion < sleepEpsilon) {
+		isAwake = false;
+		velocity = FPoint(0, 0);
+	}
+	
+	else if(rwaMotion > 10 * sleepEpsilon){
+		rwaMotion = 10 * sleepEpsilon;
+		isAwake = true;
+	}
+	
 }
 
 void Body::ApplyForces() {
@@ -141,7 +142,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	ApplyForces();
+	//ApplyForces();
 	return false;
 }
 
@@ -222,7 +223,7 @@ FPoint Body::GetMax() {
 void Body::SetAwake(const bool awake) {
 	if (awake) {
 		isAwake = true;
-		motion = sleepEpsilon * 2.0f;
+		//motion = sleepEpsilon * 2.0f;
 
 	}
 	else {

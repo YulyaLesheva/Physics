@@ -23,7 +23,6 @@ public:
 	bool OnBorder();
 	void ReverseCurrentVectorX();
 	void ReverseCurrentVectorY();
-	void SynchPosition();
 
 public:
 	//GETTERS
@@ -41,6 +40,14 @@ public:
 	bool mooveble;
 	FPoint velocity;
 	float penetrationDepth;
+
+	////For sleep stage
+	bool isAwake;
+	bool canSleep;
+	FPoint motion;
+	float rwaMotion;
+	float sleepEpsilon;
+
 private:
 	//VARIABLES
 	Render::Texture* _tex;
@@ -51,13 +58,9 @@ private:
 	FPoint _gravity;
 	FPoint _forces;
 
-	////For sleep stage
-	bool isAwake;
-	bool canSleep;
-	FPoint motion;
+
 
 	void SetAwake(const bool awake);
-	FPoint sleepEpsilon;
 
 
 private:
