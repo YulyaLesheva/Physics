@@ -74,18 +74,31 @@ void Body::Update(float dt) {
 
 	if (_anchored) {
 		velocity = FPoint(0,0);
+		isAwake = false;
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 
 	
-	//if (!isAwake) return;
+	if (!isAwake) return;
 	
-	const float mDamping = 0.98f;
+	float dampingFactor = 1.0 - 0.95;
+	float frameDamping = powf(dampingFactor, dt);
+	
+	FPoint force = _forces;
+	FPoint acceleration = force * inverseMass;
+	acceleration += GRAVITY_CONST * mass;
+	velocity += acceleration;
+	velocity *= frameDamping;
+	_pos += velocity * dt;
+	
+	
+	/*const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
 	velocity += mAcceleration;
 	velocity *= mDamping;
-	_pos += velocity;
+	_pos += velocity;*/
+
 
 	float motion = velocity.GetDotProduct(velocity);
 	float bias = 0.98f;
@@ -142,7 +155,7 @@ bool Body::MouseDown(const IPoint& mouse_pos) {
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	//ApplyForces();
+	isAwake = true;
 	return false;
 }
 

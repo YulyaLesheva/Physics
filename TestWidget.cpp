@@ -32,7 +32,7 @@ void TestWidget::Init()
 
 	LinearProjectionPercent = 0.8f;
 	PenetrationSlack = 0.01f;
-	impulseIteration = 5;
+	impulseIteration = 1;
 }
 
 void TestWidget::Draw()
@@ -69,17 +69,13 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	for (int i = 0; i < AllBodies.size(); ++i) {
-		AllBodies[i]->ApplyForces();
-	}
-
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
 			Body* a = Collider1[i];
 			Body* b = Collider2[i];
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
-			Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
-			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));
+		/*	Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
+			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));*/
 					
 		}
 	}
@@ -94,11 +90,15 @@ void TestWidget::Update(float dt)
 	}
 
 
-
 	for (auto &body : AllBodies) {
 		body->Update(dt);
 	}
 	
+	Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
+	Log::Info("PINK BODY VELOCITY  " + std::to_string(_PinkBody->velocity.y));
+	Log::Info("YELLOW BODY VELOCITY " + std::to_string(_yellowBody->velocity.y));
+
+
 	for (int i = 0; i < Results.size(); ++i) {
 		
 		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
