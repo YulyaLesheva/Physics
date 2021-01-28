@@ -88,9 +88,9 @@ void Body::Update(float dt) {
 	FPoint force = _forces;
 	FPoint acceleration = force * inverseMass;
 	acceleration += GRAVITY_CONST * mass;
-	velocity += acceleration;
+	velocity += acceleration * dt;
 	velocity *= frameDamping;
-	_pos += velocity * dt;
+	_pos += velocity;
 	
 	
 	/*const float mDamping = 0.98f;

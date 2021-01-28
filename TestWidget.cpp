@@ -23,7 +23,7 @@ void TestWidget::Init()
 	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
 	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
-	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 1.0);
+	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
 	_Floor = Body::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
 
 	AllBodies.push_back(_greyBody);
