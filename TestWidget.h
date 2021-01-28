@@ -43,6 +43,7 @@ private:
 	Body* _yellowBody;
 	Body* _DarkBlueBody;
 	Body* _PinkBody;
+	Body* _Floor;
 
 	std::vector<Body*>  CheckVector;
 
