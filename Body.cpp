@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Body.h"
+#include "BodyCollision.h"
 
 #define GRAVITY_CONST FPoint(0, -9.82f)
 
@@ -29,13 +30,12 @@ Body::Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float f
 	elastic(elastic),
 	friction(friction),
 	_anchored(false)
-
 {
 	if (mass == 0) inverseMass = 0;
 	
-	sleepEpsilon = 0.8f;
-
-	rwaMotion = 2 * sleepEpsilon;
+	sleepEpsilon = 0.9f;
+	canSleep = false;
+	SetAwake(true);
 }
 
 Body::~Body() {
@@ -65,26 +65,17 @@ void Body::Draw() {
 
 void Body::Update(float dt) {
 
-	/*if (mooveble) {
-		IPoint mouse_position = Core::mainInput.GetMousePos();
-		_pos = mouse_position;
-		velocity = IPoint(0.2*( _lastPos.x - _pos.x), 0.2*(_lastPos.y - _pos.y));
-		_lastPos = _pos;
-	}*/
-
 	if (_anchored) {
 		velocity = FPoint(0,0);
-		isAwake = false;
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
 
-	
 	if (!isAwake) return;
-	
+
 	float dampingFactor = 1.0 - 0.95;
 	float frameDamping = powf(dampingFactor, dt);
-	
+
 	FPoint force = _forces;
 	FPoint acceleration = force * inverseMass;
 	acceleration += GRAVITY_CONST * mass;
@@ -92,34 +83,30 @@ void Body::Update(float dt) {
 	velocity *= frameDamping;
 	_pos += velocity;
 	
-	
 	/*const float mDamping = 0.98f;
 	FPoint mAcceleration = _forces * inverseMass;
 	velocity += mAcceleration;
 	velocity *= mDamping;
 	_pos += velocity;*/
 
-
 	float motion = velocity.GetDotProduct(velocity);
 	float bias = 0.98f;
 	rwaMotion = bias * rwaMotion + (1 - bias) * motion;
-	
+
 	if (rwaMotion > 50.f) rwaMotion = 5.0f;
-	
+
 	if (rwaMotion < sleepEpsilon) {
-		isAwake = false;
-		velocity = FPoint(0, 0);
+		SetAwake(false);
 	}
-	
-	else if(rwaMotion > 10 * sleepEpsilon){
+
+	else if (rwaMotion > 10 * sleepEpsilon) {
 		rwaMotion = 10 * sleepEpsilon;
-		isAwake = true;
+		SetAwake(true);
 	}
-	
 }
 
-void Body::ApplyForces() {
-	_forces = GRAVITY_CONST * mass;
+void Body::ApplyGravity() {
+	velocity = GRAVITY_CONST * mass;
 }
 
 void Body::AddLinearImpulse(const FPoint& impulse) {
@@ -142,20 +129,18 @@ Render::Texture* Body::GetTex() {
 bool Body::MouseDown(const IPoint& mouse_pos) {
 	
 	if (GetRect().Contains(mouse_pos)) {
-		//Log::Info("CONTAINS CONTAINS");
 		_anchored = true;
+	SetAwake(false);
 		return true;
 	}
 	else {
-//		Log::Info("......");
 		return false;
-
 	}
 }
 
 bool Body::MouseUp(const IPoint& mouse_pos) {
 	_anchored = false;
-	isAwake = true;
+	SetAwake(true);
 	return false;
 }
 
@@ -236,11 +221,20 @@ FPoint Body::GetMax() {
 void Body::SetAwake(const bool awake) {
 	if (awake) {
 		isAwake = true;
-		//motion = sleepEpsilon * 2.0f;
+		rwaMotion = sleepEpsilon * 2.0f;
 
 	}
 	else {
 		isAwake = false;
 		velocity = FPoint(0,0);
+	}
+}
+
+void Body::SetCanSleep(const bool sleep) {
+	if (sleep) {
+		canSleep = true;
+	}
+	else {
+		canSleep = false;
 	}
 }

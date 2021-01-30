@@ -31,7 +31,7 @@ public:
 	Render::Texture* GetTex();
 	FPoint GetMin();
 	FPoint GetMax();
-	void ApplyForces();//new
+	void ApplyGravity();//new
 
 public:
 	//VARIABLES
@@ -43,32 +43,32 @@ public:
 
 	////For sleep stage
 	bool isAwake;
-	bool canSleep;
 	FPoint motion;
 	float rwaMotion;
 	float sleepEpsilon;
+	bool isCollided;
+	bool _needToCheckSleep;
+	bool canSleep;
+
+	void SetCanSleep(const bool sleep);
+
 
 private:
 	//VARIABLES
 	Render::Texture* _tex;
 	IRect _rect;
-	IPoint _lastPos;
+	FPoint _lastPos;
 	FPoint moving;
 	bool _anchored;
 	FPoint _gravity;
 	FPoint _forces;
 
-
+	
 
 	void SetAwake(const bool awake);
-
-
 private:
 	//FUNCTIONS 
 	void AddLinearImpulse(const FPoint& impulse);//new
-
 	FPoint impulse;
 
-
-	
 };

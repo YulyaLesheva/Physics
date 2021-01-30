@@ -33,7 +33,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 
 	//add friction implementation
 	
-	/*FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
+	FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
 	float jt = -relativeVelocity.GetDotProduct(t);
 	
 	jt /= invMassSum;
@@ -45,9 +45,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	
 	FPoint tangetImpulse = t * jt;
 	a->velocity -= tangetImpulse * a->inverseMass;
-	b->velocity += tangetImpulse * b->inverseMass;*/
-
-
+	b->velocity += tangetImpulse * b->inverseMass;
 }
 
 Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
@@ -160,6 +158,6 @@ Manifold BodyColission::FindCollisionFeatures(Body* a, Body* b) {
 
 	result.colliding = true;
 	result.mNormal = axis;
-
+	
 	return result;
 }

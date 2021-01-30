@@ -9,10 +9,6 @@ struct Interval {
 
 namespace BodyColission {
 
-	bool CheckColission(Manifold *m);
-	void ResolveCollide(Manifold *m);
-	void PositionalCorrection(Body* a, Body* b, Manifold *m);
-	void PosCorr(Body* a, Body* b, Manifold *m); 
 	void ApplyImpulse(Body* a, Body* b, Manifold* m, int c=0);
 	Interval GetInterval(Body* a, const FPoint& axis);
 	bool OverlapOnAxis(Body*a, Body*b, const FPoint &axis);

@@ -57,7 +57,6 @@ void TestWidget::Update(float dt)
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
 			if (AllBodies[i] == AllBodies[j]) continue;
-		
 			Manifold result;
 			result.ResetManifold(&result);
 			Body* a = (Body*)AllBodies[i];
@@ -66,8 +65,8 @@ void TestWidget::Update(float dt)
 			if (result.colliding) {
 				Collider1.push_back(a);
 				Collider2.push_back(b);
-				Results.push_back(result);
 
+				Results.push_back(result);
 			}
 		}
 	}
@@ -77,9 +76,6 @@ void TestWidget::Update(float dt)
 			Body* a = Collider1[i];
 			Body* b = Collider2[i];
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
-		/*	Log::Info("Impulse applied BODY A " + std::to_string(Collider1[i]->velocity.y));
-			Log::Info("Impulse applied BODY B " + std::to_string(Collider2[i]->velocity.y));*/
-					
 		}
 	}
 
@@ -92,14 +88,14 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-
 	for (auto &body : AllBodies) {
 		body->Update(dt);
 	}
 	
-	Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
+	/*Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
 	Log::Info("PINK BODY VELOCITY  " + std::to_string(_PinkBody->velocity.y));
 	Log::Info("YELLOW BODY VELOCITY " + std::to_string(_yellowBody->velocity.y));
+	*/
 
 
 	for (int i = 0; i < Results.size(); ++i) {
