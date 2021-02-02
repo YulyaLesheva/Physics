@@ -7,6 +7,7 @@ class Background;
 class Quad;
 struct Manifold;
 class Body;
+class PhysicBody;
 
 class TestWidget : public GUI::Widget
 {
@@ -44,7 +45,7 @@ private:
 	Body* _DarkBlueBody;
 	Body* _PinkBody;
 	Body* _Floor;
-
+	PhysicBody* _physicBody;
 	std::vector<Body*>  CheckVector;
 
 

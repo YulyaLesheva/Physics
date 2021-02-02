@@ -53,7 +53,7 @@ public:
 	void SetCanSleep(const bool sleep);
 
 
-private:
+protected:
 	//VARIABLES
 	Render::Texture* _tex;
 	IRect _rect;

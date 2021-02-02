@@ -29,7 +29,7 @@ void TestWidget::Init()
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
-	AllBodies.push_back(_Floor);
+	//AllBodies.push_back(_Floor);
 	
 	//AllBodies.push_back(_DarkBlueBody);
 
@@ -79,13 +79,18 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	for (auto f :AllBodies) {
-		if (!f->isAwake) {
-			if (f->mass != 0) {
-				Log::Info("SLEEEEEEEEEEEP");
+	//for (auto f :AllBodies) {
+	//	if (!f->isAwake) {
+	//		if (f->mass != 0) {
+	//			Log::Info("SLEEEEEEEEEEEP");
 
-			}
-		}
+	//		}
+	//	}
+	//}
+
+	if(!_greyBody->isAwake) Log::Info("SLEEEEEEEEEEEP");
+	else {
+		Log::Info("NOT SLEEEEEEEEEEEP");
 	}
 
 	for (auto &body : AllBodies) {
