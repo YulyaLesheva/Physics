@@ -1,5 +1,5 @@
 #pragma once
-#include "Body.h"
+#include "PhysicBody.h"
 #include "Manifold.h"
 
 struct Interval {

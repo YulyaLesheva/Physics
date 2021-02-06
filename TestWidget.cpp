@@ -6,6 +6,7 @@
 #include "BodyCollision.h"
 #include "Body.h"
 #include "SapAlgorithm.h"
+#include "PhysicBody.h"
 
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
@@ -24,13 +25,14 @@ void TestWidget::Init()
 	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
 	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
 	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
-	_Floor = Body::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
+	//_Floor = Body::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
+
+	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
 
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
 	//AllBodies.push_back(_Floor);
-	
 	//AllBodies.push_back(_DarkBlueBody);
 
 	LinearProjectionPercent = 0.8f;
@@ -44,16 +46,15 @@ void TestWidget::Draw()
 	for (auto &body : AllBodies) {
 		body->Draw();
 	}
+
+	_physicBody->Draw();
 }
 
 void TestWidget::Update(float dt)
 {
-
 	Collider1.clear();
 	Collider2.clear();
 	Results.clear();
-	
-
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
 			if (AllBodies[i] == AllBodies[j]) continue;
@@ -70,6 +71,9 @@ void TestWidget::Update(float dt)
 			}
 		}
 	}
+
+	////здесь ошибка. почему? 
+	auto r = _physicBody->GetRect();
 
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
@@ -96,6 +100,7 @@ void TestWidget::Update(float dt)
 	for (auto &body : AllBodies) {
 		body->Update(dt);
 	}
+
 	
 	/*Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
 	Log::Info("PINK BODY VELOCITY  " + std::to_string(_PinkBody->velocity.y));
@@ -129,6 +134,8 @@ void TestWidget::Update(float dt)
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
+
+	r = _physicBody->GetRect();
 }
 
 void TestWidget::ProcessInteraction(float dt) {

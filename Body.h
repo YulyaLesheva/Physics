@@ -5,7 +5,7 @@ public:
 	Body(Render::Texture* tex);
 	Body(Render::Texture* tex, FPoint& pos);
 	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction);
-
+	//Body() = default;
 	~Body();
 	
 	static Body* Create(Render::Texture* tex);
@@ -19,27 +19,26 @@ public:
 	//FUNCTIONS
 	void Draw();
 	void Update(float dt);
-	void KeepInBorders();
-	bool OnBorder();
-	void ReverseCurrentVectorX();
-	void ReverseCurrentVectorY();
+	void KeepInBorders(); 
+	bool OnBorder(); // no
+	void ReverseCurrentVectorX();// no
+	void ReverseCurrentVectorY();// no
+	void ApplyGravity();//new // no
 
 public:
 	//GETTERS
-	IRect& GetRect();
-	FPoint& GetPos();
-	Render::Texture* GetTex();
-	FPoint GetMin();
-	FPoint GetMax();
-	void ApplyGravity();//new
+	IRect& GetRect(); //YA
+	FPoint& GetPos();//YA
+	Render::Texture* GetTex(); //YA
+	FPoint GetMin(); // YA
+	FPoint GetMax(); // YA
+	
 
 public:
 	//VARIABLES
 	FPoint _pos; 
 	float mass, inverseMass, elastic, friction; 
-	bool mooveble;
 	FPoint velocity;
-	float penetrationDepth;
 
 	////For sleep stage
 	bool isAwake;
@@ -68,7 +67,7 @@ protected:
 	void SetAwake(const bool awake);
 private:
 	//FUNCTIONS 
-	void AddLinearImpulse(const FPoint& impulse);//new
-	FPoint impulse;
+	void AddLinearImpulse(const FPoint& impulse);//new // NO
+	FPoint impulse; // NO
 
 };
