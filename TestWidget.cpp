@@ -21,10 +21,10 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-	_greyBody = Body::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
-	_yellowBody = Body::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
-	_DarkBlueBody = Body::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
-	_PinkBody = Body::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
+	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
+	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500,200), 0.0f, 1.5);
+	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
+	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
 	//_Floor = Body::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
 
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
@@ -32,7 +32,7 @@ void TestWidget::Init()
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
-	//AllBodies.push_back(_Floor);
+	AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
 	LinearProjectionPercent = 0.8f;
@@ -60,8 +60,8 @@ void TestWidget::Update(float dt)
 			if (AllBodies[i] == AllBodies[j]) continue;
 			Manifold result;
 			result.ResetManifold(&result);
-			Body* a = (Body*)AllBodies[i];
-			Body* b = (Body*)AllBodies[j];
+			PhysicBody* a = (PhysicBody*)AllBodies[i];
+			PhysicBody* b = (PhysicBody*)AllBodies[j];
 			result = BodyColission::FindCollisionFeatures(a, b);
 			if (result.colliding) {
 				Collider1.push_back(a);
@@ -73,12 +73,16 @@ void TestWidget::Update(float dt)
 	}
 
 	////здесь ошибка. почему? 
-	auto r = _physicBody->GetRect();
+	_physicBody->GetRect();
+	_physicBody->GetPos();
+	_physicBody->GetTex();
+	_physicBody->GetMax();
+	_physicBody->GetMin();
 
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
-			Body* a = Collider1[i];
-			Body* b = Collider2[i];
+			PhysicBody* a = Collider1[i];
+			PhysicBody* b = Collider2[i];
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
 		}
 	}
@@ -92,7 +96,7 @@ void TestWidget::Update(float dt)
 	//	}
 	//}
 
-	if(!_greyBody->isAwake) Log::Info("SLEEEEEEEEEEEP");
+	if(!_greyBody->_isAwake) Log::Info("SLEEEEEEEEEEEP");
 	else {
 		Log::Info("NOT SLEEEEEEEEEEEP");
 	}
@@ -111,8 +115,8 @@ void TestWidget::Update(float dt)
 	for (int i = 0; i < Results.size(); ++i) {
 		
 		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
-		Body* a = Collider1[i];
-		Body* b = Collider2[i]; 
+		PhysicBody* a = Collider1[i];
+		PhysicBody* b = Collider2[i];
 		
 		float totalMass = a->inverseMass + b->inverseMass;
 		
@@ -134,8 +138,6 @@ void TestWidget::Update(float dt)
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
-
-	r = _physicBody->GetRect();
 }
 
 void TestWidget::ProcessInteraction(float dt) {

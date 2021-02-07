@@ -4,13 +4,13 @@ class Body {
 public:
 	Body(Render::Texture* tex);
 	Body(Render::Texture* tex, FPoint& pos);
-	Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction);
+	//Body(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction);
 	//Body() = default;
 	~Body();
 	
 	static Body* Create(Render::Texture* tex);
 	static Body* Create(Render::Texture* tex, FPoint& pos);
-	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.6);
+//	static Body* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.6);
 
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
@@ -19,11 +19,8 @@ public:
 	//FUNCTIONS
 	void Draw();
 	void Update(float dt);
-	void KeepInBorders(); 
 	bool OnBorder(); // no
-	void ReverseCurrentVectorX();// no
-	void ReverseCurrentVectorY();// no
-	void ApplyGravity();//new // no
+
 
 public:
 	//GETTERS
@@ -37,19 +34,18 @@ public:
 public:
 	//VARIABLES
 	FPoint _pos; 
-	float mass, inverseMass, elastic, friction; 
-	FPoint velocity;
+	//float mass, inverseMass, elastic, friction; 
+	//FPoint velocity;
 
 	////For sleep stage
-	bool isAwake;
-	FPoint motion;
-	float rwaMotion;
-	float sleepEpsilon;
-	bool isCollided;
-	bool _needToCheckSleep;
-	bool canSleep;
+	//bool isAwake;
+	//FPoint motion;
+	//float rwaMotion;
+	//float sleepEpsilon;
+	//bool isCollided;
+	//bool _needToCheckSleep;
+	//bool canSleep;
 
-	void SetCanSleep(const bool sleep);
 
 
 protected:
@@ -58,16 +54,15 @@ protected:
 	IRect _rect;
 	FPoint _lastPos;
 	FPoint moving;
-	bool _anchored;
+	//bool _anchored;
 	FPoint _gravity;
 	FPoint _forces;
 
 	
 
-	void SetAwake(const bool awake);
+	
 private:
 	//FUNCTIONS 
-	void AddLinearImpulse(const FPoint& impulse);//new // NO
 	FPoint impulse; // NO
 
 };

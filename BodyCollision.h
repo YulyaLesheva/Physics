@@ -9,10 +9,10 @@ struct Interval {
 
 namespace BodyColission {
 
-	void ApplyImpulse(Body* a, Body* b, Manifold* m, int c=0);
-	Interval GetInterval(Body* a, const FPoint& axis);
-	bool OverlapOnAxis(Body*a, Body*b, const FPoint &axis);
-	bool SAT(Body* a, Body* b);
-	float PenetrationDepth(Body* a, Body* b, FPoint& axis, bool* outShouldFlip);
-	Manifold FindCollisionFeatures(Body* a, Body* b);
+	void ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int c=0);
+	Interval GetInterval(PhysicBody* a, const FPoint& axis);
+	bool OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis);
+	bool SAT(PhysicBody* a, PhysicBody* b);
+	float PenetrationDepth(PhysicBody* a, PhysicBody* b, FPoint& axis, bool* outShouldFlip);
+	Manifold FindCollisionFeatures(PhysicBody* a, PhysicBody* b);
 }

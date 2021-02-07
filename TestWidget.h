@@ -40,19 +40,19 @@ private:
 	Render::Texture *_greyQuad;
 
 
-	Body* _greyBody;
-	Body* _yellowBody;
-	Body* _DarkBlueBody;
-	Body* _PinkBody;
-	Body* _Floor;
+	PhysicBody* _greyBody;
+	PhysicBody* _yellowBody;
+	PhysicBody* _DarkBlueBody;
+	PhysicBody* _PinkBody;
+	PhysicBody* _Floor;
 	PhysicBody* _physicBody;
-	std::vector<Body*>  CheckVector;
+	std::vector<PhysicBody*>  CheckVector;
 
 
 	///all brand new 
-	std::vector<Body*> AllBodies;
-	std::vector<Body*> Collider1;
-	std::vector<Body*> Collider2;
+	std::vector<PhysicBody*> AllBodies;
+	std::vector<PhysicBody*> Collider1;
+	std::vector<PhysicBody*> Collider2;
 	std::vector<Manifold> Results;
 
 	float LinearProjectionPercent;

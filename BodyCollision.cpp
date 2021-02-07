@@ -3,7 +3,7 @@
 
 //using namespace BodyColission;
 
-void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
+void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int c) {
 
 	auto invMassA = a->inverseMass;
 	auto invMassB = b->inverseMass;
@@ -48,7 +48,7 @@ void BodyColission::ApplyImpulse(Body* a, Body* b, Manifold* m, int c) {
 	b->velocity += tangetImpulse * b->inverseMass;
 }
 
-Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
+Interval BodyColission::GetInterval(PhysicBody* a, const FPoint& axis) {
 
 	Interval result;
 
@@ -71,7 +71,7 @@ Interval BodyColission::GetInterval(Body* a, const FPoint& axis) {
 	return result;
 }
 
-bool BodyColission::OverlapOnAxis(Body*a, Body*b, const FPoint &axis) {
+bool BodyColission::OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis) {
 
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
@@ -79,7 +79,7 @@ bool BodyColission::OverlapOnAxis(Body*a, Body*b, const FPoint &axis) {
 	return ((iB.min <= iA.max) && (iA.min <= iB.max));
 }
 
-bool BodyColission::SAT(Body* a, Body* b) {
+bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
 
 	FPoint axisXY[] = {
 	FPoint(1, 0), FPoint(0, 1)
@@ -96,7 +96,7 @@ bool BodyColission::SAT(Body* a, Body* b) {
 	return true;
 }
 
-float BodyColission::PenetrationDepth(Body *a, Body* b, FPoint& axis, bool* outShouldFlip) {
+float BodyColission::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis, bool* outShouldFlip) {
 	
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
@@ -122,7 +122,7 @@ float BodyColission::PenetrationDepth(Body *a, Body* b, FPoint& axis, bool* outS
 	return total;
 }
 
-Manifold BodyColission::FindCollisionFeatures(Body* a, Body* b) {
+Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 
 	Manifold result;
 	//here function reset collision manifold
