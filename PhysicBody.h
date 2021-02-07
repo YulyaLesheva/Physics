@@ -12,31 +12,27 @@ public:
 public: 
 	bool _anchored;
 	float mass, inverseMass, elastic, friction;
-	FPoint velocity;
-
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
 
 
 	//sleep needs to be private
+	
+	FPoint _forces;
+
+	void SetCanSleep(const bool sleep);
+	void SetAwake(const bool awake);
+	bool GetAwakeStatus();
+
+private:
+	void ApplyGravity();
+	void AddLinearImpulse(const FPoint& impulse);
 	bool _isAwake;
 	FPoint _motion;
 	float _rwaMotion;
 	float _sleepEpsilon;
 	bool _isCollided;
 	bool _canSleep;
-	
-	void SetCanSleep(const bool sleep);
-	void SetAwake(const bool awake);
-	void KeepInBorders();
-
-
-private:
-	void ReverseCurrentVectorX();
-	void ReverseCurrentVectorY();
-	bool OnBorder();
-	void ApplyGravity();
-	void AddLinearImpulse(const FPoint& impulse);
 private:
 
 

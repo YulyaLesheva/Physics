@@ -7,7 +7,6 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	:Body(tex, pos),
 	mass(mass),
 	inverseMass(1/mass),
-	velocity(0,0),
 	elastic(elastic), 
 	friction(friction),
 	_anchored(false)
@@ -39,8 +38,7 @@ void PhysicBody::Update(float dt)
 	float dampingFactor = 1.0 - 0.95;
 	float frameDamping = powf(dampingFactor, dt);
 
-	FPoint force = _forces;
-	FPoint acceleration = force * inverseMass;
+	FPoint acceleration = _forces * inverseMass;
 	acceleration += GRAVITY_CONST * mass;
 	velocity += acceleration * dt;
 	velocity *= frameDamping;
@@ -69,7 +67,7 @@ void PhysicBody::Update(float dt)
 }
 
 bool PhysicBody::MouseDown(const IPoint & mouse_pos)
-{
+{ 
 	if (GetRect().Contains(mouse_pos)) {
 		_anchored = true;
 		SetAwake(false);
@@ -110,52 +108,9 @@ void PhysicBody::SetAwake(const bool awake)
 	}
 }
 
-void PhysicBody::KeepInBorders()
-{
-	auto rect = GetRect();
-
-	if (rect.LeftBottom().x <= 0) {
-		_pos.x = _tex->Width() * 0.5;
-		//_pos.x = _pos.x + 1;
-		ReverseCurrentVectorX();
-	}
-
-	if (rect.RightBottom().x >= Render::device.Width()) {
-		_pos.x = Render::device.Width() - _tex->Width() * 0.5;
-		//_pos.x = _pos.x - 1;
-		ReverseCurrentVectorX();
-	}
-
-	if (rect.LeftTop().y >= Render::device.Height()) {
-		_pos.y = Render::device.Height() - _tex->Height() * 0.5;
-		//_pos.y = _pos.y - 1;
-		ReverseCurrentVectorY();
-	}
-
-	if (rect.LeftBottom().y <= 0) {
-		_pos.y = _tex->Height() * 0.5;
-		//_pos.y = _pos.y + 1;
-		ReverseCurrentVectorY();
-	}
-}
-
-bool PhysicBody::OnBorder()
-{
-	auto rect = GetRect();
-
-	if (rect.LeftBottom().x < 0 || rect.RightBottom().x > Render::device.Width()) {
-		return true;
-	}
-
-	if (rect.LeftTop().y > Render::device.Height() || rect.LeftBottom().y < 0) {
-		return true;
-	}
-	return false;
-}
-
 void PhysicBody::ApplyGravity()
 {
-	velocity = GRAVITY_CONST * mass;
+	_forces = GRAVITY_CONST * mass;
 }
 
 void PhysicBody::AddLinearImpulse(const FPoint & impulse)
@@ -163,11 +118,6 @@ void PhysicBody::AddLinearImpulse(const FPoint & impulse)
 	velocity += impulse;
 }
 
-
-void PhysicBody::ReverseCurrentVectorY() {
-	velocity.y = velocity.y * -1;
-}
-
-void PhysicBody::ReverseCurrentVectorX() {
-	velocity.x = velocity.x * -1;
+bool PhysicBody::GetAwakeStatus() {
+	return _isAwake;
 }

@@ -47,7 +47,7 @@ private:
 	PhysicBody* _Floor;
 	PhysicBody* _physicBody;
 	std::vector<PhysicBody*>  CheckVector;
-
+	Body* _justBody;
 
 	///all brand new 
 	std::vector<PhysicBody*> AllBodies;
