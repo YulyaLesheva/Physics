@@ -16,7 +16,6 @@ public:
 
 	void Draw() override;
 	void Update(float dt) override;
-	void ProcessInteraction(float dt);
 	
 	void AcceptMessage(const Message& message) override;
 	
@@ -34,11 +33,6 @@ private:
 
 private:
 	Sprite<Background> _background;
-	Sprite<Quad> _blueQuad;
-	Sprite<Quad> _purpleQuad;
-	Sprite<Quad> _yellowQuad;
-	Render::Texture *_greyQuad;
-
 
 	PhysicBody* _greyBody;
 	PhysicBody* _yellowBody;
@@ -54,6 +48,12 @@ private:
 	std::vector<PhysicBody*> Collider1;
 	std::vector<PhysicBody*> Collider2;
 	std::vector<Manifold> Results;
+
+
+	//sleep
+	std::vector<PhysicBody*> SleepBodies;
+	std::vector<std::vector<PhysicBody*>> PairsOfSleepingBodies;
+
 
 	float LinearProjectionPercent;
 	float PenetrationSlack;

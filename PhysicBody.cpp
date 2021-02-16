@@ -12,12 +12,12 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	_anchored(false)
 	
 {
-	if (mass == 0) inverseMass = 0;
-
 	_sleepEpsilon = 0.9f;
-	_canSleep = false;
+	
+	if (mass == 0) inverseMass = 0;
+	
+	SetCanSleep(false);
 	SetAwake(true);
-
 }
 
 PhysicBody* PhysicBody::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, float friction)
@@ -43,17 +43,16 @@ void PhysicBody::Update(float dt)
 	velocity += acceleration * dt;
 	velocity *= frameDamping;
 	_pos += velocity;
-
-	/*const float mDamping = 0.98f;
-	FPoint mAcceleration = _forces * inverseMass;
-	velocity += mAcceleration;
-	velocity *= mDamping;
-	_pos += velocity;*/
-
+	
+	//****
+	//sleep
+	//stage
+	//****
+	
 	float motion = velocity.GetDotProduct(velocity);
 	float bias = 0.98f;
 	_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
-
+	
 	if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
 
 	if (_rwaMotion < _sleepEpsilon) {
@@ -61,7 +60,6 @@ void PhysicBody::Update(float dt)
 	}
 
 	else if (_rwaMotion > 10 * _sleepEpsilon) {
-		_rwaMotion = 10 * _sleepEpsilon;
 		SetAwake(true);
 	}
 }
@@ -85,21 +83,11 @@ bool PhysicBody::MouseUp(const IPoint & mouse_pos)
 	return false;
 }
 
-void PhysicBody::SetCanSleep(const bool sleep)
-{
-	if (sleep) {
-		_canSleep = true;
-	}
-	else {
-		_canSleep = false;
-	}
-}
-
 void PhysicBody::SetAwake(const bool awake)
 {
 	if (awake) {
 		_isAwake = true;
-		_rwaMotion = _sleepEpsilon * 2.0f;
+		_rwaMotion = 10 * _sleepEpsilon;
 
 	}
 	else {
@@ -118,6 +106,19 @@ void PhysicBody::AddLinearImpulse(const FPoint & impulse)
 	velocity += impulse;
 }
 
-bool PhysicBody::GetAwakeStatus() {
+bool PhysicBody::IsAwake() {
 	return _isAwake;
+}
+
+void PhysicBody::SetCanSleep(const bool sleep)
+{
+	if (sleep) {
+		_canSleep = true;
+	}
+	else {
+		_canSleep = false;
+	}
+}
+bool PhysicBody::CanSleep() {
+	return _canSleep;
 }

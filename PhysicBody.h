@@ -15,14 +15,13 @@ public:
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
 
-
-	//sleep needs to be private
 	
 	FPoint _forces;
 
 	void SetCanSleep(const bool sleep);
 	void SetAwake(const bool awake);
-	bool GetAwakeStatus();
+	bool IsAwake();
+	bool CanSleep();
 
 private:
 	void ApplyGravity();
@@ -33,7 +32,5 @@ private:
 	float _sleepEpsilon;
 	bool _isCollided;
 	bool _canSleep;
-private:
-
 
 };
