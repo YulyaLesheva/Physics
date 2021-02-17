@@ -16,8 +16,14 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	
 	if (mass == 0) inverseMass = 0;
 	
+	if (mass != 0) {
+		SetAwake(true);
+	}
+	else {
+		SetAwake(false);
+	}
+
 	SetCanSleep(false);
-	SetAwake(true);
 }
 
 PhysicBody* PhysicBody::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, float friction)
@@ -68,7 +74,7 @@ bool PhysicBody::MouseDown(const IPoint & mouse_pos)
 { 
 	if (GetRect().Contains(mouse_pos)) {
 		_anchored = true;
-		SetAwake(false);
+	//	SetAwake(false);
 		return true;
 	}
 	else {
@@ -79,7 +85,7 @@ bool PhysicBody::MouseDown(const IPoint & mouse_pos)
 bool PhysicBody::MouseUp(const IPoint & mouse_pos)
 {
 	_anchored = false;
-	SetAwake(true);
+	//SetAwake(true);
 	return false;
 }
 

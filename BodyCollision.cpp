@@ -87,12 +87,12 @@ bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
 
 	for (int i = 0; i < 2; ++i) {
 		if (!OverlapOnAxis(a, b, axisXY[i])) {
-			Log::Info(".....");
+			//Log::Info(".....");
 			return false;
 
 		}
 	}
-	Log::Info("It's a colission!");
+	//Log::Info("It's a colission!");
 	return true;
 }
 

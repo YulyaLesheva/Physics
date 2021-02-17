@@ -39,9 +39,6 @@ void TestWidget::Init()
 	PenetrationSlack = 0.1f;
 	impulseIteration = 1;
 
-	SleepBodies.push_back(_greyBody);
-	SleepBodies.push_back(_yellowBody);
-	SleepBodies.push_back(_PinkBody);
 }
 
 void TestWidget::Draw()
@@ -58,15 +55,68 @@ void TestWidget::Update(float dt)
 	Collider2.clear();
 	Results.clear();
 
+	//all current sleeping bodies 
 	for (int i = 0; i < AllBodies.size(); ++i) {
-		if (!AllBodies[i]->IsAwake()) {
-			if (std::find(SleepBodies.begin(), SleepBodies.end(), AllBodies[i]) != SleepBodies.end()) {
+		auto body = AllBodies[i];
+		if (!body->IsAwake()) {
+			if (std::find(SleepBodies.begin(), SleepBodies.end(), body) != SleepBodies.end()) {
 				/* v contains x */
 				continue;
 			}
 			else {
-				SleepBodies.push_back(AllBodies[i]);
+				SleepBodies.push_back(body);
 			}
+		}
+		else {
+			//это сохранить, но  пока это работает неправильно, из-за функции управления мышкой
+			auto l = std::find(SleepBodies.begin(), SleepBodies.end(), body);
+			if (l != SleepBodies.end()) SleepBodies.erase(l);
+		}
+	}
+
+	if (!_greyBody->IsAwake()) Log::Info("grey sleep");
+	else {
+		Log::Info("grey not sleep");
+	}
+
+	if (!_yellowBody->IsAwake()) Log::Info("yellow sleep");
+	else {
+		Log::Info("yellow not sleep");
+	}
+
+	for (int i = 0; i < SleepBodies.size(); ++i) {
+		for (int j = i; j < SleepBodies.size(); ++j) {
+			if (AllBodies[i] == AllBodies[j]) continue;
+			std::vector<PhysicBody*> sleepPair;
+			PhysicBody* a = (PhysicBody*)SleepBodies[i];
+			PhysicBody* b = (PhysicBody*)SleepBodies[j];
+			if (BodyColission::SAT(a, b)) {
+				sleepPair.push_back(a);
+				sleepPair.push_back(b);
+				if (std::find(PairsOfSleepingBodies.begin(), PairsOfSleepingBodies.end(), sleepPair) != PairsOfSleepingBodies.end()) {
+					continue;
+				}
+				else {
+					PairsOfSleepingBodies.push_back(sleepPair);
+				}
+			}
+		}
+	}
+
+
+	//проверка не перестали ли сопрекасаться пары, возможно придется переместить функцию в другое место
+	for (int i = 0; i < PairsOfSleepingBodies.size(); ++i) {
+		if (PairsOfSleepingBodies[i].size() > 2) break;
+		PhysicBody* a = PairsOfSleepingBodies[i].front();
+		PhysicBody* b = PairsOfSleepingBodies[i].back();
+		if (!BodyColission::SAT(a, b)) {
+			Log::Info("no more penetrated");
+			a->SetAwake(true);
+			b->SetAwake(true);
+			PairsOfSleepingBodies.erase(PairsOfSleepingBodies.cbegin() + i);
+		}
+		else {
+			Log::Info("still penetrating");
 		}
 	}
 
@@ -93,7 +143,8 @@ void TestWidget::Update(float dt)
 			BodyColission::ApplyImpulse(a, b, &Results[i]);
 		}
 	}
-	
+
+
 	//мы берем спящие объекты и проверяем их коллизию, если коллизия есть, то они остаются спящими, но если нет, то мы их будим.
 	//для этого нам нужен предположительно нужен вектор, в котором мы будем хранить пары спящих объектов. 
 	//итерацию на проверку коллизий мы будем делать по этому вектору 
@@ -122,15 +173,13 @@ void TestWidget::Update(float dt)
 		body->Update(dt);
 	}
 
-
 	/*Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
 	Log::Info("PINK BODY VELOCITY  " + std::to_string(_PinkBody->velocity.y));
 	Log::Info("YELLOW BODY VELOCITY " + std::to_string(_yellowBody->velocity.y));
 	*/
 
-	BodyColission::SAT(_PinkBody, _greyBody);
 
-
+	
 	for (int i = 0; i < Results.size(); ++i) {
 		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
 		PhysicBody* a = Collider1[i];
@@ -147,6 +196,20 @@ void TestWidget::Update(float dt)
 		b->_pos += b->inverseMass * corr;
 	}
 
+	
+
+	/*for (int i = 0; i < AllBodies.size(); ++i) {
+		if (!AllBodies[i]->IsAwake()) {
+			for (int j = i; j < AllBodies.size(); ++j) {
+				if (AllBodies[i] == AllBodies[j]) continue;
+				if (!BodyColission::SAT(AllBodies[i], AllBodies[j])) {
+				//добавить в бул вектор значения, если все значения фолс, то значит ни с кем не пересекается и ее надо будить. 
+				}
+			}
+		}
+	}*/
+
+	
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();
 	}
