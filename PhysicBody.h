@@ -22,6 +22,8 @@ public:
 	void SetAwake(const bool awake);
 	bool IsAwake();
 	bool CanSleep();
+	std::vector<bool> CollisionState;
+	bool _isCollided;
 
 private:
 	void ApplyGravity();
@@ -30,7 +32,8 @@ private:
 	FPoint _motion;
 	float _rwaMotion;
 	float _sleepEpsilon;
-	bool _isCollided;
 	bool _canSleep;
+
+
 
 };

@@ -103,12 +103,12 @@ bool Body::TestCollide(Body * body)
 
 	for (int i = 0; i < 2; ++i) {
 		if (!OverlapOnAxis(bodyA, body, axisXY[i])) {
-			Log::Info(".....");
+			//Log::Info(".....");
 			return false;
 
 		}
 	}
-	Log::Info("It's a colission!");
+	//Log::Info("It's a colission!");
 	return true;
 }
 

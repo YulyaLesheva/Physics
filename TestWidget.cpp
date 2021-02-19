@@ -26,13 +26,12 @@ void TestWidget::Init()
 	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 0.0f, 1.5);
 	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
 	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
-
-	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 0.1f);
+	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
 	AllBodies.push_back(_PinkBody);
-	//AllBodies.push_back(_physicBody);
+	AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
 	LinearProjectionPercent = 0.8f;
@@ -55,6 +54,41 @@ void TestWidget::Update(float dt)
 	Collider2.clear();
 	Results.clear();
 
+
+	for (int i = 0; i < AllBodies.size(); ++i) {
+		for (int j = i; j < AllBodies.size(); ++j) {
+			if (AllBodies[i] == AllBodies[j]) continue; 
+			Manifold result;
+			result.ResetManifold(&result);
+			PhysicBody* a = (PhysicBody*)AllBodies[i];
+			PhysicBody* b = (PhysicBody*)AllBodies[j];
+			result = BodyColission::FindCollisionFeatures(a, b);
+			if (result.colliding) {
+				Collider1.push_back(a);
+				Collider2.push_back(b);
+				Results.push_back(result);
+			}
+		}
+	}
+
+	for (int i = 0; i < AllBodies.size(); ++i) {
+		for (int j = i; j < AllBodies.size(); ++j) {
+			if (AllBodies[i] == AllBodies[j]) continue;
+			bool result;
+			PhysicBody* a = (PhysicBody*)AllBodies[i];
+			PhysicBody* b = (PhysicBody*)AllBodies[j];
+			result = a->TestCollide(b);
+			if (result) {
+				a->CollisionState.push_back(true);
+				b->CollisionState.push_back(true);
+			}
+		}
+	}
+
+	//мы берем спящие объекты и проверяем их коллизию, если коллизия есть, то они остаются спящими, но если нет, то мы их будим.
+	//для этого нам нужен предположительно нужен вектор, в котором мы будем хранить пары спящих объектов. 
+	//итерацию на проверку коллизий мы будем делать по этому вектору 
+
 	//all current sleeping bodies 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		auto body = AllBodies[i];
@@ -74,34 +108,20 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	if (!_greyBody->IsAwake()) Log::Info("grey sleep");
-	else {
-		Log::Info("grey not sleep");
-	}
+	//if (!_greyBody->IsAwake()) Log::Info("grey sleep");
+	//else {
+	//	Log::Info("grey not sleep");
+	//}
 
-	if (!_yellowBody->IsAwake()) Log::Info("yellow sleep");
-	else {
-		Log::Info("yellow not sleep");
-	}
+	//if (!_yellowBody->IsAwake()) Log::Info("yellow sleep");
+	//else {
+	//	Log::Info("yellow not sleep");
+	//}
 
-	for (int i = 0; i < SleepBodies.size(); ++i) {
-		for (int j = i; j < SleepBodies.size(); ++j) {
-			if (AllBodies[i] == AllBodies[j]) continue;
-			std::vector<PhysicBody*> sleepPair;
-			PhysicBody* a = (PhysicBody*)SleepBodies[i];
-			PhysicBody* b = (PhysicBody*)SleepBodies[j];
-			if (BodyColission::SAT(a, b)) {
-				sleepPair.push_back(a);
-				sleepPair.push_back(b);
-				if (std::find(PairsOfSleepingBodies.begin(), PairsOfSleepingBodies.end(), sleepPair) != PairsOfSleepingBodies.end()) {
-					continue;
-				}
-				else {
-					PairsOfSleepingBodies.push_back(sleepPair);
-				}
-			}
-		}
-	}
+	//if (!_PinkBody->IsAwake()) Log::Info("pink sleep");
+	//else {
+	//	Log::Info("pink not sleep");
+	//}
 
 
 	//проверка не перестали ли сопрекасаться пары, возможно придется переместить функцию в другое место
@@ -120,18 +140,21 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	for (int i = 0; i < AllBodies.size(); ++i) {
-		for (int j = i; j < AllBodies.size(); ++j) {
-			if (AllBodies[i] == AllBodies[j]) continue; 
-			Manifold result;
-			result.ResetManifold(&result);
-			PhysicBody* a = (PhysicBody*)AllBodies[i];
-			PhysicBody* b = (PhysicBody*)AllBodies[j];
-			result = BodyColission::FindCollisionFeatures(a, b);
-			if (result.colliding) {
-				Collider1.push_back(a);
-				Collider2.push_back(b);
-				Results.push_back(result);
+	for (int i = 0; i < SleepBodies.size(); ++i) {
+		for (int j = i; j < SleepBodies.size(); ++j) {
+			if (SleepBodies[i] == SleepBodies[j]) continue;
+			std::vector<PhysicBody*> sleepPair;
+			PhysicBody* a = (PhysicBody*)SleepBodies[i];
+			PhysicBody* b = (PhysicBody*)SleepBodies[j];
+			if (BodyColission::SAT(a, b)) {
+				sleepPair.push_back(a);
+				sleepPair.push_back(b);
+				if (std::find(PairsOfSleepingBodies.begin(), PairsOfSleepingBodies.end(), sleepPair) != PairsOfSleepingBodies.end()) {
+					continue;
+				}
+				else {
+					PairsOfSleepingBodies.push_back(sleepPair);
+				}
 			}
 		}
 	}
@@ -144,42 +167,11 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-
-	//мы берем спящие объекты и проверяем их коллизию, если коллизия есть, то они остаются спящими, но если нет, то мы их будим.
-	//для этого нам нужен предположительно нужен вектор, в котором мы будем хранить пары спящих объектов. 
-	//итерацию на проверку коллизий мы будем делать по этому вектору 
-
-	//for (auto f :AllBodies) {
-	//	if (!f->isAwake) {
-	//		if (f->mass != 0) {
-	//			Log::Info("SLEEEEEEEEEEEP");
-
-	//		}
-	//	}
-	//}
-
-	/*if (!_greyBody->GetAwakeStatus()) Log::Info("SLEEEEEEEEEEEP");
-	else {
-		Log::Info("NOT SLEEEEEEEEEEEP");
-	}*/
-
-	/*if (_greyBody->GetSleepStatus()) Log::Info("CAN SLEEEEEEEEEEEP");
-	else {
-		Log::Info("CAN NOT SLEEEEEEEEEEEP");
-	}*/
-
-
 	for (auto &body : AllBodies) {
 		body->Update(dt);
 	}
 
-	/*Log::Info("GREY BODY VELOCITY  " + std::to_string(_greyBody->velocity.y));
-	Log::Info("PINK BODY VELOCITY  " + std::to_string(_PinkBody->velocity.y));
-	Log::Info("YELLOW BODY VELOCITY " + std::to_string(_yellowBody->velocity.y));
-	*/
 
-
-	
 	for (int i = 0; i < Results.size(); ++i) {
 		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
 		PhysicBody* a = Collider1[i];
@@ -195,8 +187,12 @@ void TestWidget::Update(float dt)
 		a->_pos -= a->inverseMass * corr;
 		b->_pos += b->inverseMass * corr;
 	}
-
 	
+
+
+	for (auto &body : AllBodies) {
+		body->CollisionState.clear();
+	}
 
 	/*for (int i = 0; i < AllBodies.size(); ++i) {
 		if (!AllBodies[i]->IsAwake()) {
@@ -214,6 +210,7 @@ void TestWidget::Update(float dt)
 		body->KeepInBorders();
 	}
 }
+	
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {

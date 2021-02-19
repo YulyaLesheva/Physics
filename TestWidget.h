@@ -52,8 +52,9 @@ private:
 
 	//sleep
 	std::vector<PhysicBody*> SleepBodies;
+	std::vector<std::vector<PhysicBody*>> CollideVectorToCheckForSleep;
 	std::vector<std::vector<PhysicBody*>> PairsOfSleepingBodies;
-
+	
 
 	float LinearProjectionPercent;
 	float PenetrationSlack;
