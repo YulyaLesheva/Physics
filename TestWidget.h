@@ -40,6 +40,7 @@ private:
 	PhysicBody* _PinkBody;
 	PhysicBody* _Floor;
 	PhysicBody* _physicBody;
+	PhysicBody* _GreenLine;
 	std::vector<PhysicBody*>  CheckVector;
 	Body* _justBody;
 

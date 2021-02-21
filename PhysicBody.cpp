@@ -9,22 +9,13 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	inverseMass(1/mass),
 	elastic(elastic), 
 	friction(friction),
-	_anchored(false),
-	_isCollided(false)
-	
+	_anchored(false)
 {
-	_sleepEpsilon = 0.9f;
+	_sleepEpsilon = 0.5f;
 	
 	if (mass == 0) inverseMass = 0;
 	
-	if (mass != 0) {
-		SetAwake(true);
-	}
-	else {
-		SetAwake(false);
-	}
-
-	SetCanSleep(false);
+	SetAwake(true);
 }
 
 PhysicBody* PhysicBody::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, float friction)
@@ -40,7 +31,7 @@ void PhysicBody::Update(float dt)
 		_pos = mouse_position;
 	}
 	
-	if (CollisionState.empty()) SetAwake(true);
+	if (mass == 0) _isAwake = false;
 
 	if (!_isAwake) return;
 
@@ -58,9 +49,8 @@ void PhysicBody::Update(float dt)
 	//stage
 	//****
 
-
 	float motion = velocity.GetDotProduct(velocity);
-	float bias = 0.98f;
+	float bias = 0.96f;
 	_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
 	
 	if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
@@ -70,7 +60,8 @@ void PhysicBody::Update(float dt)
 	}
 
 	else if (_rwaMotion > 10 * _sleepEpsilon) {
-		SetAwake(true);
+		_rwaMotion = 10 * _sleepEpsilon;
+		_isAwake = true;
 	}
 }
 

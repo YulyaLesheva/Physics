@@ -22,8 +22,6 @@ public:
 	void SetAwake(const bool awake);
 	bool IsAwake();
 	bool CanSleep();
-	std::vector<bool> CollisionState;
-	bool _isCollided;
 
 private:
 	void ApplyGravity();
