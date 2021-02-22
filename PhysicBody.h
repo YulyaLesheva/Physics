@@ -22,7 +22,8 @@ public:
 	void SetAwake(const bool awake);
 	bool IsAwake();
 	bool CanSleep();
-
+	float GetKineticForce();
+	float GetSleepEpsilon();
 private:
 	void ApplyGravity();
 	void AddLinearImpulse(const FPoint& impulse);

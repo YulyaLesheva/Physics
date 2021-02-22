@@ -158,6 +158,7 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 
 	result.colliding = true;
 	result.mNormal = axis;
+	
 	//Log::Info("Collision is found");
 	return result;
 }

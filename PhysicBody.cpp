@@ -11,7 +11,7 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	friction(friction),
 	_anchored(false)
 {
-	_sleepEpsilon = 0.5f;
+	_sleepEpsilon = 0.05f;
 	
 	if (mass == 0) inverseMass = 0;
 	
@@ -59,9 +59,8 @@ void PhysicBody::Update(float dt)
 		SetAwake(false);
 	}
 
-	else if (_rwaMotion > 10 * _sleepEpsilon) {
-		_rwaMotion = 10 * _sleepEpsilon;
-		_isAwake = true;
+	else if (_rwaMotion > 2 * _sleepEpsilon) {
+		SetAwake(true);
 	}
 }
 
@@ -88,7 +87,7 @@ void PhysicBody::SetAwake(const bool awake)
 {
 	if (awake) {
 		_isAwake = true;
-		_rwaMotion = 10 * _sleepEpsilon;
+		_rwaMotion = 2 * _sleepEpsilon;
 
 	}
 	else {
@@ -122,4 +121,11 @@ void PhysicBody::SetCanSleep(const bool sleep)
 }
 bool PhysicBody::CanSleep() {
 	return _canSleep;
+}
+
+float PhysicBody::GetKineticForce() {
+	return velocity.GetDotProduct(velocity);
+}
+float PhysicBody::GetSleepEpsilon() {
+	return _sleepEpsilon;
 }

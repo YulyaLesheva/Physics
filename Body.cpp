@@ -168,3 +168,57 @@ void Body::ReverseCurrentVectorY() {
 void Body::ReverseCurrentVectorX() {
 	velocity.x = velocity.x * -1;
 }
+
+std::vector<FPoint> Body::GetVertices() {
+	std::vector<FPoint> verts;
+	verts.resize(2);
+	
+	FPoint min = GetMin();
+	FPoint max = GetMax();
+	
+	verts = {
+	FPoint(min.x, min.y), FPoint(max.x, min.y)
+	};
+
+	return  verts;
+}
+
+Line Body::GetEdge() {
+
+	FPoint min = GetMin();
+	FPoint max = GetMax();
+
+	Line edge;
+	edge.start = FPoint(min.x, max.y);
+	edge.end = FPoint(max.x, max.y);
+
+	return edge;
+}
+
+bool Body::PointOnPlane(const FPoint point, const Line& line) {
+	FPoint closest = ClosestPoint(point, line);
+	float distanceSq = (closest - point).GetDotProduct(closest - point);
+	return distanceSq == 0.f;
+}
+
+FPoint Body::ClosestPoint(const FPoint point, const Line& line) {
+	FPoint LVec = line.end - line.start; // line vector
+	float t = (point - line.start).GetDotProduct(LVec) / LVec.GetDotProduct(LVec);
+	t = fmaxf(t, 0.f);
+	t = fminf(t, 1.f);
+	return line.start + LVec * t;
+}
+
+bool Body::TestEdgeOnPlane(Body* body) {
+	auto verts = this->GetVertices();
+	auto plane = body->GetEdge();
+
+	if (PointOnPlane(verts[1], plane) || PointOnPlane(verts[0], plane)) {
+		Log::Info("alert point on plane");
+		return true;
+	}
+	else {
+		Log::Info("point not on plane");
+		return false;
+	}
+}

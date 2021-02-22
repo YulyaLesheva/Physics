@@ -5,6 +5,10 @@ struct Intervals {
 	float max;
 };
 
+struct Line {
+	FPoint start;
+	FPoint end;
+};
 class Body {
 public:
 	Body(Render::Texture* tex);
@@ -20,6 +24,11 @@ public:
 	void Draw();
 	void Update(float dt);
 	bool TestCollide(Body* body);
+	bool PointOnPlane(const FPoint point, const Line& line);
+
+	FPoint ClosestPoint(const FPoint point, const Line& line);
+
+	bool TestEdgeOnPlane(Body* body);
 public:
 	//GETTERS
 	IRect& GetRect(); //YA
@@ -28,7 +37,8 @@ public:
 	FPoint GetMin(); // YA
 	FPoint GetMax(); // YA
 	void KeepInBorders();
-
+	std::vector<FPoint> GetVertices();
+	Line GetEdge();
 public:
 	//VARIABLES
 	FPoint _pos; 
