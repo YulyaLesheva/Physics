@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "BodyCollision.h"
 
 //using namespace BodyColission;
@@ -11,38 +11,38 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 	auto invMassSum = invMassA + invMassB;
 
 	if (invMassSum == 0) return;
-	
+
 	//relative velocity
 	FPoint relativeVelocity = b->velocity - a->velocity;
 	//relative collision normal 
 	float velocityAlnogNormal = relativeVelocity.GetDotProduct(m->mNormal);
-	
+
 	if (velocityAlnogNormal > 0) return;
-	
+
 	float e = math::min(a->elastic, b->elastic);
 	float j = -(1 + e) * velocityAlnogNormal;
-	
+
 	if (j != 0.0f) j /= invMassSum;
-	
+
 	FPoint impulse = j * m->mNormal;
-	
+
 	//j += (m->depth * 1.5f);
 
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
 
 	//add friction implementation
-	
+
 	FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
 	float jt = -relativeVelocity.GetDotProduct(t);
-	
+
 	jt /= invMassSum;
 	if (jt == 0.f) return;
 
 	float friction = sqrtf(a->friction * b->friction);
 	if (jt > j*friction) jt = j * friction;
 	else if (jt < -j * friction) jt = -j * friction;
-	
+
 	FPoint tangetImpulse = t * jt;
 	a->velocity -= tangetImpulse * a->inverseMass;
 	b->velocity += tangetImpulse * b->inverseMass;
@@ -83,7 +83,7 @@ bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
 
 	FPoint axisXY[] = {
 	FPoint(1, 0), FPoint(0, 1)
-	}; //добавить две дополнительные оси для вращающихся квадов позже
+	}; // РґРѕСЋР°РІРёС‚СЊ РґРІРµ РґРѕРї РѕСЃРё РґР»СЏ РІСЂР°С‰РµРЅРёСЏ
 
 	for (int i = 0; i < 2; ++i) {
 		if (!OverlapOnAxis(a, b, axisXY[i])) {
@@ -97,14 +97,14 @@ bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
 }
 
 float BodyColission::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis, bool* outShouldFlip) {
-	
+
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
 
-	if (!OverlapOnAxis(a,b,axis)){
+	if (!OverlapOnAxis(a, b, axis)) {
 		return 0.0f;
 	}
-	
+
 	float lengthA = iA.max - iA.min;
 	float lengthB = iB.max - iB.min;
 
@@ -118,7 +118,7 @@ float BodyColission::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis
 	}
 
 	auto total = (lengthA + lengthB) - length;
-	
+
 	return total;
 }
 
@@ -127,22 +127,22 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 	Manifold result;
 	//here function reset collision manifold
 	result.ResetManifold(&result);
-	
+
 	FPoint axisXY[] = {
 	FPoint(1, 0), FPoint(0, 1)
 	};
 
-	FPoint* hitNormal = 0; 
+	FPoint* hitNormal = 0;
 	bool shouldFlip;
 
 	for (int i = 0; i < 2; ++i) {
-		
+
 		float depth = PenetrationDepth(a, b, axisXY[i], &shouldFlip);
 
 		if (depth <= 0.f) {
 			return result;
 		}
-		
+
 		else if (depth < result.depth) {
 			if (shouldFlip) {
 				axisXY[i] = axisXY[i] * -1;
@@ -153,12 +153,11 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 	}
 
 	if (hitNormal == 0) return result;
-	
+
 	FPoint axis = hitNormal->Normalized();
 
 	result.colliding = true;
 	result.mNormal = axis;
-	
 	//Log::Info("Collision is found");
 	return result;
 }

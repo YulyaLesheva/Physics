@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "PhysicBody.h"
 
 #define GRAVITY_CONST FPoint(0, -9.82f)
@@ -6,15 +6,15 @@
 PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction)
 	:Body(tex, pos),
 	mass(mass),
-	inverseMass(1/mass),
-	elastic(elastic), 
+	inverseMass(1 / mass),
+	elastic(elastic),
 	friction(friction),
 	_anchored(false)
 {
-	_sleepEpsilon = 0.05f;
-	
+	_sleepEpsilon = 0.5f;
+
 	if (mass == 0) inverseMass = 0;
-	
+
 	SetAwake(true);
 }
 
@@ -30,7 +30,7 @@ void PhysicBody::Update(float dt)
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
 	}
-	
+
 	if (mass == 0) _isAwake = false;
 
 	if (!_isAwake) return;
@@ -43,7 +43,7 @@ void PhysicBody::Update(float dt)
 	velocity += acceleration * dt;
 	velocity *= frameDamping;
 	_pos += velocity;
-	
+
 	//****
 	//sleep
 	//stage
@@ -52,23 +52,24 @@ void PhysicBody::Update(float dt)
 	float motion = velocity.GetDotProduct(velocity);
 	float bias = 0.96f;
 	_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
-	
+
 	if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
 
 	if (_rwaMotion < _sleepEpsilon) {
 		SetAwake(false);
 	}
 
-	else if (_rwaMotion > 2 * _sleepEpsilon) {
-		SetAwake(true);
+	else if (_rwaMotion > 10 * _sleepEpsilon) {
+		_rwaMotion = 10 * _sleepEpsilon;
+		_isAwake = true;
 	}
 }
 
 bool PhysicBody::MouseDown(const IPoint & mouse_pos)
-{ 
+{
 	if (GetRect().Contains(mouse_pos)) {
 		_anchored = true;
-	//	SetAwake(false);
+		//	SetAwake(false);
 		return true;
 	}
 	else {
@@ -87,7 +88,7 @@ void PhysicBody::SetAwake(const bool awake)
 {
 	if (awake) {
 		_isAwake = true;
-		_rwaMotion = 2 * _sleepEpsilon;
+		_rwaMotion = 10 * _sleepEpsilon;
 
 	}
 	else {
@@ -121,11 +122,4 @@ void PhysicBody::SetCanSleep(const bool sleep)
 }
 bool PhysicBody::CanSleep() {
 	return _canSleep;
-}
-
-float PhysicBody::GetKineticForce() {
-	return velocity.GetDotProduct(velocity);
-}
-float PhysicBody::GetSleepEpsilon() {
-	return _sleepEpsilon;
 }

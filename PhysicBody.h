@@ -33,6 +33,8 @@ private:
 	float _sleepEpsilon;
 	bool _canSleep;
 
-
-
+public:
+	FPoint lastPosBeforeSleep;
+	std::vector<PhysicBody*> haveCollisionsWithVector;
+	void AddCollider(PhysicBody* body);
 };
