@@ -11,7 +11,7 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	friction(friction),
 	_anchored(false)
 {
-	_sleepEpsilon = 0.5f;
+	_sleepEpsilon = 0.05f;
 
 	if (mass == 0) inverseMass = 0;
 
@@ -35,14 +35,28 @@ void PhysicBody::Update(float dt)
 
 	if (!_isAwake) return;
 
-	float dampingFactor = 1.0 - 0.95;
+	/*float dampingFactor = 1.0 - 0.95;
 	float frameDamping = powf(dampingFactor, dt);
 
 	FPoint acceleration = _forces * inverseMass;
 	acceleration += GRAVITY_CONST * mass;
 	velocity += acceleration * dt;
-	velocity *= frameDamping;
-	_pos += velocity;
+	velocity *= frameDamping;*/
+
+	const float damping = 0.98f;
+
+	FPoint acceleration = _forces * inverseMass;
+	velocity = velocity + acceleration * dt;
+	velocity = velocity * damping;
+
+	
+	if (fabsf(velocity.x) < 0.001f) {
+		velocity.x = 0.0f;
+	}
+	if (fabsf(velocity.y) < 000.1f) {
+		velocity.y = 0.0f;
+	}
+
 
 	//****
 	//sleep
@@ -50,19 +64,23 @@ void PhysicBody::Update(float dt)
 	//****
 
 	float motion = velocity.GetDotProduct(velocity);
-	float bias = 0.96f;
+	float bias = 0.96f; //0.96
 	_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
 
 	if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
 
 	if (_rwaMotion < _sleepEpsilon) {
-		SetAwake(false);
+		_isAwake = false;
+		velocity = FPoint(0, 0);
 	}
 
 	else if (_rwaMotion > 10 * _sleepEpsilon) {
 		_rwaMotion = 10 * _sleepEpsilon;
 		_isAwake = true;
 	}
+
+
+	_pos += velocity ;
 }
 
 bool PhysicBody::MouseDown(const IPoint & mouse_pos)
@@ -97,7 +115,7 @@ void PhysicBody::SetAwake(const bool awake)
 	}
 }
 
-void PhysicBody::ApplyGravity()
+void PhysicBody::ApplyForces()
 {
 	_forces = GRAVITY_CONST * mass;
 }
@@ -122,4 +140,7 @@ void PhysicBody::SetCanSleep(const bool sleep)
 }
 bool PhysicBody::CanSleep() {
 	return _canSleep;
+}
+void PhysicBody::SynchCollisionVolumes() {
+
 }

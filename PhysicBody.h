@@ -22,19 +22,15 @@ public:
 	void SetAwake(const bool awake);
 	bool IsAwake();
 	bool CanSleep();
-	float GetKineticForce();
-	float GetSleepEpsilon();
+	void ApplyForces();
 private:
-	void ApplyGravity();
 	void AddLinearImpulse(const FPoint& impulse);
 	bool _isAwake;
 	FPoint _motion;
 	float _rwaMotion;
 	float _sleepEpsilon;
 	bool _canSleep;
-
 public:
 	FPoint lastPosBeforeSleep;
 	std::vector<PhysicBody*> haveCollisionsWithVector;
-	void AddCollider(PhysicBody* body);
 };
