@@ -43,7 +43,7 @@ void PhysicBody::Update(float dt)
 	velocity += acceleration * dt;
 	velocity *= frameDamping;*/
 
-	const float damping = 0.98f;
+	const float damping = 0.96f;
 
 	FPoint acceleration = _forces * inverseMass;
 	velocity = velocity + acceleration * dt;
@@ -53,7 +53,7 @@ void PhysicBody::Update(float dt)
 	if (fabsf(velocity.x) < 0.001f) {
 		velocity.x = 0.0f;
 	}
-	if (fabsf(velocity.y) < 000.1f) {
+	if (fabsf(velocity.y) < 0.001f) {
 		velocity.y = 0.0f;
 	}
 
@@ -63,21 +63,21 @@ void PhysicBody::Update(float dt)
 	//stage
 	//****
 
-	float motion = velocity.GetDotProduct(velocity);
-	float bias = 0.96f; //0.96
-	_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
+	//float motion = velocity.GetDotProduct(velocity);
+	//float bias = 0.96f; //0.96
+	//_rwaMotion = bias * _rwaMotion + (1 - bias) * motion;
 
-	if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
+	//if (_rwaMotion > 50.f) _rwaMotion = 5.0f;
 
-	if (_rwaMotion < _sleepEpsilon) {
-		_isAwake = false;
-		velocity = FPoint(0, 0);
-	}
+	//if (_rwaMotion < _sleepEpsilon) {
+	//	_isAwake = false;
+	//	velocity = FPoint(0, 0);
+	//}
 
-	else if (_rwaMotion > 10 * _sleepEpsilon) {
-		_rwaMotion = 10 * _sleepEpsilon;
-		_isAwake = true;
-	}
+	//else if (_rwaMotion > 10 * _sleepEpsilon) {
+	//	_rwaMotion = 10 * _sleepEpsilon;
+	//	_isAwake = true;
+	//}
 
 
 	_pos += velocity ;
@@ -140,7 +140,4 @@ void PhysicBody::SetCanSleep(const bool sleep)
 }
 bool PhysicBody::CanSleep() {
 	return _canSleep;
-}
-void PhysicBody::SynchCollisionVolumes() {
-
 }
