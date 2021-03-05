@@ -58,11 +58,19 @@ void TestWidget::Update(float dt)
 	Collider2.clear();
 	Results.clear();
 
-	 lineA = &_greyBody->GetEdges(_greyBody)[1];
-	 lineB = &_GreenLine->GetEdges(_GreenLine)[0];
+	auto greyEdges = _greyBody->GetEdges(_greyBody);
+	auto greenEdges = _GreenLine->GetEdges(_GreenLine);
+	
+	auto greyLine = greyEdges[1];
+	auto greenLine = greenEdges[0];
+
+	//auto r = greyLine.Det(greyLine.start, greyLine.end);
 
 
-	 lineA->LineIntersect(*lineA, *lineB);
+	//auto no = greyLine.LineIntersect(greyLine, greenLine);
+
+	auto test = greyLine.lineline(greenLine, greyLine);
+
 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {

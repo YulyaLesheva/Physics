@@ -28,7 +28,7 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 
 	//j += (m->depth * 1.5f);
 
-	Log::Info("impulse is " + std::to_string(impulse.y));
+	//Log::Info("impulse is " + std::to_string(impulse.y));
 
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
