@@ -5,10 +5,8 @@ struct Intervals {
 	float max;
 };
 
-struct Line {
-	FPoint start;
-	FPoint end;
-};
+struct Line;
+
 class Body {
 public:
 	Body(Render::Texture* tex);
@@ -24,9 +22,9 @@ public:
 	void Draw();
 	void Update(float dt);
 	bool TestCollide(Body* body);
-	bool PointOnPlane(const FPoint point, const Line& line);
+	bool PointOnPlane(const FPoint point,  Line& line);
 
-	FPoint ClosestPoint(const FPoint point, const Line& line);
+	FPoint ClosestPoint(const FPoint point, Line& line);
 
 	bool TestEdgeOnPlane(Body* body);
 public:
@@ -38,7 +36,12 @@ public:
 	FPoint GetMax(); // YA
 	void KeepInBorders();
 	std::vector<FPoint> GetVertices();
-	Line GetEdge();
+
+	//CONTACTS 
+	std::vector<FPoint> ClipEdges(const std::vector<Line>& edges, Body* body);
+	std::vector<Line> GetEdges(Body* body);
+	bool ClipToEdges(Line& lineA, Line& lineB, FPoint outPoint);
+
 public:
 	//VARIABLES
 	FPoint _pos; 

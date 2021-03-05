@@ -5,10 +5,10 @@ using Sprite = std::unique_ptr<T>;
 
 class Background;
 class Quad;
+struct Line;
 struct Manifold;
 class Body;
 class PhysicBody;
-
 class TestWidget : public GUI::Widget
 {
 public:
@@ -60,4 +60,8 @@ private:
 	float LinearProjectionPercent;
 	float PenetrationSlack;
 	int impulseIteration;
+
+	Line* lineA;
+	Line* lineB;
+
 };

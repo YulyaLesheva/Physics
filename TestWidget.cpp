@@ -7,7 +7,7 @@
 #include "Body.h"
 #include "SapAlgorithm.h"
 #include "PhysicBody.h"
-
+#include "Line.h"
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
@@ -40,6 +40,8 @@ void TestWidget::Init()
 	PenetrationSlack = 0.01f;
 	impulseIteration = 18;
 
+	
+
 }
 
 void TestWidget::Draw()
@@ -55,6 +57,12 @@ void TestWidget::Update(float dt)
 	Collider1.clear();
 	Collider2.clear();
 	Results.clear();
+
+	 lineA = &_greyBody->GetEdges(_greyBody)[1];
+	 lineB = &_GreenLine->GetEdges(_GreenLine)[0];
+
+
+	 lineA->LineIntersect(*lineA, *lineB);
 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {

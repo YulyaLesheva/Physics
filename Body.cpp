@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Body.h"
+#include "Line.h"
+
 
 Body::Body(Render::Texture* tex) :
 	_tex(tex)
@@ -171,37 +173,45 @@ void Body::ReverseCurrentVectorX() {
 
 std::vector<FPoint> Body::GetVertices() {
 	std::vector<FPoint> verts;
-	verts.resize(2);
+	verts.resize(4);
 	
 	FPoint min = GetMin();
 	FPoint max = GetMax();
 	
 	verts = {
-	FPoint(min.x, min.y), FPoint(max.x, min.y)
-	};
+	FPoint(min.x, max.y), FPoint(max.x, max.y), //0......1
+												//.      .
+	FPoint(min.x, min.y), FPoint(max.x, min.y)  //.	     .
+	};											//2......3	
 
 	return  verts;
 }
 
-Line Body::GetEdge() {
+std::vector<Line> Body::GetEdges(Body* body) {
 
-	FPoint min = GetMin();
-	FPoint max = GetMax();
+	std::vector<Line> result;
+	//result.reserve(4);
 
-	Line edge;
-	edge.start = FPoint(min.x, max.y);
-	edge.end = FPoint(max.x, max.y);
-
-	return edge;
+	std::vector<FPoint> vertices = GetVertices();
+	// должно быть четыре ребра 
+	 
+	result = {
+		Line(vertices[0], vertices[1]),
+		Line(vertices[1], vertices[3]),
+		Line(vertices[3], vertices[2]),
+		Line(vertices[2], vertices[0]),
+	};
+	
+	return result;
 }
 
-bool Body::PointOnPlane(const FPoint point, const Line& line) {
+bool Body::PointOnPlane(const FPoint point, Line& line) {
 	FPoint closest = ClosestPoint(point, line);
 	float distanceSq = (closest - point).GetDotProduct(closest - point);
 	return distanceSq == 0.f;
 }
 
-FPoint Body::ClosestPoint(const FPoint point, const Line& line) {
+FPoint Body::ClosestPoint(const FPoint point, Line& line) {
 	FPoint LVec = line.end - line.start; // line vector
 	float t = (point - line.start).GetDotProduct(LVec) / LVec.GetDotProduct(LVec);
 	t = fmaxf(t, 0.f);
@@ -210,8 +220,8 @@ FPoint Body::ClosestPoint(const FPoint point, const Line& line) {
 }
 
 bool Body::TestEdgeOnPlane(Body* body) {
-	auto verts = this->GetVertices();
-	auto plane = body->GetEdge();
+	/*auto verts = this->GetVertices();
+	auto plane = body->GetEdges();
 
 	if (PointOnPlane(verts[1], plane) || PointOnPlane(verts[0], plane)) {
 		Log::Info("alert point on plane");
@@ -220,5 +230,27 @@ bool Body::TestEdgeOnPlane(Body* body) {
 	else {
 		Log::Info("point not on plane");
 		return false;
-	}
+	}*/
+	return 0;
 }
+bool Body::ClipToEdges(Line& lineA, Line& lineB, FPoint outPoint) {
+
+	return 0;
+}
+
+std::vector<FPoint> Body::ClipEdges(const std::vector<Line>& edges, Body* body) {
+
+	std::vector<FPoint> result;
+	result.reserve(edges.size());
+	FPoint intersection;
+	
+	std::vector<Line>& edgess = GetEdges(body);
+	for (int i = 0; i < edgess.size(); ++i) {
+		/*	if(ClipToPlane())
+		}*/
+
+
+	}
+	return result;
+}
+
