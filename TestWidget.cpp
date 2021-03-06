@@ -64,13 +64,7 @@ void TestWidget::Update(float dt)
 	auto greyLine = greyEdges[1];
 	auto greenLine = greenEdges[0];
 
-	//auto r = greyLine.Det(greyLine.start, greyLine.end);
-
-
-	//auto no = greyLine.LineIntersect(greyLine, greenLine);
-
-	auto test = greyLine.lineline(greenLine, greyLine);
-
+	auto test = greyLine.lineline(greenLine);
 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
