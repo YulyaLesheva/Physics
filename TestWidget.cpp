@@ -58,13 +58,24 @@ void TestWidget::Update(float dt)
 	Collider2.clear();
 	Results.clear();
 
-	auto greyEdges = _greyBody->GetEdges(_greyBody);
-	auto greenEdges = _GreenLine->GetEdges(_GreenLine);
+	//auto greyEdges = _greyBody->GetEdges();
+	//auto greenEdges = _GreenLine->GetEdges();
+	//
+	//auto res = _greyBody->ClipEdges(greyEdges, _GreenLine);
+	////_greyBody->ClipEdges(greyEdges, _GreenLine);
+	//for (int i = 0; i < greyEdges.size(); ++i) {
+	//	for (int j = 0; j < greenEdges.size(); ++j) {
+	//		auto result = greyEdges[i].lineline(greenEdges[j]);
+	//		if (result) {
+	//			Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
+	//		}
+	//		else {
+	//			break;	
+	//		}
+	//	}
+	//}
+	auto p = _greyBody->ClipToEdges(_greyBody, _GreenLine);
 	
-	auto greyLine = greyEdges[1];
-	auto greenLine = greenEdges[0];
-
-	auto test = greyLine.lineline(greenLine);
 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {

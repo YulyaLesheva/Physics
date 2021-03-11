@@ -39,8 +39,8 @@ public:
 
 	//CONTACTS 
 	std::vector<FPoint> ClipEdges(const std::vector<Line>& edges, Body* body);
-	std::vector<Line> GetEdges(Body* body);
-	bool ClipToEdges(Line& lineA, Line& lineB, FPoint outPoint);
+	std::vector<Line> GetEdges();
+	std::vector<FPoint> ClipToEdges(Body* bodyA, Body* bodyB);
 
 public:
 	//VARIABLES

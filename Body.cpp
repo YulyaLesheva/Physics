@@ -187,19 +187,19 @@ std::vector<FPoint> Body::GetVertices() {
 	return  verts;
 }
 
-std::vector<Line> Body::GetEdges(Body* body) {
+std::vector<Line> Body::GetEdges() {
 
 	std::vector<Line> result;
-	//result.reserve(4);
+	result.reserve(4);
 
 	std::vector<FPoint> vertices = GetVertices();
 	// должно быть четыре ребра 
 	 
 	result = {
-		Line(vertices[0], vertices[1]),
-		Line(vertices[1], vertices[3]),
-		Line(vertices[3], vertices[2]),
-		Line(vertices[2], vertices[0]),
+		Line(vertices[0], vertices[1]), //....0....
+		Line(vertices[1], vertices[3]),// .       .
+		Line(vertices[3], vertices[2]),// 3       1
+		Line(vertices[2], vertices[0]),// ....2....
 	};
 	
 	return result;
@@ -233,9 +233,29 @@ bool Body::TestEdgeOnPlane(Body* body) {
 	}*/
 	return 0;
 }
-bool Body::ClipToEdges(Line& lineA, Line& lineB, FPoint outPoint) {
+std::vector<FPoint> Body::ClipToEdges(Body* bodyA, Body* bodyB) {
+	
+	std::vector<FPoint> result;
+	FPoint intersection;
 
-	return 0;
+	auto edgesA = bodyA->GetEdges();
+	auto edgesB = bodyB->GetEdges();
+
+	result.reserve(edgesA.size());
+
+	for (int i = 0; i < edgesA.size(); ++i) {
+		for (int j = 0; j < edgesB.size(); ++j) {
+			auto r = edgesA[i].lineline(edgesB[j], intersection);
+			if (r) {
+				Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
+				result.push_back(intersection);
+			}
+			else {
+				break;
+			}
+		}
+	}
+	return result;
 }
 
 std::vector<FPoint> Body::ClipEdges(const std::vector<Line>& edges, Body* body) {
@@ -244,13 +264,18 @@ std::vector<FPoint> Body::ClipEdges(const std::vector<Line>& edges, Body* body) 
 	result.reserve(edges.size());
 	FPoint intersection;
 	
-	std::vector<Line>& edgess = GetEdges(body);
-	for (int i = 0; i < edgess.size(); ++i) {
-		/*	if(ClipToPlane())
-		}*/
+	std::vector<Line>& bodyEdges = GetEdges();
 
-
+	for (int i = 0; i < bodyEdges.size(); ++i) {
+		for (int j = 0; j < edges.size(); ++j) {
+			if (bodyEdges[i].lineline(edges[j], intersection)) {
+				auto lll = intersection;
+				result.push_back(intersection);
+			}
+		}
 	}
+
+	//for
 	return result;
 }
 

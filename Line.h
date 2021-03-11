@@ -6,5 +6,5 @@ struct Line {
 	FPoint end;
 
 	
-	bool lineline(Line& lineA);
+	bool lineline(const Line& lineA, FPoint& outPoint = FPoint(0,0));
 };
