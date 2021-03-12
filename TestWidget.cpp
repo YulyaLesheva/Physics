@@ -27,7 +27,7 @@ void TestWidget::Init()
 	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
 	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
-	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);
+	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 0.2f);
 
 	AllBodies.push_back(_greyBody);
 	AllBodies.push_back(_yellowBody);
@@ -36,7 +36,7 @@ void TestWidget::Init()
 	//AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
-	LinearProjectionPercent = 0.85f;
+	LinearProjectionPercent = 0.45f;
 	PenetrationSlack = 0.01f;
 	impulseIteration = 18;
 
@@ -74,7 +74,9 @@ void TestWidget::Update(float dt)
 	//		}
 	//	}
 	//}
-	auto p = _greyBody->ClipToEdges(_greyBody, _GreenLine);
+	
+	//auto p = _greyBody->ClipToEdges(_greyBody, _yellowBody);
+	//auto p1 = _greyBody->ClipToEdges(_yellowBody, _greyBody);
 	
 
 	for (int i = 0; i < AllBodies.size(); ++i) {

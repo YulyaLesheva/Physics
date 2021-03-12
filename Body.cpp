@@ -250,9 +250,6 @@ std::vector<FPoint> Body::ClipToEdges(Body* bodyA, Body* bodyB) {
 				Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
 				result.push_back(intersection);
 			}
-			else {
-				break;
-			}
 		}
 	}
 	return result;

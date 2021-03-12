@@ -12,43 +12,60 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 
 	if (invMassSum == 0) return;
 
-	//relative velocity
-	FPoint relativeVelocity = b->velocity - a->velocity;
-	//relative collision normal 
-	float velocityAlnogNormal = relativeVelocity.GetDotProduct(m->mNormal);
+	FPoint relativeVel = b->velocity - a->velocity;
+	FPoint relativeNorm = m->mNormal;
+	if(relativeNorm != FPoint(NULL, NULL)) relativeNorm.Normalize();
+	if (relativeNorm.GetDotProduct(relativeVel) > 0.0f) return;
 
-	if (velocityAlnogNormal > 0) return;
+	float e = fminf(a->elastic, b->elastic);
+	float numerator = (-(1.0 + e) * relativeVel.GetDotProduct(relativeNorm));
+	float j = numerator / invMassSum;
 
-	float e = math::min(a->elastic, b->elastic);
-	float j = -(1 + e) * velocityAlnogNormal;
+	if (m->contacts.size() > 0.0f && j != 0.0f) {
+		j /= (float)m->contacts.size();
 
-	if (j != 0.0f) j /= invMassSum;
+	}
 
-	FPoint impulse = j * m->mNormal;
-
-	//j += (m->depth * 1.5f);
-
-	//Log::Info("impulse is " + std::to_string(impulse.y));
-
+	FPoint impulse = relativeNorm * j;
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
+	////relative velocity
+	//FPoint relativeVelocity = b->velocity - a->velocity;
+	////relative collision normal 
+	//float velocityAlnogNormal = relativeVelocity.GetDotProduct(m->mNormal);
 
-	
-	//add friction implementation
+	//if (velocityAlnogNormal > 0) return;
 
-	FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
-	float jt = -relativeVelocity.GetDotProduct(t);
+	//float e = math::min(a->elastic, b->elastic);
+	//float j = -(1 + e) * velocityAlnogNormal;
 
-	jt /= invMassSum;
-	if (jt == 0.f) return;
+	//if (j != 0.0f) j /= invMassSum;
 
-	float friction = sqrtf(a->friction * b->friction);
-	if (jt > j*friction) jt = j * friction;
-	else if (jt < -j * friction) jt = -j * friction;
+	//FPoint impulse = j * m->mNormal;
 
-	FPoint tangetImpulse = t * jt;
-	a->velocity -= tangetImpulse * a->inverseMass;
-	b->velocity += tangetImpulse * b->inverseMass;
+	////j += (m->depth * 1.5f);
+
+	////Log::Info("impulse is " + std::to_string(impulse.y));
+
+	//a->velocity -= impulse * a->inverseMass;
+	//b->velocity += impulse * b->inverseMass;
+
+	//
+	////add friction implementation
+
+	//FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
+	//float jt = -relativeVelocity.GetDotProduct(t);
+
+	//jt /= invMassSum;
+	//if (jt == 0.f) return;
+
+	//float friction = sqrtf(a->friction * b->friction);
+	//if (jt > j*friction) jt = j * friction;
+	//else if (jt < -j * friction) jt = -j * friction;
+
+	//FPoint tangetImpulse = t * jt;
+	//a->velocity -= tangetImpulse * a->inverseMass;
+	//b->velocity += tangetImpulse * b->inverseMass;
 }
 
 Interval BodyColission::GetInterval(PhysicBody* a, const FPoint& axis) {
@@ -148,7 +165,7 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 
 		else if (depth < result.depth) {
 			if (shouldFlip) {
-				axisXY[i] = axisXY[i] * -1;
+				axisXY[i] = axisXY[i] * -1.f;
 			}
 			result.depth = depth;
 			hitNormal = &axisXY[i];
@@ -158,6 +175,30 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 	if (hitNormal == 0) return result;
 
 	FPoint axis = hitNormal->Normalized();
+	
+	std::vector<FPoint> c1 = a->ClipToEdges(a, b);
+	std::vector<FPoint> c2 = b->ClipToEdges(b, a);
+
+	result.contacts.reserve(c1.size() + c2.size());
+	result.contacts.insert(result.contacts.end(), c1.begin(), c1.end());
+	result.contacts.insert(result.contacts.end(), c2.begin(), c2.end());
+
+	Interval i = GetInterval(a, axis);
+	float distance = (i.max - i.min) * 0.5f - result.depth * 0.5f;
+	FPoint pointOnPlane = a->_pos + axis * distance;
+	
+	for (int i = result.contacts.size() - 1; i >= 0; --i) {
+		FPoint contact = result.contacts[i];
+		result.contacts[i] = contact + (axis * axis.GetDotProduct(pointOnPlane - contact));
+
+		for (int j = result.contacts.size() - 1; j > i; --j) {
+			if ((result.contacts[j] - result.contacts[i]).GetDotProduct(result.contacts[j] 
+				- result.contacts[i]) < 0.0001f) {
+				result.contacts.erase(result.contacts.begin() + j);
+				break;
+			}
+		}
+	}
 
 	result.colliding = true;
 	result.mNormal = axis;

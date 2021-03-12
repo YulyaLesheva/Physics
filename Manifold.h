@@ -18,7 +18,7 @@ struct  Manifold
 			result->colliding = false;
 			result->mNormal = FPoint(0, 0);
 			result->depth = FLT_MAX;
-			//result->contacts.clear();
+			result->contacts.clear();
 		}
 	}
 };
