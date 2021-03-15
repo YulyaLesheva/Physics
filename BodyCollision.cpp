@@ -14,6 +14,7 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 
 	FPoint relativeVel = b->velocity - a->velocity;
 	FPoint relativeNorm = m->mNormal;
+	
 	if(relativeNorm != FPoint(NULL, NULL)) relativeNorm.Normalize();
 	if (relativeNorm.GetDotProduct(relativeVel) > 0.0f) return;
 
@@ -23,49 +24,34 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 
 	if (m->contacts.size() > 0.0f && j != 0.0f) {
 		j /= (float)m->contacts.size();
-
 	}
 
 	FPoint impulse = relativeNorm * j;
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
-	////relative velocity
-	//FPoint relativeVelocity = b->velocity - a->velocity;
-	////relative collision normal 
-	//float velocityAlnogNormal = relativeVelocity.GetDotProduct(m->mNormal);
 
-	//if (velocityAlnogNormal > 0) return;
+	//friction impelementation 
 
-	//float e = math::min(a->elastic, b->elastic);
-	//float j = -(1 + e) * velocityAlnogNormal;
+	FPoint t = relativeVel - (relativeNorm *  relativeVel.GetDotProduct(relativeNorm));
+	
+	if (numerator == 0) return;
+	numerator = -relativeVel.GetDotProduct(t);
+	float jt = numerator / invMassSum;
+	
+	if (m->contacts.size() > 0.0f && jt != 0.0f) {
+		jt /= (float)m->contacts.size();
+	}
+	float friction = sqrtf(a->friction * b->friction);
+	if (jt > j * friction) {
+		jt = j * friction;
+	}
+	else if (jt < -j * friction) {
+		jt = -j * friction;
+	}
 
-	//if (j != 0.0f) j /= invMassSum;
-
-	//FPoint impulse = j * m->mNormal;
-
-	////j += (m->depth * 1.5f);
-
-	////Log::Info("impulse is " + std::to_string(impulse.y));
-
-	//a->velocity -= impulse * a->inverseMass;
-	//b->velocity += impulse * b->inverseMass;
-
-	//
-	////add friction implementation
-
-	//FPoint t = relativeVelocity - (m->mNormal * velocityAlnogNormal);
-	//float jt = -relativeVelocity.GetDotProduct(t);
-
-	//jt /= invMassSum;
-	//if (jt == 0.f) return;
-
-	//float friction = sqrtf(a->friction * b->friction);
-	//if (jt > j*friction) jt = j * friction;
-	//else if (jt < -j * friction) jt = -j * friction;
-
-	//FPoint tangetImpulse = t * jt;
-	//a->velocity -= tangetImpulse * a->inverseMass;
-	//b->velocity += tangetImpulse * b->inverseMass;
+	FPoint tangentImpulse = t * jt;
+	a->velocity -= tangentImpulse * invMassA;
+	b->velocity += tangentImpulse * invMassB;
 }
 
 Interval BodyColission::GetInterval(PhysicBody* a, const FPoint& axis) {

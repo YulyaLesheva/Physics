@@ -22,21 +22,21 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 
-	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 1.0);
-	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 1.1f, 0.7);
-	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.7);
-	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 1.0);
+	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 0.95);
+	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 3.1f, 0.95);
+	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.2);
+	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 0.95);
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
-	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 0.2f);
+	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 0.95f);
 
 	AllBodies.push_back(_greyBody);
-	AllBodies.push_back(_yellowBody);
-	AllBodies.push_back(_PinkBody);
+	//AllBodies.push_back(_yellowBody);
+	//AllBodies.push_back(_PinkBody);
 	AllBodies.push_back(_GreenLine);
 	//AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
-	LinearProjectionPercent = 0.45f;
+	LinearProjectionPercent = 0.25f;
 	PenetrationSlack = 0.01f;
 	impulseIteration = 18;
 
@@ -88,8 +88,8 @@ void TestWidget::Update(float dt)
 			PhysicBody* b = (PhysicBody*)AllBodies[j];
 			result = BodyColission::FindCollisionFeatures(a, b);
 			if (result.colliding) {
-				Collider1.push_back(a);
-				Collider2.push_back(b);
+				Collider1.push_back(AllBodies[i]);
+				Collider2.push_back(AllBodies[j]);
 				Results.push_back(result);
 			}
 		}
@@ -99,12 +99,14 @@ void TestWidget::Update(float dt)
 		b->ApplyForces();
 	}
 
-
 	for (int k = 0; k < impulseIteration; ++k) {
 		for (int i = 0; i < Results.size(); ++i) {
-			PhysicBody* a = Collider1[i];
-			PhysicBody* b = Collider2[i];
-			BodyColission::ApplyImpulse(a, b, &Results[i]);
+			auto jSize = Results[i].contacts.size();
+			for (int j = 0; j < jSize; ++j) {
+				PhysicBody* a = Collider1[i];
+				PhysicBody* b = Collider2[i];
+				BodyColission::ApplyImpulse(a, b, &Results[i], j);
+			}
 		}
 	}
 

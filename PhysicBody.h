@@ -5,7 +5,7 @@ class PhysicBody : public Body
 {
 public:
 	PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction);
-	static PhysicBody* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.5);
+	static PhysicBody* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.6);
 	void Update(float dt);
 
 
@@ -17,11 +17,6 @@ public:
 
 	
 	FPoint _forces;
-
-	void SetCanSleep(const bool sleep);
-	void SetAwake(const bool awake);
-	bool IsAwake();
-	bool CanSleep();
 	void ApplyForces();
 private:
 	void AddLinearImpulse(const FPoint& impulse);

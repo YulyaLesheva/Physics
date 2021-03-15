@@ -219,20 +219,6 @@ FPoint Body::ClosestPoint(const FPoint point, Line& line) {
 	return line.start + LVec * t;
 }
 
-bool Body::TestEdgeOnPlane(Body* body) {
-	/*auto verts = this->GetVertices();
-	auto plane = body->GetEdges();
-
-	if (PointOnPlane(verts[1], plane) || PointOnPlane(verts[0], plane)) {
-		Log::Info("alert point on plane");
-		return true;
-	}
-	else {
-		Log::Info("point not on plane");
-		return false;
-	}*/
-	return 0;
-}
 std::vector<FPoint> Body::ClipToEdges(Body* bodyA, Body* bodyB) {
 	
 	std::vector<FPoint> result;
@@ -247,7 +233,7 @@ std::vector<FPoint> Body::ClipToEdges(Body* bodyA, Body* bodyB) {
 		for (int j = 0; j < edgesB.size(); ++j) {
 			auto r = edgesA[i].lineline(edgesB[j], intersection);
 			if (r) {
-				Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
+				//Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
 				result.push_back(intersection);
 			}
 		}
@@ -272,7 +258,6 @@ std::vector<FPoint> Body::ClipEdges(const std::vector<Line>& edges, Body* body) 
 		}
 	}
 
-	//for
 	return result;
 }
 
