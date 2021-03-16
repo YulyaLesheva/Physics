@@ -10,23 +10,31 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 
 	auto invMassSum = invMassA + invMassB;
 
-	if (invMassSum == 0) return;
-
 	FPoint relativeVel = b->velocity - a->velocity;
 	FPoint relativeNorm = m->mNormal;
 	
-	if(relativeNorm != FPoint(NULL, NULL)) relativeNorm.Normalize();
-	if (relativeNorm.GetDotProduct(relativeVel) > 0.0f) return;
+	relativeNorm.Normalize();
+	if (relativeNorm.GetDotProduct(relativeVel) > 0.001f) return;
 
 	float e = fminf(a->elastic, b->elastic);
 	float numerator = (-(1.0 + e) * relativeVel.GetDotProduct(relativeNorm));
-	float j = numerator / invMassSum;
+	float j = (invMassSum == 0.0f) ? 0.0f : numerator / invMassSum;
 
 	if (m->contacts.size() > 0.0f && j != 0.0f) {
 		j /= (float)m->contacts.size();
 	}
-
 	FPoint impulse = relativeNorm * j;
+
+	a->WHATIMPULSE = impulse * a->inverseMass;
+	b->WHATIMPULSE = impulse * b->inverseMass;
+
+	if (a->WHATIMPULSE.y == 0 ) {
+		Log::Info("impulse is zerooooo");
+	}
+	else {
+		Log::Info(std::to_string(impulse.x) + " " + std::to_string(impulse.y));
+	}
+
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
 

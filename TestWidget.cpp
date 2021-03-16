@@ -22,26 +22,23 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 
-	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 200), 1.9f, 0.95);
-	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 3.1f, 0.95);
+	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 800), 1.9f, 0.95);
+	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 1.1f, 0.95);
 	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 0.2);
-	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 2.5f, 0.95);
+	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 0.95);
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 0.95f);
 
 	AllBodies.push_back(_greyBody);
-	//AllBodies.push_back(_yellowBody);
-	//AllBodies.push_back(_PinkBody);
+	AllBodies.push_back(_yellowBody);
+	AllBodies.push_back(_PinkBody);
 	AllBodies.push_back(_GreenLine);
 	//AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
 	LinearProjectionPercent = 0.25f;
 	PenetrationSlack = 0.01f;
-	impulseIteration = 18;
-
-	
-
+	impulseIteration = 20;
 }
 
 void TestWidget::Draw()
@@ -50,6 +47,18 @@ void TestWidget::Draw()
 	for (auto &body : AllBodies) {
 		body->Draw();
 	}
+
+
+	Render::BeginColor(Color(29, 26, 49, 255)); // Color(Red, Green, Blue, Alpha)
+	Render::BindFont("arial");
+	Render::PrintString(FPoint(800, 650), "velocity grey: " + std::to_string(_greyBody->velocity.x )+ " " + std::to_string(_greyBody->velocity.y), 1.5f, CenterAlign);
+	Render::PrintString(FPoint(800, 600), "velocity green: " + std::to_string(_GreenLine->velocity.x )+ " " + std::to_string(_GreenLine->velocity.y), 1.5f, CenterAlign);
+	Render::PrintString(FPoint(800, 550), "impulse grey: " + std::to_string(_greyBody->WHATIMPULSE.x)+ " " + std::to_string(_greyBody->WHATIMPULSE.y), 1.5f, CenterAlign);
+	Render::PrintString(FPoint(800, 500), "impulse green: " + std::to_string(_GreenLine->WHATIMPULSE.x)+ " " + std::to_string(_GreenLine->WHATIMPULSE.y), 1.5f, CenterAlign);
+	Render::EndColor();
+
+
+
 }
 
 void TestWidget::Update(float dt)
@@ -81,7 +90,7 @@ void TestWidget::Update(float dt)
 
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
-			if (AllBodies[i] == AllBodies[j]) continue;
+			if (i == j) continue;
 			Manifold result;
 			result.ResetManifold(&result);
 			PhysicBody* a = (PhysicBody*)AllBodies[i];
@@ -120,7 +129,7 @@ void TestWidget::Update(float dt)
 		PhysicBody* a = Collider1[i];
 		PhysicBody* b = Collider2[i];
 
-		float totalMass = a->inverseMass + b->inverseMass;
+	/*	float totalMass = a->inverseMass + b->inverseMass;
 
 		if (totalMass == 0.f) continue;
 
@@ -128,9 +137,19 @@ void TestWidget::Update(float dt)
 		const float slop = 0.01;
 		FPoint corr = math::max(Results[i].depth - slop, 0.0f) / totalMass * percent * Results[i].mNormal;
 		a->_pos -= a->inverseMass * corr;
-		b->_pos += b->inverseMass * corr;
-	}
+		b->_pos += b->inverseMass * corr;*/
 
+		float totalMass = a->inverseMass + b->inverseMass;
+		if (totalMass == 0.0f) continue;
+
+		float depth = fmaxf(Results[i].depth - PenetrationSlack, 0.0f);
+		float scalar = (totalMass == 0.0f) ? 0.0f : depth / totalMass;
+		FPoint correction = Results[i].mNormal * scalar * LinearProjectionPercent;
+
+		a->_pos = a->_pos - correction * a->inverseMass;
+		b->_pos = b->_pos + correction * b->inverseMass;
+
+	}
 
 	for (auto &body : AllBodies) {
 		body->KeepInBorders();

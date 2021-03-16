@@ -11,12 +11,7 @@ PhysicBody::PhysicBody(Render::Texture* tex, FPoint& pos, float mass, float elas
 	friction(friction),
 	_anchored(false)
 {
-
 	if (mass <= 0) inverseMass = 0;
-	else {
-		inverseMass = 1 / mass;
-	}
-
 }
 
 PhysicBody* PhysicBody::Create(Render::Texture * tex, FPoint & pos, float mass, float elastic, float friction)
@@ -27,8 +22,10 @@ PhysicBody* PhysicBody::Create(Render::Texture * tex, FPoint & pos, float mass, 
 void PhysicBody::Update(float dt)
 {
 	if (_anchored) {
+		velocity = FPoint(0, 0);
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		_pos = mouse_position;
+		return;
 	}
 
 	/*float dampingFactor = 1.0 - 0.95;
@@ -44,7 +41,6 @@ void PhysicBody::Update(float dt)
 	FPoint acceleration = _forces * inverseMass;
 	velocity = velocity + acceleration * dt;
 	velocity = velocity * damping;
-
 	
 	if (fabsf(velocity.x) < 0.001f) {
 		velocity.x = 0.0f;

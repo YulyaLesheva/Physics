@@ -14,7 +14,7 @@ public:
 	float mass, inverseMass, elastic, friction;
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
-
+	FPoint WHATIMPULSE;
 	
 	FPoint _forces;
 	void ApplyForces();
