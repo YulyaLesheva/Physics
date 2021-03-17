@@ -58,7 +58,7 @@ private:
 	
 
 	float LinearProjectionPercent;
-	float PenetrationSlack;
+	float PenetrationSlop;
 	int impulseIteration;
 
 	Line* lineA;
