@@ -3,7 +3,7 @@
 
 //using namespace BodyColission;
 
-void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int c) {
+void BodyCollision::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int c) {
 
 	auto invMassA = a->inverseMass;
 	auto invMassB = b->inverseMass;
@@ -11,7 +11,7 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 	auto invMassSum = invMassA + invMassB;
 
 	FPoint relativeVel = b->velocity - a->velocity;
-	FPoint relativeNorm = m->mNormal;
+	FPoint relativeNorm = m->normal;
 	
 	relativeNorm.Normalize();
 	if (relativeNorm.GetDotProduct(relativeVel) > 0.001f) return;
@@ -62,7 +62,7 @@ void BodyColission::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 	b->velocity += tangentImpulse * invMassB;
 }
 
-Interval BodyColission::GetInterval(PhysicBody* a, const FPoint& axis) {
+Interval BodyCollision::GetInterval(PhysicBody* a, const FPoint& axis) {
 
 	Interval result;
 
@@ -85,7 +85,7 @@ Interval BodyColission::GetInterval(PhysicBody* a, const FPoint& axis) {
 	return result;
 }
 
-bool BodyColission::OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis) {
+bool BodyCollision::OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis) {
 
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
@@ -93,7 +93,7 @@ bool BodyColission::OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis
 	return ((iB.min <= iA.max) && (iA.min <= iB.max));
 }
 
-bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
+bool BodyCollision::SAT(PhysicBody* a, PhysicBody* b) {
 
 	FPoint axisXY[] = {
 	FPoint(1, 0), FPoint(0, 1)
@@ -110,7 +110,7 @@ bool BodyColission::SAT(PhysicBody* a, PhysicBody* b) {
 	return true;
 }
 
-float BodyColission::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis, bool* outShouldFlip) {
+float BodyCollision::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis, bool* outShouldFlip) {
 
 	Interval iA = GetInterval(a, axis);
 	Interval iB = GetInterval(b, axis);
@@ -136,7 +136,7 @@ float BodyColission::PenetrationDepth(PhysicBody *a, PhysicBody* b, FPoint& axis
 	return total;
 }
 
-Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
+Manifold BodyCollision::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 
 	Manifold result;
 	//here function reset collision manifold
@@ -195,12 +195,33 @@ Manifold BodyColission::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 	}
 
 	result.colliding = true;
-	result.mNormal = axis;
+	result.normal = axis;
 	//Log::Info("Collision is found");
 	return result;
 }
 
-void BodyColission::SolvePositionConstraint(PhysicBody* a, PhysicBody* b, Manifold* m, float slop, float dampening, int iteration) {
+void BodyCollision::ApplyImpulse2D(PhysicBody* a, PhysicBody * b, Manifold& m, float dt) {
 
+	float kNormal = a->inverseMass + b->inverseMass;
+	auto normalMass = 1 / kNormal;
+
+	for (int i = 0; i < m.contacts.size(); ++i) {
+		FPoint contact = m.contacts[i];
+		auto r1 = contact - a->_pos;
+		auto r2 = contact - b->_pos;
+
+		//relativeVelocity at contact 
+		FPoint dv = b->velocity - a->velocity;
+
+		//normal impulse
+		float vn = m.normal.GetDotProduct(dv);
+		float dPn = normalMass * (-vn + a->bias);
+
+		float pn;
+	}
+
+}
+
+float BodyCollision::normalMass(PhysicBody* a, PhysicBody* b) {
 
 }

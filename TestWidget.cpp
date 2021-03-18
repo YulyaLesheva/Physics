@@ -64,27 +64,6 @@ void TestWidget::Update(float dt)
 	Collider2.clear();
 	Results.clear();
 
-	//auto greyEdges = _greyBody->GetEdges();
-	//auto greenEdges = _GreenLine->GetEdges();
-	//
-	//auto res = _greyBody->ClipEdges(greyEdges, _GreenLine);
-	////_greyBody->ClipEdges(greyEdges, _GreenLine);
-	//for (int i = 0; i < greyEdges.size(); ++i) {
-	//	for (int j = 0; j < greenEdges.size(); ++j) {
-	//		auto result = greyEdges[i].lineline(greenEdges[j]);
-	//		if (result) {
-	//			Log::Info("intersects " + std::to_string(i) + " and " + std::to_string(j));
-	//		}
-	//		else {
-	//			break;	
-	//		}
-	//	}
-	//}
-	
-	//auto p = _greyBody->ClipToEdges(_greyBody, _yellowBody);
-	//auto p1 = _greyBody->ClipToEdges(_yellowBody, _greyBody);
-	
-
 	for (int i = 0; i < AllBodies.size(); ++i) {
 		for (int j = i; j < AllBodies.size(); ++j) {
 			if (i == j) continue;
@@ -92,7 +71,7 @@ void TestWidget::Update(float dt)
 			result.ResetManifold(&result);
 			PhysicBody* a = (PhysicBody*)AllBodies[i];
 			PhysicBody* b = (PhysicBody*)AllBodies[j];
-			result = BodyColission::FindCollisionFeatures(a, b);
+			result = BodyCollision::FindCollisionFeatures(a, b);
 			if (result.colliding) {
 				Collider1.push_back(AllBodies[i]);
 				Collider2.push_back(AllBodies[j]);
@@ -110,7 +89,7 @@ void TestWidget::Update(float dt)
 			for (int j = 0; j < Results[i].contacts.size(); ++j) {
 				PhysicBody* a = Collider1[i];
 				PhysicBody* b = Collider2[i];
-				BodyColission::ApplyImpulse(a, b, &Results[i], j);
+				BodyCollision::ApplyImpulse(a, b, &Results[i], j);
 			}
 		}
 	}
@@ -119,6 +98,9 @@ void TestWidget::Update(float dt)
 		body->Update(dt);
 	}
 
+	for (auto &body : AllBodies) {
+		body->UpdatePosition(dt);
+	}
 
 	for (int i = 0; i < Results.size(); ++i) {
 		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
@@ -129,7 +111,7 @@ void TestWidget::Update(float dt)
 
 		if (totalMass == 0.f) continue;
 
-		FPoint corr = math::max(Results[i].depth - PenetrationSlop, 0.0f) / totalMass * LinearProjectionPercent * Results[i].mNormal;
+		FPoint corr = math::max(Results[i].depth - PenetrationSlop, 0.0f) / totalMass * LinearProjectionPercent * Results[i].normal;
 		a->_pos -= a->inverseMass * corr;
 		b->_pos += b->inverseMass * corr;
 

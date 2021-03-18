@@ -7,13 +7,14 @@ struct Interval {
 	float max;
 };
 
-namespace BodyColission {
+namespace BodyCollision {
 
 	void ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int c=0);
+	void ApplyImpulse2D(PhysicBody* a, PhysicBody * b, Manifold& m, float dt);
 	Interval GetInterval(PhysicBody* a, const FPoint& axis);
 	bool OverlapOnAxis(PhysicBody*a, PhysicBody*b, const FPoint &axis);
 	bool SAT(PhysicBody* a, PhysicBody* b);
 	float PenetrationDepth(PhysicBody* a, PhysicBody* b, FPoint& axis, bool* outShouldFlip);
 	Manifold FindCollisionFeatures(PhysicBody* a, PhysicBody* b);
-	void SolvePositionConstraint(PhysicBody* a, PhysicBody* b, Manifold* m, float slop, float dampening, int iteration);
+	float normalMass(PhysicBody* a, PhysicBody* b);
 }

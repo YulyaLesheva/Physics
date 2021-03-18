@@ -15,6 +15,7 @@ public:
 	bool MouseDown(const IPoint& mouse_pos);
 	bool MouseUp(const IPoint& mouse_pos);
 	FPoint WHATIMPULSE;
+	void UpdatePosition(float dt);
 	
 	FPoint _forces;
 	void ApplyForces();

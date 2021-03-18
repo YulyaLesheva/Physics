@@ -49,9 +49,11 @@ void PhysicBody::Update(float dt)
 		velocity.y = 0.0f;
 	}
 
+	//_pos += velocity;
+}
+void PhysicBody::UpdatePosition(float dt) {
 	_pos += velocity;
 }
-
 bool PhysicBody::MouseDown(const IPoint & mouse_pos)
 {
 	if (GetRect().Contains(mouse_pos)) {
