@@ -1,5 +1,6 @@
 #pragma once
 #include "Body.h"
+#include "Arbiter.h"
 
 class PhysicBody : public Body 
 {
@@ -16,6 +17,8 @@ public:
 	bool MouseUp(const IPoint& mouse_pos);
 	FPoint WHATIMPULSE;
 	void UpdatePosition(float dt);
+	//ARBITER
+	Contacts contact;
 	
 	FPoint _forces;
 	void ApplyForces();

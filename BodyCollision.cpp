@@ -204,7 +204,8 @@ void BodyCollision::ApplyImpulse2D(PhysicBody* a, PhysicBody * b, Manifold& m, f
 
 	float kNormal = a->inverseMass + b->inverseMass;
 	auto normalMass = 1 / kNormal;
-
+	Contacts* c;
+	Arbiter* arbiter;
 	for (int i = 0; i < m.contacts.size(); ++i) {
 		FPoint contact = m.contacts[i];
 		auto r1 = contact - a->_pos;
@@ -215,9 +216,23 @@ void BodyCollision::ApplyImpulse2D(PhysicBody* a, PhysicBody * b, Manifold& m, f
 
 		//normal impulse
 		float vn = m.normal.GetDotProduct(dv);
-		float dPn = normalMass * (-vn + a->bias);
+		float dPn = normalMass * (-vn + c->bias);
+		
+		if (c->accumulateImpulses) {
+			// clamp the accumulated impulse
+			float Pn0 = c->Pn;
+			c->Pn = fmaxf(Pn0 + dPn, 0.0f);
+			dPn = c->Pn - Pn0;
+		}
+		else {
+			dPn = fmaxf(dPn, 0.0f);
+		}
 
-		float pn;
+		//apply contact impulse
+		FPoint Pn = dPn * m.normal;
+		
+		a->velocity -= a->inverseMass * Pn;
+		b->velocity += b->inverseMass * Pn;
 	}
 
 }

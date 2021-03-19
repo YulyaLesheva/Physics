@@ -23,10 +23,8 @@ public:
 	void Update(float dt);
 	bool TestCollide(Body* body);
 	bool PointOnPlane(const FPoint point,  Line& line);
-
 	FPoint ClosestPoint(const FPoint point, Line& line);
 
-	bool TestEdgeOnPlane(Body* body);
 public:
 	//GETTERS
 	IRect& GetRect(); //YA
