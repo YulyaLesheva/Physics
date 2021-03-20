@@ -24,9 +24,12 @@ struct Arbiter
 {
 	enum { MAX_POINTS = 2 };
 	Arbiter(PhysicBody* a, PhysicBody* b);
+	void ApplyImpulse2D();
 	void Update(float dt);
 	float friction;
 	PhysicBody* a;
 	PhysicBody* b;
+	
 	Contacts contacts[MAX_POINTS];
+	int numContacts;
 };
