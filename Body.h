@@ -44,6 +44,9 @@ public:
 	//VARIABLES
 	FPoint _pos; 
 	FPoint velocity;
+	float angle;
+
+	void KeyPressed(int keyCode);
 
 protected:
 	Render::Texture* _tex;

@@ -9,7 +9,6 @@ public:
 	static PhysicBody* Create(Render::Texture* tex, FPoint& pos, float mass, float elastic, float friction = 0.6);
 	void Update(float dt);
 
-
 public: 
 	bool _anchored;
 	float mass, inverseMass, elastic, friction;
@@ -18,18 +17,10 @@ public:
 	FPoint WHATIMPULSE;
 	void UpdatePosition(float dt);
 	//ARBITER
-	Contacts contact;
-	
 	FPoint _forces;
 	void ApplyForces();
 private:
 	void AddLinearImpulse(const FPoint& impulse);
 	bool _isAwake;
-	FPoint _motion;
-	float _rwaMotion;
-	float _sleepEpsilon;
-	bool _canSleep;
 public:
-	FPoint lastPosBeforeSleep;
-	std::vector<PhysicBody*> haveCollisionsWithVector;
 };

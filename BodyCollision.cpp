@@ -28,13 +28,6 @@ void BodyCollision::ApplyImpulse(PhysicBody* a, PhysicBody* b, Manifold* m, int 
 	a->WHATIMPULSE = impulse * a->inverseMass;
 	b->WHATIMPULSE = impulse * b->inverseMass;
 
-	if (a->WHATIMPULSE.y == 0 ) {
-		Log::Info("impulse is zerooooo");
-	}
-	else {
-		Log::Info(std::to_string(impulse.x) + " " + std::to_string(impulse.y));
-	}
-
 	a->velocity -= impulse * a->inverseMass;
 	b->velocity += impulse * b->inverseMass;
 
@@ -143,7 +136,8 @@ Manifold BodyCollision::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 	result.ResetManifold(&result);
 
 	FPoint axisXY[] = {
-	FPoint(1, 0), FPoint(0, 1)
+	FPoint(1, 0), FPoint(0, 1),
+
 	};
 
 	FPoint* hitNormal = 0;
@@ -196,7 +190,7 @@ Manifold BodyCollision::FindCollisionFeatures(PhysicBody* a, PhysicBody* b) {
 
 	result.colliding = true;
 	result.normal = axis;
-	//Log::Info("Collision is found");
+	Log::Info("Collision is found");
 	return result;
 }
 

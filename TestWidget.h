@@ -1,5 +1,4 @@
 #pragma once
-
 template <typename T>
 using Sprite = std::unique_ptr<T>;
 
@@ -8,6 +7,7 @@ class Quad;
 struct Line;
 struct Manifold;
 class Body;
+class BodyBox;
 class PhysicBody;
 class TestWidget : public GUI::Widget
 {
@@ -44,6 +44,8 @@ private:
 	std::vector<PhysicBody*>  CheckVector;
 	Body* _justBody;
 
+	BodyBox *bodyBox_a;
+	BodyBox *bodyBox_b;
 	///all brand new 
 	std::vector<PhysicBody*> AllBodies;
 	std::vector<PhysicBody*> Collider1;

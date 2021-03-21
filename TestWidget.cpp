@@ -2,12 +2,13 @@
 #include "TestWidget.h"
 #include "Background.h"
 #include "Helper.h"
-#include "Quad.h"
 #include "BodyCollision.h"
 #include "Body.h"
 #include "SapAlgorithm.h"
 #include "PhysicBody.h"
 #include "Line.h"
+#include "Collide.h"
+#include "BodyBox.h"
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
@@ -22,17 +23,20 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 
-	_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 800), 1.0f, 1.5);
+	/*_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 800), 1.0f, 1.5);
 	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 1.1f, 1.0);
 	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 1.2);
 	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 0.95);
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
-	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);
+	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	AllBodies.push_back(_greyBody);
-	AllBodies.push_back(_yellowBody);
-	AllBodies.push_back(_PinkBody);
-	AllBodies.push_back(_GreenLine);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100,100), 2);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300,100), 2);
+	
+	//AllBodies.push_back(_greyBody);
+	//AllBodies.push_back(_yellowBody);
+	//AllBodies.push_back(_PinkBody);
+	//AllBodies.push_back(_GreenLine);
 	//AllBodies.push_back(_physicBody);
 	//AllBodies.push_back(_DarkBlueBody);
 
@@ -44,22 +48,35 @@ void TestWidget::Init()
 void TestWidget::Draw()
 {
 	_background->Draw();
+	
 	for (auto &body : AllBodies) {
 		body->Draw();
 	}
 
-	Render::BeginColor(Color(29, 26, 49, 255)); // Color(Red, Green, Blue, Alpha)
-	Render::BindFont("arial");
-	Render::PrintString(FPoint(800, 650), "velocity grey: " + std::to_string(_greyBody->velocity.x )+ " " + std::to_string(_greyBody->velocity.y), 1.5f, CenterAlign);
-	Render::PrintString(FPoint(800, 600), "velocity green: " + std::to_string(_GreenLine->velocity.x )+ " " + std::to_string(_GreenLine->velocity.y), 1.5f, CenterAlign);
-	Render::PrintString(FPoint(800, 550), "impulse grey: " + std::to_string(_greyBody->WHATIMPULSE.x)+ " " + std::to_string(_greyBody->WHATIMPULSE.y), 1.5f, CenterAlign);
-	Render::PrintString(FPoint(800, 500), "impulse green: " + std::to_string(_GreenLine->WHATIMPULSE.x)+ " " + std::to_string(_GreenLine->WHATIMPULSE.y), 1.5f, CenterAlign);
-	Render::EndColor();
+	bodyBox_a->Draw();
+	bodyBox_b->Draw();
+	
+	
+	//Render::BeginColor(Color(29, 26, 49, 255)); // Color(Red, Green, Blue, Alpha)
+	//Render::BindFont("arial");
+	//Render::PrintString(FPoint(800, 650), "velocity grey: " + std::to_string(_greyBody->velocity.x )+ " " + std::to_string(_greyBody->velocity.y), 1.5f, CenterAlign);
+	//Render::PrintString(FPoint(800, 600), "velocity green: " + std::to_string(_GreenLine->velocity.x )+ " " + std::to_string(_GreenLine->velocity.y), 1.5f, CenterAlign);
+	//Render::PrintString(FPoint(800, 550), "impulse grey: " + std::to_string(_greyBody->WHATIMPULSE.x)+ " " + std::to_string(_greyBody->WHATIMPULSE.y), 1.5f, CenterAlign);
+	//Render::PrintString(FPoint(800, 500), "impulse green: " + std::to_string(_GreenLine->WHATIMPULSE.x)+ " " + std::to_string(_GreenLine->WHATIMPULSE.y), 1.5f, CenterAlign);
+	//Render::EndColor();
 
 }
 
 void TestWidget::Update(float dt)
 {
+
+
+	bodyBox_a->Update(dt);
+	bodyBox_b->Update(dt);
+
+	ABBcollideABB1(bodyBox_a, bodyBox_b);
+
+
 	Collider1.clear();
 	Collider2.clear();
 	Results.clear();
@@ -138,6 +155,9 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 	for (auto &body : AllBodies) {
 		body->MouseDown(mouse_pos);
 	}
+
+	bodyBox_a->MouseDown(mouse_pos);
+	bodyBox_b->MouseDown(mouse_pos);
 	return false;
 }
 
@@ -150,6 +170,9 @@ void TestWidget::MouseUp(const IPoint &mouse_pos)
 	for (auto &body : AllBodies) {
 		body->MouseUp(mouse_pos);
 	}
+
+	bodyBox_a->MouseUp(mouse_pos);
+	bodyBox_b->MouseUp(mouse_pos);
 }
 
 void TestWidget::AcceptMessage(const Message& message)
@@ -164,6 +187,14 @@ void TestWidget::AcceptMessage(const Message& message)
 
 void TestWidget::KeyPressed(int keyCode)
 {
+	//_greyBody->KeyPressed(keyCode);
+	if (keyCode == VK_A) {
+		bodyBox_a->KeyPressed(keyCode);
+	}
+
+	if (keyCode == VK_D) {
+		bodyBox_b->KeyPressed(keyCode);
+	}
 
 }
 

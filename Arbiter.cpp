@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "Arbiter.h"
-#include "PhysicBody.h"
-#include "BodyCollision.h"
+#include "BodyBox.h"
 
-Arbiter::Arbiter(PhysicBody* BodyA, PhysicBody* BodyB) {
+Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB) {
 	
 	a = BodyA;
 	b = BodyB;
@@ -12,6 +11,7 @@ Arbiter::Arbiter(PhysicBody* BodyA, PhysicBody* BodyB) {
 }
 
 void Arbiter::ApplyImpulse2D() {
+
 
 }
 

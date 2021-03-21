@@ -3,6 +3,7 @@
 #include "Line.h"
 
 
+
 Body::Body(Render::Texture* tex) :
 	_tex(tex)
 {
@@ -11,7 +12,8 @@ Body::Body(Render::Texture* tex) :
 Body::Body(Render::Texture* tex, FPoint& pos) :
 	_tex(tex),
 	_pos(pos),
-	velocity(0,0)
+	velocity(0,0),
+	angle(0)
 {
 }
 
@@ -30,6 +32,7 @@ Body* Body::Create(Render::Texture * tex, FPoint & pos){
 void Body::Draw() {
 	Render::device.PushMatrix();
 	Render::device.MatrixTranslate(_pos);
+	Render::device.MatrixRotate(math::Vector3(0, 0, 1), angle);
 	Render::device.MatrixTranslate(_tex->_bitmap_width * -0.5f, _tex->_bitmap_height * -0.5f, 0);
 	_tex->Draw();
 	Render::device.PopMatrix();
@@ -261,3 +264,9 @@ std::vector<FPoint> Body::ClipEdges(const std::vector<Line>& edges, Body* body) 
 	return result;
 }
 
+void Body::KeyPressed(int keyCode)
+{
+	if (keyCode ==  VK_SPACE) {
+		angle += 2;
+	}
+}
