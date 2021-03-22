@@ -33,6 +33,8 @@ void TestWidget::Init()
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100,100), 2);
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300,100), 2);
 	
+	bodyBox_a->setdegrees(15.f);
+
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
 	//AllBodies.push_back(_PinkBody);
@@ -69,12 +71,14 @@ void TestWidget::Draw()
 
 void TestWidget::Update(float dt)
 {
-
-
+	
+	ABBcollideABB(bodyBox_a, bodyBox_b);
+	
 	bodyBox_a->Update(dt);
 	bodyBox_b->Update(dt);
-
-	ABBcollideABB1(bodyBox_a, bodyBox_b);
+	
+	Log::Info("grey " + std::to_string(bodyBox_a->rotationValue));
+	Log::Info("yellow " + std::to_string(bodyBox_b->rotationValue));
 
 
 	Collider1.clear();

@@ -30,7 +30,9 @@ struct BodyBox {
 	//getters
 	FPoint GetMin();
 	FPoint GetMax();
+
 	IRect GetRect();
+	std::vector<FPoint> GetVertices();
 	//help shit
 	IRect rect;
 
@@ -40,5 +42,5 @@ struct BodyBox {
 	bool MouseUp(const IPoint& mouse_pos);
 
 	bool anchored;
-
+	void setdegrees(float deg);
 };

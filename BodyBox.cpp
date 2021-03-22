@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "BodyBox.h"
-
+#include "Math.h"
 
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
@@ -41,7 +41,7 @@ BodyBox* BodyBox::Create(char* tex, FPoint& pos, float m) {
 void BodyBox::Draw() {
 	Render::device.PushMatrix();
 	Render::device.MatrixTranslate(position);
-	Render::device.MatrixRotate(math::Vector3(0, 0, 1), -rotationValue);
+	Render::device.MatrixRotate(math::Vector3(0, 0, 1), rotationValue);
 	Render::device.MatrixTranslate(texture->_bitmap_width * -0.5f, texture->_bitmap_height * -0.5f, 0);
 	texture->Draw();
 	Render::device.PopMatrix();
@@ -65,6 +65,25 @@ FPoint BodyBox::GetMin() {
 FPoint BodyBox::GetMax() {
 	auto r = GetRect();
 	return FPoint(r.RightTop());
+}
+
+std::vector<FPoint> BodyBox::GetVertices() {
+	FPoint min = GetMin();
+	FPoint max = GetMax();
+
+	std::vector<FPoint> vertices = {
+		FPoint(min.x, min.y), FPoint(min.x, max.y),
+		FPoint(max.x, min.y), FPoint(max.x, max.y)
+	};
+
+	if (rotationValue != 0.0) {
+		for (auto& vert : vertices) {
+			Math math;
+			math.ROTATE(vert, rotationValue, position);
+		}
+	}
+
+	return vertices;
 }
 
 IRect BodyBox::GetRect() {
@@ -93,4 +112,8 @@ bool BodyBox::MouseDown(const IPoint& mouse_pos) {
 bool BodyBox::MouseUp(const IPoint& mouse_pos) {
 	anchored = false;
 	return false;
+}
+
+void BodyBox::setdegrees(float deg) {
+	rotationValue = deg;
 }
