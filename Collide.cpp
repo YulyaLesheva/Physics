@@ -8,7 +8,7 @@ FPoint GetInterval(BodyBox* a, FPoint axis){
 
 	FPoint result(0, 0); //min, max
 
-	auto vertices = a->GetVertices();
+	std::vector<FPoint> vertices = a->GetVertices();
 
 	//dot is a scalar product
 	//find min and max
@@ -38,19 +38,25 @@ bool OverlapOnAxis(BodyBox* a, BodyBox* b, FPoint& axis) {
 bool ABBcollideABB(BodyBox* a, BodyBox* b) {
 	
 	Math math;
-	std::vector<FPoint> axisXY = {
-	FPoint(0, 1),FPoint(1, 0),
-	FPoint(0, 1),FPoint(1, 0),
-	FPoint(0, 1),FPoint(1, 0)
-	};
+	
 
-	math.ROTATE(axisXY[2], b->rotationValue, FPoint(0,0));
+	/*math.ROTATE(axisXY[2], b->rotationValue, FPoint(0,0));
 	math.ROTATE(axisXY[3], b->rotationValue, FPoint(0, 0));
 	math.ROTATE(axisXY[4], a->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisXY[5], a->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisXY[5], a->rotationValue, FPoint(0, 0));*/
 	
-	for (int i = 0; i < axisXY.size(); ++i) {
-		if (!OverlapOnAxis(a, b, axisXY[i])) {
+	std::vector<FPoint> axisToCheck = {
+		FPoint(0, 1),FPoint(1, 0)
+	};
+
+	axisToCheck.push_back(math.ROTATE_RETURN(FPoint(0,1), b->rotationValue, FPoint(0, 0)));
+	axisToCheck.push_back(math.ROTATE_RETURN(FPoint(1,0), b->rotationValue, FPoint(0, 0)));
+
+	axisToCheck.push_back(math.ROTATE_RETURN(FPoint(0, 1), a->rotationValue, FPoint(0, 0)));
+	axisToCheck.push_back(math.ROTATE_RETURN(FPoint(1, 0), a->rotationValue, FPoint(0, 0)));
+	
+	for (int i = 0; i < axisToCheck.size(); ++i) {
+		if (!OverlapOnAxis(a, b, axisToCheck[i])) {
 			Log::Info("No collision");
 			return false;
 		}

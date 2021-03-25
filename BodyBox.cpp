@@ -68,6 +68,7 @@ FPoint BodyBox::GetMax() {
 }
 
 std::vector<FPoint> BodyBox::GetVertices() {
+
 	FPoint min = GetMin();
 	FPoint max = GetMax();
 
@@ -76,11 +77,14 @@ std::vector<FPoint> BodyBox::GetVertices() {
 		FPoint(max.x, min.y), FPoint(max.x, max.y)
 	};
 
+	std::vector<FPoint> returnVert;
+
 	if (rotationValue != 0.0) {
-		for (auto& vert : vertices) {
+		for (int i = 0; i < vertices.size(); ++i) {
 			Math math;
-			math.ROTATE(vert, rotationValue, position);
+			returnVert.push_back(math.ROTATE_RETURN(vertices[i], rotationValue, position));
 		}
+		return returnVert;
 	}
 
 	return vertices;
@@ -92,10 +96,10 @@ IRect BodyBox::GetRect() {
 
 void BodyBox::KeyPressed(int keyCode) {
 	if (keyCode == VK_D) {
-		rotationValue += 2;
+		rotationValue += 15;
 	}
 	if (keyCode == VK_A) {
-		rotationValue -= 2;
+		rotationValue -= 15;
 	}
 }
 
