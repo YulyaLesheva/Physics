@@ -24,7 +24,7 @@ struct Contacts
 	FPoint position;
 	FPoint normal;
 	FPoint r1, r2;
-	float separation;
+	float separation = FLT_MAX;
 	float Pn;	// accumulated normal impulse
 	float Pt;	// accumulated tangent impulse
 	float Pnb;	// accumulated normal impulse for position bias

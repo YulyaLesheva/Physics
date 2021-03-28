@@ -75,11 +75,10 @@ void TestWidget::Update(float dt)
 	bodyBox_b->Update(dt);
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
-	Log::Info("DEPTH IS " + std::to_string(Depth(bodyBox_a, bodyBox_b)));
 	//Log::Info("grey " + std::to_string(bodyBox_a->rotationValue));
 	//Log::Info("yellow " + std::to_string(bodyBox_b->rotationValue));
-
-
+	auto c = CollideFeatures(bodyBox_a, bodyBox_b);
+	
 	Collider1.clear();
 	Collider2.clear();
 	Results.clear();
