@@ -2,11 +2,11 @@
 #include "stdafx.h"
 struct Math {
 
-	float DEG2RAD(float degree) {
+	float DEG2RAD(float& degree) {
 		return (degree * (math::PI / 180));
 	}
 
-	void ROTATE(FPoint vector, float angleDegrees, FPoint origin) {
+	void ROTATE(FPoint& vector, float& angleDegrees, FPoint& origin) {
 
 		float x = vector.x - origin.x;
 		float y = vector.y - origin.y;

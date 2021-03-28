@@ -77,14 +77,11 @@ std::vector<FPoint> BodyBox::GetVertices() {
 		FPoint(max.x, min.y), FPoint(max.x, max.y)
 	};
 
-	std::vector<FPoint> returnVert;
-
 	if (rotationValue != 0.0) {
 		for (int i = 0; i < vertices.size(); ++i) {
 			Math math;
-			returnVert.push_back(math.ROTATE_RETURN(vertices[i], rotationValue, position));
+			math.ROTATE(vertices[i], rotationValue, position);
 		}
-		return returnVert;
 	}
 
 	return vertices;

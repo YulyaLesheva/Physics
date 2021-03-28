@@ -74,11 +74,8 @@ void TestWidget::Update(float dt)
 	bodyBox_a->Update(dt);
 	bodyBox_b->Update(dt);
 
-	auto Av = bodyBox_a->GetVertices();
-	auto Bv = bodyBox_b->GetVertices();
-
-	ABBcollideABB(bodyBox_a, bodyBox_b);
-
+	//OBBCollideOBB(bodyBox_a, bodyBox_b);
+	Log::Info("DEPTH IS " + std::to_string(Depth(bodyBox_a, bodyBox_b)));
 	//Log::Info("grey " + std::to_string(bodyBox_a->rotationValue));
 	//Log::Info("yellow " + std::to_string(bodyBox_b->rotationValue));
 
