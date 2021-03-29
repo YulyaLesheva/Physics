@@ -33,6 +33,10 @@ void TestWidget::Init()
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100,100), 2);
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300,100), 2);
 	
+	Contacts contacts[2];
+	Contacts *c = contacts + 2;
+
+	Checking(contacts);
 
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);

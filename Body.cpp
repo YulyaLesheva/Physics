@@ -226,7 +226,7 @@ std::vector<FPoint> Body::ClipToEdges(Body* bodyA, Body* bodyB) {
 	
 	std::vector<FPoint> result;
 	FPoint intersection;
-
+	//oo eto mne nado 
 	auto edgesA = bodyA->GetEdges();
 	auto edgesB = bodyB->GetEdges();
 
