@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+
 struct Math {
 
 	float DEG2RAD(float& degree) {

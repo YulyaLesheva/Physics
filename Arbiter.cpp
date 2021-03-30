@@ -2,7 +2,9 @@
 #include "Arbiter.h"
 #include "BodyBox.h"
 
-Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB) {
+Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
+	separation(FLT_MAX) 
+{
 	
 	a = BodyA;
 	b = BodyB;

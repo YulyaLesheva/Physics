@@ -122,13 +122,9 @@ float GetDepth(BodyBox* a, BodyBox* b, FPoint& axis, bool* shouldFlip) {
 	return (len_a + len_b) - length;
 }
 
-int Collide(Contacts* c, BodyBox* a, BodyBox* b) {
 
-	return 2;
-}
-
-Contacts CollideFeatures(BodyBox* a, BodyBox* b) {
-	Contacts result;
+Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
+	Arbiter result(a,b);
 	Math math;
 
 	std::vector<FPoint> axisToCheck = {
@@ -162,7 +158,37 @@ Contacts CollideFeatures(BodyBox* a, BodyBox* b) {
 			hitNormal = &axisToCheck[i];
 		}
 	}
+
+	if (hitNormal == 0) return result;
+
 	FPoint axis = hitNormal->Normalized();
+	
+	std::vector<FPoint> c1 = ClipToEdges(a, b);
+	std::vector<FPoint> c2 = ClipToEdges(b, a);
+	
+	//проблема в клип то еджес
+
+	result.contacts.reserve(c1.size() + c2.size());
+	result.contacts.insert(result.contacts.end(), c1.begin(), c1.end());
+	result.contacts.insert(result.contacts.end(), c2.begin(), c2.end());
+
+	auto interval = GetInterval(a, axis);
+	float distance = (interval.y - interval.x) * 0.5f - result.separation * 0.5f;
+	FPoint pointOnPlane = a->position + axis * distance;
+
+	for (int i = result.contacts.size() - 1; i >= 0; --i) {
+		FPoint contact = result.contacts[i];
+		result.contacts[i] = contact + (axis * axis.GetDotProduct(pointOnPlane - contact));
+
+		for (int j = result.contacts.size() - 1; j > i; --j) {
+			if ((result.contacts[j] - result.contacts[i]).GetDotProduct(result.contacts[j]
+				- result.contacts[i]) < 0.0001f) {
+				result.contacts.erase(result.contacts.begin() + j);
+				break;
+			}
+		}
+	}
+	
 	result.normal = axis;
 	//Log::Info("Depth is "+ std::to_string(result.separation));
 	Log::Info("NORMAL is "+ std::to_string(result.normal.x) + " and " + std::to_string(result.normal.y));
@@ -170,7 +196,3 @@ Contacts CollideFeatures(BodyBox* a, BodyBox* b) {
 	return result;
 }
 
-void Checking(Contacts* contacts) {
-	contacts[0].CHECKINGVAR = 13;
-	contacts[1].CHECKINGVAR = 24;
-}

@@ -9,7 +9,8 @@ struct Manifold;
 class Body;
 class BodyBox;
 class PhysicBody;
-struct Contacts;
+struct Arbiter;
+
 class TestWidget : public GUI::Widget
 {
 public:
@@ -27,7 +28,6 @@ public:
 	void KeyPressed(int keyCode) override;
 	void CharPressed(int unicodeChar) override;
 	void KeyReleased(int keyCode) override;
-	Contacts* contactResult;
 
 private:
 	void Init();

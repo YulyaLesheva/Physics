@@ -1,10 +1,11 @@
 #pragma once
-class Contacts;
+struct Arbiter;
+struct Line;
+
 FPoint GetInterval(BodyBox* a, FPoint axis);
 bool OverlapOnAxis(BodyBox* a, BodyBox* b, FPoint& axis);
-bool ABBcollideABB(BodyBox* a, BodyBox* b);
 bool OBBCollideOBB(BodyBox* a, BodyBox* b);
-int Collide(Contacts* c, BodyBox* a, BodyBox* b);
 float GetDepth(BodyBox* a, BodyBox* b, FPoint& axis, bool* shouldFlip);
-Contacts CollideFeatures(BodyBox* a, BodyBox* b);
-void Checking(Contacts* contacts);
+Arbiter CollideFeatures(BodyBox* a, BodyBox* b);
+std::vector<Line> GetEdges(BodyBox* a);
+std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b);

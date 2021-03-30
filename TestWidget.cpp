@@ -33,10 +33,6 @@ void TestWidget::Init()
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100,100), 2);
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300,100), 2);
 	
-	Contacts contacts[2];
-	Contacts *c = contacts + 2;
-
-	Checking(contacts);
 
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
@@ -75,13 +71,23 @@ void TestWidget::Draw()
 void TestWidget::Update(float dt)
 {
 	
+	FPoint checkPoint(0, 0);
+
 	bodyBox_a->Update(dt);
 	bodyBox_b->Update(dt);
+	
+	auto e1 = GetEdges(bodyBox_a);
+	auto e2 = GetEdges(bodyBox_b);
+
+	Line a = e1[0];
+	Line b = e2[3];
+
+	a.lineline(b, checkPoint);
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
 	//Log::Info("grey " + std::to_string(bodyBox_a->rotationValue));
 	//Log::Info("yellow " + std::to_string(bodyBox_b->rotationValue));
-	auto c = CollideFeatures(bodyBox_a, bodyBox_b);
+	//auto c = CollideFeatures(bodyBox_a, bodyBox_b);
 	
 	Collider1.clear();
 	Collider2.clear();
