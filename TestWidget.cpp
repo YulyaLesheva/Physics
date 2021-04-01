@@ -30,8 +30,8 @@ void TestWidget::Init()
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100,100), 2);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300,100), 2);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 1);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 1);
 	
 
 	//AllBodies.push_back(_greyBody);
@@ -82,11 +82,14 @@ void TestWidget::Update(float dt)
 	Line a = e1[0];
 	Line b = e2[3];
 
-	a.lineline(b, checkPoint);
+	//a.lineline(b, checkPoint);
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
-	//Log::Info("grey " + std::to_string(bodyBox_a->rotationValue));
-	//Log::Info("yellow " + std::to_string(bodyBox_b->rotationValue));
+	
+	auto arbit = CollideFeatures(bodyBox_a, bodyBox_b);
+
+	Log::Info("grey velocity " + std::to_string(bodyBox_a->velocity.y));
+	Log::Info("yellow velocity " + std::to_string(bodyBox_b->velocity.y));
 	//auto c = CollideFeatures(bodyBox_a, bodyBox_b);
 	
 	Collider1.clear();

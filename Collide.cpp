@@ -30,7 +30,6 @@ std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b) {
 	auto edgesB = GetEdges(b);
 
 	result.reserve(edgesA.size());
-
 	for (int i = 0; i < edgesA.size(); ++i) {
 		for (int j = 0; j < edgesB.size(); ++j) {
 			auto res = edgesA[i].lineline(edgesB[j], intersectionPoint);
@@ -146,7 +145,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 		float depth = GetDepth(a, b, axisToCheck[i], &shouldFlip);
 
 		if (depth <= 0.f) {
-			Log::Info("........");
+			//Log::Info("........");
 			return result;
 		} 
 
@@ -166,7 +165,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	std::vector<FPoint> c1 = ClipToEdges(a, b);
 	std::vector<FPoint> c2 = ClipToEdges(b, a);
 	
-	//проблема в клип то еджес
+	//тут он определяет верные точки
 
 	result.contacts.reserve(c1.size() + c2.size());
 	result.contacts.insert(result.contacts.end(), c1.begin(), c1.end());
@@ -191,7 +190,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	
 	result.normal = axis;
 	//Log::Info("Depth is "+ std::to_string(result.separation));
-	Log::Info("NORMAL is "+ std::to_string(result.normal.x) + " and " + std::to_string(result.normal.y));
+	//Log::Info("NORMAL is "+ std::to_string(result.normal.x) + " and " + std::to_string(result.normal.y));
 	//мне нужно, чтобы 
 	return result;
 }

@@ -2,6 +2,8 @@
 #include "BodyBox.h"
 #include "Math.h"
 
+#define GRAVITY_CONST FPoint(0, -9.82f)
+
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
@@ -50,6 +52,17 @@ void BodyBox::Draw() {
 void BodyBox::Update(float dt) {
 	//if (rotationValue < 0 || rotationValue > 180) rotationValue = 0;
 	//Log::Info(std::to_string(rotationValue));
+
+	if (inverseMass == 0.0f) return;
+
+	/*velocity += dt * (GRAVITY_CONST + inverseMass * force);
+	position += dt * velocity;*/
+	//www.codeproject.com/Articles/1214829/Making-a-D-Physics-Engine-Shapes-Worlds-and-Integr
+	FPoint acceleration = force / mass + GRAVITY_CONST;        // Gravity will always act on the body
+	velocity += acceleration * dt;
+	position += velocity * dt;
+	force = FPoint(0, 0);
+	//почему то масса не влияет на скорость. как это исправить? 
 
 	if (anchored) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
