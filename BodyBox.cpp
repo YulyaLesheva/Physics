@@ -56,18 +56,30 @@ void BodyBox::Update(float dt) {
 	if (inverseMass == 0.0f) return;
 
 	/*velocity += dt * (GRAVITY_CONST + inverseMass * force);
-	position += dt * velocity;*/
+	position += dt * velocity;
+	force = FPoint(0, 0);*/
 	//www.codeproject.com/Articles/1214829/Making-a-D-Physics-Engine-Shapes-Worlds-and-Integr
-	FPoint acceleration = force / mass + GRAVITY_CONST;        // Gravity will always act on the body
-	velocity += acceleration * dt;
-	position += velocity * dt;
-	force = FPoint(0, 0);
+	//FPoint acceleration = force / mass + GRAVITY_CONST;        // Gravity will always act on the body
+	//velocity += acceleration * dt;
+	//position += velocity * dt;
+	//force = FPoint(0, 0);
 	//почему то масса не влияет на скорость. как это исправить? 
+
+	const float damping = 0.98;
+	FPoint acceleration = force * inverseMass;
+	velocity += acceleration * dt;
+	velocity *= damping;
+
+	position += velocity;
 
 	if (anchored) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		position = mouse_position;
 	}
+}
+
+void BodyBox::ApplyForces() {
+	force = GRAVITY_CONST;
 }
 
 FPoint BodyBox::GetMin() {

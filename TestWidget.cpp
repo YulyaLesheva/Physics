@@ -31,7 +31,7 @@ void TestWidget::Init()
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 1);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 1);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 1.2);
 	
 
 	//AllBodies.push_back(_greyBody);
@@ -76,11 +76,10 @@ void TestWidget::Update(float dt)
 	bodyBox_a->Update(dt);
 	bodyBox_b->Update(dt);
 	
-	auto e1 = GetEdges(bodyBox_a);
-	auto e2 = GetEdges(bodyBox_b);
-
-	Line a = e1[0];
-	Line b = e2[3];
+	bodyBox_a->ApplyForces();
+	bodyBox_b->ApplyForces();
+	
+	
 
 	//a.lineline(b, checkPoint);
 

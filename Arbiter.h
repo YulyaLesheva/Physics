@@ -18,7 +18,7 @@ struct Contact
 struct Arbiter
 {
 
-	Arbiter(BodyBox* bodyA, BodyBox* bodyB);
+	Arbiter(BodyBox* bodyA, BodyBox* bodyB) : colliding(false) {}
 
 	void Update(float dt);
 
@@ -30,6 +30,7 @@ struct Arbiter
 	BodyBox* a;
 	BodyBox* b;
 
+	bool colliding;
 	// Combined friction
 	float friction;
 

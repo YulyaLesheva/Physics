@@ -23,6 +23,7 @@ struct BodyBox {
 	//FUNCTIONS
 	void Draw();
 	void Update(float dt);
+	void ApplyForces();
 
 	//test
 	float rotationValue;

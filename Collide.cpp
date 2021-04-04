@@ -189,6 +189,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	}
 	
 	result.normal = axis;
+	result.colliding = true;
 	//Log::Info("Depth is "+ std::to_string(result.separation));
 	//Log::Info("NORMAL is "+ std::to_string(result.normal.x) + " and " + std::to_string(result.normal.y));
 	//мне нужно, чтобы 
