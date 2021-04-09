@@ -7,8 +7,12 @@ class BodyBox;
 
 struct Contact
 {
-	Contact() : Pn(0.0f), Pt(0.0f), Pnb(0.0f){}
+	Contact(FPoint point) : Pn(0.0f), Pt(0.0f), Pnb(0.0f)
+	{
+		position = point;
+	}
 
+	Contact() = default;
 	FPoint position;
 	float Pn;	// accumulated normal impulse
 	float Pt;	// accumulated tangent impulse
@@ -33,6 +37,7 @@ struct Arbiter
 	bool colliding;
 	// Combined friction
 	float friction;
+	//
 
 	//collision features
 	FPoint normal;

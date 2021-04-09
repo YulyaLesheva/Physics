@@ -44,5 +44,12 @@ struct Math {
 
 		return FPoint(xPrime, yPrime);
 	}
+
+	FPoint Cross(FPoint& a, float s) {
+		return FPoint(s * a.y, -s * a.x);
+	}
+	FPoint Cross(float s, FPoint& a) {
+		return FPoint(-s * a.y, s * a.x);
+	}
 };
 
