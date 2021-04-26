@@ -13,16 +13,16 @@ std::vector<Line> GetEdges(BodyBox* a) {
 	std::vector<FPoint> vertices = a->GetVertices();
 
 	result = {
-		Line(vertices[0],vertices[1]),//0
-		Line(vertices[2],vertices[3]),//1
-		Line(vertices[0],vertices[2]),//2
-		Line(vertices[1],vertices[3]) //3
-	};
+		Line(vertices[0],vertices[1]),//0                                              1...|3|..3   
+		Line(vertices[2],vertices[3]),//1											   .	    .			
+		Line(vertices[0],vertices[2]),//2                                              |0|    |1|
+		Line(vertices[1],vertices[3]) //3											   .	    .
+	};								  //										       0...|2|..2
 	return result;
 }
 
 std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b) {
-
+	//возвращает точки пересечения
 	std::vector<FPoint> result;
 	FPoint intersectionPoint; 
 
@@ -33,6 +33,25 @@ std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b) {
 	for (int i = 0; i < edgesA.size(); ++i) {
 		for (int j = 0; j < edgesB.size(); ++j) {
 			auto res = edgesA[i].lineline(edgesB[j], intersectionPoint);
+			if (res) {
+				result.push_back(intersectionPoint);
+			}
+		}
+	}
+	return result;
+}
+
+std::vector<Contact> ClipToEdgesCONTACTS(BodyBox* a, BodyBox* b) {
+	std::vector<Contact> result;
+	Contact intersectionPoint;
+
+	auto edgesA = GetEdges(a);
+	auto edgesB = GetEdges(b);
+
+	result.reserve(edgesA.size());
+	for (int i = 0; i < edgesA.size(); ++i) {
+		for (int j = 0; j < edgesB.size(); ++j) {
+			auto res = edgesA[i].lineline(edgesB[j], intersectionPoint.position);
 			if (res) {
 				result.push_back(intersectionPoint);
 			}
@@ -161,15 +180,22 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	if (hitNormal == 0) return result;
 
 	FPoint axis = hitNormal->Normalized();
-	
+	//точки пересечения. их нужно заносить в массив? или после преобразований? 
 	std::vector<FPoint> c1 = ClipToEdges(a, b);
 	std::vector<FPoint> c2 = ClipToEdges(b, a);
+	
+	std::vector<Contact> co1 = ClipToEdgesCONTACTS(a, b);
+	std::vector<Contact> co2 = ClipToEdgesCONTACTS(b, a);
 	
 	//тут он определяет верные точки
 
 	result.contacts.reserve(c1.size() + c2.size());
 	result.contacts.insert(result.contacts.end(), c1.begin(), c1.end());
 	result.contacts.insert(result.contacts.end(), c2.begin(), c2.end());
+
+	result.contactsNEW.reserve(co1.size() + co2.size());
+	result.contactsNEW.insert(result.contactsNEW.end(), co1.begin(), co1.end());
+	result.contactsNEW.insert(result.contactsNEW.end(), co2.begin(), co2.end());
 
 	auto interval = GetInterval(a, axis);
 	float distance = (interval.y - interval.x) * 0.5f - result.separation * 0.5f;
@@ -187,6 +213,20 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 			}
 		}
 	}
+	// для структуры контакт. сравнить результаты с преддущим лупом 
+	for (int i = result.contactsNEW.size() - 1; i >= 0; --i) {
+		Contact contact = result.contactsNEW[i];
+		result.contactsNEW[i] = contact.position + (axis * axis.GetDotProduct(pointOnPlane - contact.position));
+
+		for (int j = result.contactsNEW.size() - 1; j > i; --j) {
+			if ((result.contactsNEW[j].position - result.contactsNEW[i].position).GetDotProduct(result.contactsNEW[j].position
+				- result.contactsNEW[i].position) < 0.0001f) {
+				result.contactsNEW.erase(result.contactsNEW.begin() + j);
+				break;
+			}
+		}
+	}
+
 	
 	result.normal = axis;
 	result.colliding = true;

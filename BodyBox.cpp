@@ -70,7 +70,7 @@ void BodyBox::Update(float dt) {
 	velocity += acceleration * dt;
 	velocity *= damping;
 
-	position += velocity;
+	//position += velocity;
 
 	if (anchored) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
