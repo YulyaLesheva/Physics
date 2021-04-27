@@ -51,5 +51,17 @@ struct Math {
 	FPoint Cross(float s, FPoint& a) {
 		return FPoint(-s * a.y, s * a.x);
 	}
+	
+	float  Cross(FPoint& a, FPoint& b) {
+		return a.x * b.y - a.y * b.x;
+	}
+
+	float Dot(const FPoint& a, const FPoint& b) {
+		return a.x * b.x + a.y * b.y;
+	}
+
+	float Clamp(float a, float low, float high) {
+		return math::max(low, math::min(a, high));
+	}
 };
 

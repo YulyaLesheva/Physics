@@ -53,6 +53,7 @@ private:
 	std::vector<PhysicBody*> Collider2;
 	std::vector<Manifold> Results;
 
+	std::vector<BodyBox*> BodyBoxes;
 
 	//sleep
 	std::vector<PhysicBody*> SleepBodies;

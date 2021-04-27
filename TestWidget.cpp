@@ -32,8 +32,11 @@ void TestWidget::Init()
 
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 1);
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 1.2);
-	
 
+	BodyBoxes = {
+		bodyBox_a,
+		bodyBox_b
+	};
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
 	//AllBodies.push_back(_PinkBody);
@@ -54,8 +57,9 @@ void TestWidget::Draw()
 		body->Draw();
 	}
 
-	bodyBox_a->Draw();
-	bodyBox_b->Draw();
+	for (auto *b : BodyBoxes) {
+		b->Draw();
+	}
 	
 	
 	//Render::BeginColor(Color(29, 26, 49, 255)); // Color(Red, Green, Blue, Alpha)
@@ -71,15 +75,26 @@ void TestWidget::Draw()
 void TestWidget::Update(float dt)
 {
 	
-	FPoint checkPoint(0, 0);
+	//отдельно сделать широкую фазу и вставить метод сюда
+	for (auto *b : BodyBoxes) {
+		b->Update(dt);
+	}
+	
+	for (auto *b : BodyBoxes) {
+		b->ApplyForces();
+	}
 
-	bodyBox_a->Update(dt);
-	bodyBox_b->Update(dt);
-	
-	bodyBox_a->ApplyForces();
-	bodyBox_b->ApplyForces();
-	
-	
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		BodyBox* bi = BodyBoxes[i];
+		for (int j = i; j < BodyBoxes.size(); ++j) {
+			BodyBox* bj = BodyBoxes[j];
+			if (i == j) continue;
+			Arbiter result(bi, bj);
+			if (result.colliding) {
+				Log::Info("colliding");
+			}
+		}
+	}
 
 	//a.lineline(b, checkPoint);
 
