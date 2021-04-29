@@ -227,7 +227,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 		}
 	}
 
-	
+	Log::Info(std::to_string(result.contactsNEW.size()));
 	result.normal = axis;
 	result.colliding = true;
 	//Log::Info("Depth is "+ std::to_string(result.separation));
@@ -235,3 +235,83 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	return result;
 }
 
+
+
+int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b) {
+	
+	Math math;
+	float separation(FLT_MAX);
+
+	std::vector<FPoint> axisToCheck = {
+		FPoint(0, 1),FPoint(1, 0),
+		FPoint(0, 1),FPoint(1, 0),
+		FPoint(0, 1),FPoint(1, 0),
+	};
+
+	math.ROTATE(axisToCheck[2], a->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[3], a->rotationValue, FPoint(0, 0));
+
+	math.ROTATE(axisToCheck[4], b->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[5], b->rotationValue, FPoint(0, 0));
+
+	FPoint* hitNormal = 0;
+	bool shouldFlip;
+
+	for (int i = 0; i < axisToCheck.size(); ++i) {
+		float depth = GetDepth(a, b, axisToCheck[i], &shouldFlip);
+		if (depth <= 0.f) {
+			Log::Info("........");
+			return contacts.size();
+		}
+
+		else if (depth < separation) {
+			if (shouldFlip) {
+				axisToCheck[i] = axisToCheck[i] * -1.f;
+			}
+			for (int k = 0; k < contacts.size(); ++k) {
+				contacts[k].depth = depth;
+				separation = depth;
+			}
+			hitNormal = &axisToCheck[i];
+		}
+		separation = depth;
+	}
+
+	if (hitNormal == 0) return 0;
+
+	FPoint axis = hitNormal->Normalized();
+
+	std::vector<Contact> co1 = ClipToEdgesCONTACTS(a,b);
+	std::vector<Contact> co2 = ClipToEdgesCONTACTS(b,a);
+
+	contacts.reserve(co1.size() + co2.size());
+	contacts.insert(contacts.end(), co1.begin(), co1.end());
+	contacts.insert(contacts.end(), co2.begin(), co2.end());
+
+	auto interval = GetInterval(a, axis);
+	float distance = (interval.y - interval.x) * 0.5f - separation * 0.5f;
+	FPoint pointOnPlane = a->position + axis * distance;
+
+	for (int i = contacts.size() - 1; i >= 0; --i) {
+		Contact contact = contacts[i];
+		contacts[i] = contact.position + (axis * axis.GetDotProduct(pointOnPlane - contact.position));
+
+		for (int j = contacts.size() - 1; j > i; --j) {
+			if ((contacts[j].position - contacts[i].position).GetDotProduct(contacts[j].position
+				- contacts[i].position) < 0.0001f) {
+				contacts.erase(contacts.begin() + j);
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < contacts.size(); ++i) {
+		contacts[i].contactNormal = axis;
+	}
+
+	int numPoints = contacts.size();
+	Log::Info(std::to_string(numPoints));
+	//Log::Info("colliding");
+
+	return numPoints;
+}

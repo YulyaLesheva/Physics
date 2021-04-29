@@ -10,6 +10,7 @@ class Body;
 class BodyBox;
 class PhysicBody;
 struct Arbiter;
+struct Contact;
 
 class TestWidget : public GUI::Widget
 {
@@ -54,6 +55,7 @@ private:
 	std::vector<Manifold> Results;
 
 	std::vector<BodyBox*> BodyBoxes;
+	std::vector<Contact> checkContacts;
 
 	//sleep
 	std::vector<PhysicBody*> SleepBodies;
