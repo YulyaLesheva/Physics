@@ -7,12 +7,18 @@ Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
 	separation(FLT_MAX),
 	colliding(false)
 {
+	if (BodyA < BodyB) {
+		a = BodyA;
+		b = BodyB;
+	} 
+	else {
+		a = BodyB;
+		b = BodyA;
+	}
 	
-	a = BodyA;
-	b = BodyB;
-
+	//добавить оператор сравнения для двух тел
+	numContacts = Collide(allContacts, a, b);
 	friction = sqrtf(a->friction * b->friction);
-	//arb = &CollideFeatures(a, b);
 }
 
 void Arbiter::ApplyImpulse2D() {
@@ -21,16 +27,16 @@ void Arbiter::ApplyImpulse2D() {
 	BodyBox* body_b = b;
 
 	Math m;
-
-	for (int i = 0; i < contactsNEW.size(); ++i) {
-		Contact* c = &contactsNEW[i];
+	
+	for (int i = 0; i < numContacts; ++i) {
+		Contact* c = &allContacts[i];
 		//сделать класс контактс, конструктор которого будет как контакт(х. у)
-		c->r1 = contacts[i] - body_a->position;
-		c->r2 = contacts[i] - body_b->position;
+		c->r1 = c->position - body_a->position;
+		c->r2 = c->position - body_b->position;
 	
 		//relative velocity at contact
 		FPoint dv = body_b->velocity + m.Cross(body_b->angularVelocity, c->r2)
-			-body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
+			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
 		
 		//compute normal impulse
 		float vn = m.Dot(dv, normal);
@@ -71,6 +77,7 @@ void Arbiter::ApplyImpulse2D() {
 			//clamp friction 
 			float oldTangentImpulse = c->Pt;
 			c->Pt = m.Clamp(oldTangentImpulse + dPt, -maxPt, maxPt);
+			dPt = c->Pt - oldTangentImpulse;
 		}
 		else {
 			float maxPt = friction * dPn;

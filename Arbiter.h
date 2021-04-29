@@ -35,6 +35,7 @@ struct Arbiter
 	
 	std::vector<FPoint> contacts;
 	std::vector<Contact> contactsNEW;
+	std::vector<Contact> allContacts;
 	int numContacts;
 
 	BodyBox* a;

@@ -84,24 +84,23 @@ void TestWidget::Update(float dt)
 		b->ApplyForces();
 	}
 
-	/*for (int i = 0; i < BodyBoxes.size(); ++i) {
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* bi = BodyBoxes[i];
 		for (int j = i; j < BodyBoxes.size(); ++j) {
 			BodyBox* bj = BodyBoxes[j];
 			if (i == j) continue;
 			Arbiter result(bi, bj);
-			if (result.colliding) {
+			if (result.numContacts > 0) {
 				Log::Info("colliding");
 			}
 		}
-	}*/
+	}
 
 	//a.lineline(b, checkPoint);
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
 	
-	//arbit = CollideFeatures(bodyBox_a, bodyBox_b);
-
+	auto arbit = CollideFeatures(bodyBox_a, bodyBox_b);
 	auto k = Collide(checkContacts,bodyBox_a, bodyBox_b);
 
 

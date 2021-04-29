@@ -227,9 +227,11 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 		}
 	}
 
-	Log::Info(std::to_string(result.contactsNEW.size()));
+	//Log::Info(std::to_string(result.contactsNEW.size()));
 	result.normal = axis;
 	result.colliding = true;
+	/*Log::Info("FIRST FUNCTION: depth is " + std::to_string(result.separation));
+	Log::Info("FIRST FUNCTION: normal is " + std::to_string(result.normal.x) + " " + std::to_string(result.normal.y));*/
 	//Log::Info("Depth is "+ std::to_string(result.separation));
 	//Log::Info("NORMAL is "+ std::to_string(result.normal.x) + " and " + std::to_string(result.normal.y));
 	return result;
@@ -260,21 +262,17 @@ int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b) {
 	for (int i = 0; i < axisToCheck.size(); ++i) {
 		float depth = GetDepth(a, b, axisToCheck[i], &shouldFlip);
 		if (depth <= 0.f) {
-			Log::Info("........");
-			return contacts.size();
+			//Log::Info("........");
+			return 0;
 		}
 
 		else if (depth < separation) {
 			if (shouldFlip) {
 				axisToCheck[i] = axisToCheck[i] * -1.f;
 			}
-			for (int k = 0; k < contacts.size(); ++k) {
-				contacts[k].depth = depth;
-				separation = depth;
-			}
+			separation = depth;
 			hitNormal = &axisToCheck[i];
 		}
-		separation = depth;
 	}
 
 	if (hitNormal == 0) return 0;
@@ -291,11 +289,12 @@ int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b) {
 	auto interval = GetInterval(a, axis);
 	float distance = (interval.y - interval.x) * 0.5f - separation * 0.5f;
 	FPoint pointOnPlane = a->position + axis * distance;
+	
+	int numContacts = 0;
 
 	for (int i = contacts.size() - 1; i >= 0; --i) {
 		Contact contact = contacts[i];
 		contacts[i] = contact.position + (axis * axis.GetDotProduct(pointOnPlane - contact.position));
-
 		for (int j = contacts.size() - 1; j > i; --j) {
 			if ((contacts[j].position - contacts[i].position).GetDotProduct(contacts[j].position
 				- contacts[i].position) < 0.0001f) {
@@ -306,12 +305,14 @@ int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b) {
 	}
 
 	for (int i = 0; i < contacts.size(); ++i) {
+		numContacts++;
 		contacts[i].contactNormal = axis;
+		contacts[i].depth = separation;
 	}
 
-	int numPoints = contacts.size();
-	Log::Info(std::to_string(numPoints));
-	//Log::Info("colliding");
+	/*Log::Info(std::to_string(numContacts));
+	Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));
+	Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));*/
 
-	return numPoints;
+	return numContacts;
 }
