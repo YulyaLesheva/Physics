@@ -10,6 +10,8 @@
 #include "Collide.h"
 #include "BodyBox.h"
 
+#define GRAVITY_CONST FPoint(0, -9.82f)
+
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
 
@@ -75,15 +77,9 @@ void TestWidget::Draw()
 void TestWidget::Update(float dt)
 {
 	
-	//отдельно сделать широкую фазу и вставить метод сюда
-	for (auto *b : BodyBoxes) {
-		b->Update(dt);
-	}
-	
-	for (auto *b : BodyBoxes) {
-		b->ApplyForces();
-	}
+	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
 
+	//find colliding pairs
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* bi = BodyBoxes[i];
 		for (int j = i; j < BodyBoxes.size(); ++j) {
@@ -92,9 +88,40 @@ void TestWidget::Update(float dt)
 			Arbiter result(bi, bj);
 			if (result.numContacts > 0) {
 				Log::Info("colliding");
+				Arbiters.push_back(result);
 			}
 		}
 	}
+
+	//integrate forces
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		BodyBox* b = BodyBoxes[i];
+		if (b->inverseMass == 0.0f) continue;
+
+		b->velocity += dt * (GRAVITY_CONST + b->inverseMass * b->force);
+		b->angularVelocity += dt * b->invI * b->torque;
+	}
+
+	//pre-step 
+	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->PreStep(inv_dt);
+	}*/
+
+
+
+
+	//отдельно сделать широкую фазу и вставить метод сюда
+	
+	
+	for (auto *b : BodyBoxes) {
+		b->Update(dt);
+	}
+	
+	/*for (auto *b : BodyBoxes) {
+		b->ApplyForces();
+	}*/
+
+	
 
 	//a.lineline(b, checkPoint);
 

@@ -39,7 +39,7 @@ void Arbiter::ApplyImpulse2D() {
 			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
 		
 		//compute normal impulse
-		float vn = m.Dot(dv, normal);
+		float vn = m.Dot(dv, c->contactNormal);
 		float dPn = c->massNormal * (-vn + c->bias);
 		
 		if (true) {// if (World::accumulateImpulses)
@@ -53,7 +53,7 @@ void Arbiter::ApplyImpulse2D() {
 		}
 
 		//apply contact impulse
-		FPoint Pn = dPn * normal;
+		FPoint Pn = dPn * c->contactNormal;
 	
 		body_a->velocity -= body_a->inverseMass * Pn;
 		body_a->angularVelocity -= body_a->invI * m.Cross(c->r1, Pn);
@@ -65,7 +65,7 @@ void Arbiter::ApplyImpulse2D() {
 		dv = body_b->velocity + m.Cross(body_b->angularVelocity, c->r2)
 			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
 
-		FPoint tangent = m.Cross(normal, 1.0f);
+		FPoint tangent = m.Cross(c->contactNormal, 1.0f);
 		float vt = m.Dot(dv, tangent);
 		float dPt = c->massTangent * (-vt);
 
@@ -95,41 +95,41 @@ void Arbiter::ApplyImpulse2D() {
 	}
 }
 
-void Arbiter::Update(float dt) {
-
+void Arbiter::PreStep(float inv_dt) {
+	
 	const float k_allowedPenetration = 0.01f;
 	Math m;
 
 	//float k_biasFactor = World::positionCorrection ? 0.2f : 0.0f;
 	float k_biasFactor = 0.2f;
-	for (int i = 0; i < contactsNEW.size(); ++i) {
-		Contact* c = &contactsNEW[i];
+	for (int i = 0; i < numContacts; ++i) {
+		Contact* c = &allContacts[i];
 		FPoint r1 = c->position - a->position;
 		FPoint r2 = c->position - b->position;
 
 		//precompute normal mass, tangent mass, bias
-		float rn1 = m.Dot(r1, normal);
-		float rn2 = m.Dot(r2, normal);
+		float rn1 = m.Dot(r1, c->contactNormal);
+		float rn2 = m.Dot(r2, c->contactNormal);
 		float kNormal = a->inverseMass + b->inverseMass;
-		kNormal += a->invI * (m.Dot(r1, r1) - rn1 * rn1) + 
+		kNormal += a->invI * (m.Dot(r1, r1) - rn1 * rn1) +
 			b->invI * (m.Dot(r2, r2) - rn2 * rn2);
 		c->massNormal = 1 / kNormal;
 
-		FPoint tangent = m.Cross(normal, 1.0);
+		FPoint tangent = m.Cross(c->contactNormal, 1.0);
 		float rt1 = m.Dot(r1, tangent);
 		float rt2 = m.Dot(r2, tangent);
 		float kTangent = a->inverseMass + b->inverseMass;
-		kTangent += a->invI * (m.Dot(r1, r1) - rt1 * rt1) + 
+		kTangent += a->invI * (m.Dot(r1, r1) - rt1 * rt1) +
 			b->invI * (m.Dot(r2, r2) - rt2 * rt2);
 		c->massTangent = 1.0f / kTangent;
 
-		c->bias = -k_biasFactor * dt
+		c->bias = -k_biasFactor * inv_dt
 			* math::min(0.0f, separation + k_allowedPenetration);
 
 		if (true) { //if (World::accumulateImpulses)
 			// Apply normal and friction impulse
-			FPoint P = c->Pn * normal + c->Pt * tangent;
-			
+			FPoint P = c->Pn * c->contactNormal + c->Pt * tangent;
+
 			a->velocity -= a->inverseMass * P;
 			a->angularVelocity -= a->invI * m.Cross(r1, P);
 

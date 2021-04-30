@@ -65,10 +65,10 @@ void BodyBox::Update(float dt) {
 	//force = FPoint(0, 0);
 	//почему то масса не влияет на скорость. как это исправить? 
 
-	const float damping = 0.98;
-	FPoint acceleration = force * inverseMass;
-	velocity += acceleration * dt;
-	velocity *= damping;
+	//const float damping = 0.98;
+	//FPoint acceleration = force * inverseMass;
+	//velocity += acceleration * dt;
+	//velocity *= damping;
 
 	//position += velocity;
 

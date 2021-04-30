@@ -29,8 +29,7 @@ struct Arbiter
 
 	Arbiter(BodyBox* bodyA, BodyBox* bodyB);
 
-	void Update(float dt);
-
+	void PreStep(float inv_dt);
 	void ApplyImpulse2D();
 	
 	std::vector<FPoint> contacts;
@@ -48,15 +47,12 @@ struct Arbiter
 	FPoint normal;
 	float separation;
 
-	Arbiter* arb = NULL;
-
 	void Reset(Arbiter* result) {
 		if (result != 0) {
 			result->colliding = false;
 			result->normal = FPoint(0, 0);
 			result->separation = FLT_MAX;
 			result->contactsNEW.clear();
-			result->arb = NULL;
 		}
 	}
 

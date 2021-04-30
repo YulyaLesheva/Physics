@@ -57,6 +57,8 @@ private:
 	std::vector<BodyBox*> BodyBoxes;
 	std::vector<Contact> checkContacts;
 
+	std::vector<Arbiter> Arbiters;
+
 	//sleep
 	std::vector<PhysicBody*> SleepBodies;
 	std::vector<std::vector<PhysicBody*>> CollideVectorToCheckForSleep;
