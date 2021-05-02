@@ -11,4 +11,4 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b);
 std::vector<Line> GetEdges(BodyBox* a);
 std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b);
 std::vector<Contact> ClipToEdgesCONTACTS(BodyBox* a, BodyBox* b);
-int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b);
+int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b);

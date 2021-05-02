@@ -28,6 +28,8 @@ void Arbiter::ApplyImpulse2D() {
 
 	Math m;
 	
+	Log::Info("START IMPULSE APPLY");
+
 	for (int i = 0; i < numContacts; ++i) {
 		Contact* c = &allContacts[i];
 		//сделать класс контактс, конструктор которого будет как контакт(х. у)
@@ -38,6 +40,9 @@ void Arbiter::ApplyImpulse2D() {
 		FPoint dv = body_b->velocity + m.Cross(body_b->angularVelocity, c->r2)
 			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
 		
+		//проверить почему дает 0 при коллизии. 
+
+
 		//compute normal impulse
 		float vn = m.Dot(dv, c->contactNormal);
 		float dPn = c->massNormal * (-vn + c->bias);

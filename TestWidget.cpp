@@ -77,6 +77,7 @@ void TestWidget::Draw()
 void TestWidget::Update(float dt)
 {
 	
+	Arbiters.clear();
 	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
 
 	//find colliding pairs
@@ -103,12 +104,25 @@ void TestWidget::Update(float dt)
 	}
 
 	//pre-step 
-	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
 		arb->PreStep(inv_dt);
-	}*/
+	}
 
+	//apply impulses
+	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->ApplyImpulse2D();
+	}
 
+	//integrate velocities
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		BodyBox* body = BodyBoxes[i];
 
+		body->position += dt * body->velocity;
+		body->rotationValue += dt * body->angularVelocity;
+
+		body->force = FPoint(0,0);
+		body->torque = 0.f;
+	}
 
 	//отдельно сделать широкую фазу и вставить метод сюда
 	

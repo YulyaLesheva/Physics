@@ -239,7 +239,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 
 
 
-int Collide(std::vector<Contact> contacts, BodyBox* a, BodyBox* b) {
+int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 	
 	Math math;
 	float separation(FLT_MAX);
