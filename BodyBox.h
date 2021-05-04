@@ -18,6 +18,13 @@ struct BodyBox {
 	float mass, inverseMass;
 	float I, invI;
 
+	void AddMass() {
+		mass -= 1;
+	}
+
+	void AddForce(const FPoint& f) {
+		force += f;
+	}
 	Render::Texture* texture;
 
 	//FUNCTIONS

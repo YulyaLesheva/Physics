@@ -4,6 +4,8 @@
 
 #define GRAVITY_CONST FPoint(0, -9.82f)
 
+//than mass closer to 0, than object is heaver 
+
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
@@ -13,7 +15,7 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	rotation = 0.0;
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
-	force = FPoint(0, 0);
+	force = FPoint(0,0);
 	torque = 0.0f;
 	friction = 0.2;
 	
@@ -22,7 +24,7 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	mass = m;
 	width = FPoint(texture->Width(), texture->Height());
 
-	if (mass < FLT_MAX)
+	if (mass > 0)
 	{
 		inverseMass = 1.0f / mass;
 		I = mass * (width.x * width.x + width.y * width.y) / 12.0f;
@@ -52,8 +54,8 @@ void BodyBox::Draw() {
 void BodyBox::Update(float dt) {
 	//if (rotationValue < 0 || rotationValue > 180) rotationValue = 0;
 	//Log::Info(std::to_string(rotationValue));
-
-	if (inverseMass == 0.0f) return;
+	
+	//force = GRAVITY_CONST;
 
 	/*velocity += dt * (GRAVITY_CONST + inverseMass * force);
 	position += dt * velocity;
@@ -76,6 +78,9 @@ void BodyBox::Update(float dt) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
 		position = mouse_position;
 	}
+
+	if (inverseMass == 0.0f) return;
+
 }
 
 void BodyBox::ApplyForces() {
@@ -122,6 +127,9 @@ void BodyBox::KeyPressed(int keyCode) {
 	}
 	if (keyCode == VK_A) {
 		rotationValue -= 15;
+	}
+	if (keyCode == VK_SPACE) {
+		AddMass();
 	}
 }
 

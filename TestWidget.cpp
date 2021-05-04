@@ -32,8 +32,8 @@ void TestWidget::Init()
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 1);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 1.2);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 0.02);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.05);
 
 	BodyBoxes = {
 		bodyBox_a,
@@ -93,6 +93,12 @@ void TestWidget::Update(float dt)
 			}
 		}
 	}
+	
+	//add force
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		BodyBox* b = BodyBoxes[i];
+		b->AddForce(GRAVITY_CONST);
+	}
 
 	//integrate forces
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -141,9 +147,6 @@ void TestWidget::Update(float dt)
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
 	
-	auto arbit = CollideFeatures(bodyBox_a, bodyBox_b);
-	auto k = Collide(checkContacts,bodyBox_a, bodyBox_b);
-
 
 //	Log::Info("grey velocity " + std::to_string(bodyBox_a->velocity.y));
 //	Log::Info("yellow velocity " + std::to_string(bodyBox_b->velocity.y));
@@ -268,6 +271,10 @@ void TestWidget::KeyPressed(int keyCode)
 		bodyBox_b->KeyPressed(keyCode);
 	}
 
+	if (keyCode == VK_SPACE) {
+		bodyBox_b->KeyPressed(keyCode);
+		Log::Info(std::to_string(bodyBox_b->mass));
+	}
 }
 
 void TestWidget::KeyReleased(int keyCode)
