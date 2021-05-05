@@ -12,6 +12,7 @@ struct BodyBox {
 	float angularVelocity;
 	float torque;
 
+	float const elastic;
 	FPoint width;
 
 	float friction;
@@ -51,4 +52,8 @@ struct BodyBox {
 
 	bool anchored;
 	void setdegrees(float deg);
+
+
+
+	FPoint TESTNORMAL;
 };

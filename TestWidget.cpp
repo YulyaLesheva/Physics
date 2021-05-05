@@ -32,8 +32,8 @@ void TestWidget::Init()
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(100, 500), 0.02);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.05);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 200), 0.0);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.15);
 
 	BodyBoxes = {
 		bodyBox_a,
@@ -92,9 +92,11 @@ void TestWidget::Update(float dt)
 				Arbiters.push_back(result);
 			}
 		}
+		//иначе, если пара есть в арбитрах, но у нее больше нет точек, то ее надо удалить. 
 	}
 	
 	//add force
+	//сопротивление воздуха блять
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
 		b->AddForce(GRAVITY_CONST);
@@ -109,7 +111,7 @@ void TestWidget::Update(float dt)
 		b->angularVelocity += dt * b->invI * b->torque;
 	}
 
-	//pre-step 
+	////pre-step 
 	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
 		arb->PreStep(inv_dt);
 	}
@@ -118,6 +120,10 @@ void TestWidget::Update(float dt)
 	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
 		arb->ApplyImpulse2D();
 	}
+
+	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->ResolveCollision();
+	}*/
 
 	//integrate velocities
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -137,9 +143,9 @@ void TestWidget::Update(float dt)
 		b->Update(dt);
 	}
 	
-	/*for (auto *b : BodyBoxes) {
+	for (auto *b : BodyBoxes) {
 		b->ApplyForces();
-	}*/
+	}
 
 	
 

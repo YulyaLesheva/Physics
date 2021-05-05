@@ -45,6 +45,11 @@ void Arbiter::ApplyImpulse2D() {
 
 		//compute normal impulse
 		float vn = m.Dot(dv, c->contactNormal);
+		
+		if (vn >= 0) {
+			return;
+		} 
+		
 		float dPn = c->massNormal * (-vn + c->bias);
 		
 		if (true) {// if (World::accumulateImpulses)
@@ -105,8 +110,8 @@ void Arbiter::PreStep(float inv_dt) {
 	const float k_allowedPenetration = 0.01f;
 	Math m;
 
-	//float k_biasFactor = World::positionCorrection ? 0.2f : 0.0f;
-	float k_biasFactor = 0.2f;
+	float k_biasFactor = true ? 0.2f : 0.0f;
+	//float k_biasFactor = 0.2f;
 	for (int i = 0; i < numContacts; ++i) {
 		Contact* c = &allContacts[i];
 		FPoint r1 = c->position - a->position;
@@ -129,7 +134,7 @@ void Arbiter::PreStep(float inv_dt) {
 		c->massTangent = 1.0f / kTangent;
 
 		c->bias = -k_biasFactor * inv_dt
-			* math::min(0.0f, separation + k_allowedPenetration);
+			* math::min(0.0f, c->depth + k_allowedPenetration);
 
 		if (true) { //if (World::accumulateImpulses)
 			// Apply normal and friction impulse
@@ -142,4 +147,35 @@ void Arbiter::PreStep(float inv_dt) {
 			b->angularVelocity += b->invI * m.Cross(r2, P);
 		}
 	}
+}
+
+void Arbiter::ResolveCollision() {
+
+	BodyBox* body_a = a;
+	BodyBox* body_b = b;
+
+	Math m;
+	//мб потому чтоо это удаляется? 
+
+	auto c = allContacts[0];
+
+	auto invMassSum = body_a->inverseMass + body_b->inverseMass;
+
+	FPoint relativeVel = body_b->velocity - body_a->velocity;
+	FPoint relativeNorm = c.contactNormal;
+	relativeNorm.Normalize();
+
+	float e = fminf(body_a->elastic, body_b->elastic);
+	float numerator = (-(1 + e) * m.Dot(relativeVel, relativeNorm));
+	float j = (invMassSum == 0.f) ? 0.0f : numerator / invMassSum;
+
+	if (allContacts.size() > 0.0f && j != 0.0f) {
+		j /= 0.8f;
+	}
+
+	FPoint impulse = relativeNorm * j;
+	
+	body_a->velocity -= impulse * body_a->inverseMass;
+	body_b->velocity += impulse * body_b->inverseMass;
+
 }

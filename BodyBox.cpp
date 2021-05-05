@@ -10,7 +10,8 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
 	rotationValue(0),
-	anchored(false)
+	anchored(false),
+	elastic(0.5)
 {
 	rotation = 0.0;
 	velocity = FPoint(0, 0);

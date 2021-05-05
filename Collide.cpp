@@ -310,9 +310,11 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 		contacts[i].depth = separation;
 	}
 
-	/*Log::Info(std::to_string(numContacts));
+	a->TESTNORMAL = axis;
+
+	Log::Info(std::to_string(numContacts));
 	Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));
-	Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));*/
+	Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));
 
 	return numContacts;
 }

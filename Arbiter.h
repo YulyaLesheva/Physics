@@ -31,7 +31,9 @@ struct Arbiter
 
 	void PreStep(float inv_dt);
 	void ApplyImpulse2D();
-	
+	void ResolveCollision();
+
+
 	std::vector<FPoint> contacts;
 	std::vector<Contact> contactsNEW;
 	std::vector<Contact> allContacts;
@@ -46,14 +48,5 @@ struct Arbiter
 	//collision features
 	FPoint normal;
 	float separation;
-
-	void Reset(Arbiter* result) {
-		if (result != 0) {
-			result->colliding = false;
-			result->normal = FPoint(0, 0);
-			result->separation = FLT_MAX;
-			result->contactsNEW.clear();
-		}
-	}
 
 };
