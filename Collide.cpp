@@ -245,9 +245,9 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 	float separation(FLT_MAX);
 
 	std::vector<FPoint> axisToCheck = {
-		FPoint(0, 1),FPoint(1, 0),
-		FPoint(0, 1),FPoint(1, 0),
-		FPoint(0, 1),FPoint(1, 0),
+		FPoint(0, 1),FPoint(1, 0), //стандратные х и у
+		FPoint(0, 1),FPoint(1, 0), // х и у для первого объекта, вращаемые
+		FPoint(0, 1),FPoint(1, 0), // х и у для второго объекта, вращаемые
 	};
 
 	math.ROTATE(axisToCheck[2], a->rotationValue, FPoint(0, 0));
@@ -317,4 +317,145 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 	Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));
 
 	return numContacts;
+}
+
+std::vector<Plane> GetPlanes(BodyBox* a) {
+
+	Math m; 
+
+	FPoint centre = a->position;
+	FPoint e = a->width;
+	
+	std::vector<FPoint> BoxAxis = {
+		FPoint(0, 1),FPoint(1, 0),
+	};
+	
+	m.ROTATE(BoxAxis[0], a->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], a->rotationValue, FPoint(0, 0));
+	
+	std::vector<Plane> result;
+	result.resize(4);
+
+	result[0] = Plane(BoxAxis[0], m.Dot(BoxAxis[0], (centre + BoxAxis[0] * e.x)));
+	result[1] = Plane(BoxAxis[0] * -1.f, - m.Dot(BoxAxis[0], (centre - BoxAxis[0] * e.x)));
+	result[2] = Plane(BoxAxis[1], m.Dot(BoxAxis[1], (centre + BoxAxis[1] * e.y)));
+	result[3] = Plane(BoxAxis[1] * -1.f, -m.Dot(BoxAxis[1], (centre - BoxAxis[1] * e.y)));
+
+	return result;
+}
+
+bool ClipToPlane(const Plane& plane, const Line& line, FPoint& outPoint) {
+
+	Math m;
+	FPoint ab = line.end - line.start;
+	float nAB = m.Dot(plane.normal, ab);
+
+	float nA = m.Dot(plane.normal, line.start);
+	float t = (plane.distance - nA) / nAB;
+
+	if (t >= 0.0f && t <= 1.f) {
+		if (outPoint != FPoint(0,0)) {
+			outPoint = line.start + ab * t;
+		}
+		return true;
+		Log::Info("yes true");
+	}
+	Log::Info("no false");
+	return false;
+}
+std::vector<FPoint> ClipEdgesToBodyBox(const std::vector<Line>& edges, BodyBox* bodyBox) {
+
+	std::vector<FPoint> result;
+	result.reserve(edges.size());
+	FPoint intersection;
+
+	std::vector<Plane>& planes = GetPlanes(bodyBox);
+	for (int i = 0; i < planes.size(); ++i) {
+		for (int j = 0; j < edges.size(); ++j) {
+			if (ClipToPlane(planes[i], edges[j], intersection)) {
+				if (PointInBodyBox(intersection, bodyBox)) {
+					result.push_back(intersection);
+				}
+			}
+		}
+	}
+	return result;
+}
+
+bool PointInBodyBox(const FPoint& point, BodyBox* bodyBox) {
+	
+	Math m;
+
+	FPoint dir = point - bodyBox->position;
+	
+	std::vector<FPoint> BoxAxis = {
+		FPoint(0, 1),FPoint(1, 0),
+	};
+	
+	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+	
+	for (int i = 0; i < BoxAxis.size(); ++i) {
+		float distance = m.Dot(dir, BoxAxis[i]);
+
+		if (distance > bodyBox->width.x * 0.5) {
+			Log::Info("NOT IN THE BOX");
+			return false;
+		}
+
+		if (distance > bodyBox->width.y * 0.5) {
+			Log::Info("NOT IN THE BOX");
+			return false;
+		}
+
+		if (distance < -bodyBox->width.x * 0.5) {
+			Log::Info("NOT IN THE BOX");
+			return false;
+		}
+
+		if (distance < -bodyBox->width.y * 0.5) {
+			Log::Info("NOT IN THE BOX");
+			return false;
+		}
+	}
+	Log::Info("YES IN THE BOX");
+	return true;
+}
+
+FPoint ClosestPoint(BodyBox* bodyBox, const FPoint& point) {
+	
+	Math m;
+
+	FPoint result = bodyBox->position;
+	
+	FPoint dir = point - bodyBox->position;
+
+	std::vector<FPoint> BoxAxis = {
+		FPoint(0, 1),FPoint(1, 0),
+	};
+
+	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+
+	for (int i = 0; i < BoxAxis.size(); ++i) {
+		float distance = m.Dot(dir, BoxAxis[i]);
+		
+		if (distance > bodyBox->width.x) {
+			distance = bodyBox->width.x;
+		}
+		
+		if (distance > bodyBox->width.y) {
+			distance = bodyBox->width.y;
+		}
+
+		if (distance < -bodyBox->width.x) {
+			distance = -bodyBox->width.x;
+		}
+
+		if (distance < -bodyBox->width.y) {
+			distance = -bodyBox->width.y;
+		}
+		result = result + (BoxAxis[i] * distance);
+	}
+	return result;
 }

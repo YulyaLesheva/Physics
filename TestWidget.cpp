@@ -95,6 +95,10 @@ void TestWidget::Update(float dt)
 		//иначе, если пара есть в арбитрах, но у нее больше нет точек, то ее надо удалить. 
 	}
 	
+
+	auto YULYA = GetPlanes(bodyBox_a);
+	PointInBodyBox(MOUSEPOS, bodyBox_a);
+	
 	//add force
 	//сопротивление воздуха блять
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -118,7 +122,7 @@ void TestWidget::Update(float dt)
 
 	//apply impulses
 	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ApplyImpulse2D();
+		//arb->ApplyImpulse2D();
 	}
 
 	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
@@ -153,7 +157,7 @@ void TestWidget::Update(float dt)
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
 	
-
+	Log::Info("Mouse pos: " + std::to_string(MOUSEPOS.x) + "  " + std::to_string(MOUSEPOS.x));
 //	Log::Info("grey velocity " + std::to_string(bodyBox_a->velocity.y));
 //	Log::Info("yellow velocity " + std::to_string(bodyBox_b->velocity.y));
 	//auto c = CollideFeatures(bodyBox_a, bodyBox_b);
@@ -244,6 +248,7 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 
 void TestWidget::MouseMove(const IPoint &mouse_pos)
 {
+	MOUSEPOS = mouse_pos;
 }
 
 void TestWidget::MouseUp(const IPoint &mouse_pos)

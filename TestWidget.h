@@ -72,4 +72,6 @@ private:
 	Line* lineA;
 	Line* lineB;
 
+	FPoint MOUSEPOS;
+
 };

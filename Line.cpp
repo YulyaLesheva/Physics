@@ -1,12 +1,17 @@
 #include "stdafx.h"
 #include "Line.h"
-
+#include "Math.h"
 
 Line::Line(FPoint s, FPoint e)
 	:start(s), end(e) 
 {
 }
 
+float Plane::PlaneEquation(const FPoint& pt, const Plane& plane) {
+
+	Math m;
+	return m.Dot(pt, plane.normal) - plane.distance;
+}
 
 bool Line::lineline(const Line& lineA, FPoint& outPoint) {
 
