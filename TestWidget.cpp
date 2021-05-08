@@ -88,7 +88,7 @@ void TestWidget::Update(float dt)
 			if (i == j) continue;
 			Arbiter result(bi, bj);
 			if (result.numContacts > 0) {
-				Log::Info("colliding");
+				//Log::Info(std::to_string(result.numContacts));
 				Arbiters.push_back(result);
 			}
 		}
@@ -121,13 +121,13 @@ void TestWidget::Update(float dt)
 	}
 
 	//apply impulses
-	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		//arb->ApplyImpulse2D();
-	}
-
 	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ResolveCollision();
+		arb->ApplyImpulse2D();
 	}*/
+
+	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->ResolveCollision();
+	}
 
 	//integrate velocities
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -157,7 +157,7 @@ void TestWidget::Update(float dt)
 
 	//OBBCollideOBB(bodyBox_a, bodyBox_b);
 	
-	Log::Info("Mouse pos: " + std::to_string(MOUSEPOS.x) + "  " + std::to_string(MOUSEPOS.x));
+	//Log::Info("Mouse pos: " + std::to_string(MOUSEPOS.x) + "  " + std::to_string(MOUSEPOS.x));
 //	Log::Info("grey velocity " + std::to_string(bodyBox_a->velocity.y));
 //	Log::Info("yellow velocity " + std::to_string(bodyBox_b->velocity.y));
 	//auto c = CollideFeatures(bodyBox_a, bodyBox_b);
@@ -284,7 +284,7 @@ void TestWidget::KeyPressed(int keyCode)
 
 	if (keyCode == VK_SPACE) {
 		bodyBox_b->KeyPressed(keyCode);
-		Log::Info(std::to_string(bodyBox_b->mass));
+		//Log::Info(std::to_string(bodyBox_b->mass));
 	}
 }
 

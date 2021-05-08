@@ -16,11 +16,11 @@ std::vector<Line> GetEdges(BodyBox* a);
 float GetDepth(BodyBox* a, BodyBox* b, FPoint& axis, bool* shouldFlip);
 
 
-bool ClipToPlane(const Plane& plane, const Line& line, FPoint& outPoint);
-void ClipSegmentToLine(FPoint& vertixOut, FPoint& vertixIn,
-	const FPoint& normal, float offset, Line& edge);
+bool ClipToPlane(const Plane& plane, const Line& line, FPoint* outPoint);
+
 std::vector<FPoint> ClipToEdges(BodyBox* a, BodyBox* b);
 std::vector<Contact> ClipToEdgesCONTACTS(BodyBox* a, BodyBox* b);
-std::vector<FPoint> ClipEdgesToBodyBox(const std::vector<Line>& edges, BodyBox* bodyBox);
+std::vector<Contact> ClipEdgesToBodyBox(const std::vector<Line>& edges, BodyBox* bodyBox);
 bool PointInBodyBox(const FPoint& point, BodyBox* bodyBox);
+bool PointInBodyBox(const Contact& point, BodyBox* bodyBox);
 FPoint ClosestPoint(BodyBox* bodyBox, const FPoint& point);

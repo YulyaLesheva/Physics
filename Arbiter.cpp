@@ -170,7 +170,8 @@ void Arbiter::ResolveCollision() {
 	float j = (invMassSum == 0.f) ? 0.0f : numerator / invMassSum;
 
 	if (allContacts.size() > 0.0f && j != 0.0f) {
-		j /= 0.8f;
+		j /= allContacts.size();
+		//j /= 0.8f;
 	}
 
 	FPoint impulse = relativeNorm * j;

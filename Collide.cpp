@@ -279,8 +279,8 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 
 	FPoint axis = hitNormal->Normalized();
 
-	std::vector<Contact> co1 = ClipToEdgesCONTACTS(a,b);
-	std::vector<Contact> co2 = ClipToEdgesCONTACTS(b,a);
+	std::vector<Contact> co1 = ClipEdgesToBodyBox(GetEdges(a), b);
+	std::vector<Contact> co2 = ClipEdgesToBodyBox(GetEdges(b) ,a);
 
 	contacts.reserve(co1.size() + co2.size());
 	contacts.insert(contacts.end(), co1.begin(), co1.end());
@@ -310,11 +310,11 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 		contacts[i].depth = separation;
 	}
 
-	a->TESTNORMAL = axis;
+	//a->TESTNORMAL = axis;
 
 	Log::Info(std::to_string(numContacts));
-	Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));
-	Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));
+	//Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));
+	//Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));
 
 	return numContacts;
 }
@@ -324,7 +324,7 @@ std::vector<Plane> GetPlanes(BodyBox* a) {
 	Math m; 
 
 	FPoint centre = a->position;
-	FPoint e = a->width;
+	FPoint e = a->width * 0.5;
 	
 	std::vector<FPoint> BoxAxis = {
 		FPoint(0, 1),FPoint(1, 0),
@@ -344,35 +344,38 @@ std::vector<Plane> GetPlanes(BodyBox* a) {
 	return result;
 }
 
-bool ClipToPlane(const Plane& plane, const Line& line, FPoint& outPoint) {
+bool ClipToPlane(const Plane& plane, const Line& line, FPoint* outPoint) {
 
 	Math m;
 	FPoint ab = line.end - line.start;
-	float nAB = m.Dot(plane.normal, ab);
 
 	float nA = m.Dot(plane.normal, line.start);
-	float t = (plane.distance - nA) / nAB;
+	float nAB = m.Dot(plane.normal, ab);
 
-	if (t >= 0.0f && t <= 1.f) {
-		if (outPoint != FPoint(0,0)) {
-			outPoint = line.start + ab * t;
+	float t = (plane.distance - nA) / nAB;
+	if (t >= 0.0f && t <= 1.0f) {
+		if (outPoint != 0) {
+			*outPoint = line.start + ab * t;
 		}
+		//Log::Info("TRUE RETURNED");
 		return true;
-		Log::Info("yes true");
 	}
-	Log::Info("no false");
+
 	return false;
 }
-std::vector<FPoint> ClipEdgesToBodyBox(const std::vector<Line>& edges, BodyBox* bodyBox) {
 
-	std::vector<FPoint> result;
+std::vector<Contact> ClipEdgesToBodyBox(const std::vector<Line>& edges, BodyBox* bodyBox) {
+
+	std::vector<Contact> result;
 	result.reserve(edges.size());
 	FPoint intersection;
 
 	std::vector<Plane>& planes = GetPlanes(bodyBox);
 	for (int i = 0; i < planes.size(); ++i) {
 		for (int j = 0; j < edges.size(); ++j) {
-			if (ClipToPlane(planes[i], edges[j], intersection)) {
+			auto res = ClipToPlane(planes[i], edges[j], &intersection);
+			if (res) {
+				auto test = intersection; /////€€€€с бииич работает
 				if (PointInBodyBox(intersection, bodyBox)) {
 					result.push_back(intersection);
 				}
@@ -398,26 +401,48 @@ bool PointInBodyBox(const FPoint& point, BodyBox* bodyBox) {
 	for (int i = 0; i < BoxAxis.size(); ++i) {
 		float distance = m.Dot(dir, BoxAxis[i]);
 
-		if (distance > bodyBox->width.x * 0.5) {
+		if (distance > bodyBox->width.x * 0.5 || distance > bodyBox->width.y * 0.5) {
+			//Log::Info("NOT IN THE BOX");
+			return false;
+		}
+
+		if (distance < -bodyBox->width.x * 0.5 || distance < -bodyBox->width.y * 0.5) {
+			//Log::Info("NOT IN THE BOX");
+			return false;
+		}
+	}
+
+	//Log::Info("YES IN THE BOX");
+	return true;
+}
+
+bool PointInBodyBox(const Contact& point, BodyBox* bodyBox) {
+
+	Math m;
+
+	FPoint dir = point.position - bodyBox->position;
+
+	std::vector<FPoint> BoxAxis = {
+		FPoint(0, 1),FPoint(1, 0),
+	};
+
+	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+
+	for (int i = 0; i < BoxAxis.size(); ++i) {
+		float distance = m.Dot(dir, BoxAxis[i]);
+
+		if (distance > bodyBox->width.x * 0.5 || distance > bodyBox->width.y * 0.5) {
 			Log::Info("NOT IN THE BOX");
 			return false;
 		}
 
-		if (distance > bodyBox->width.y * 0.5) {
-			Log::Info("NOT IN THE BOX");
-			return false;
-		}
-
-		if (distance < -bodyBox->width.x * 0.5) {
-			Log::Info("NOT IN THE BOX");
-			return false;
-		}
-
-		if (distance < -bodyBox->width.y * 0.5) {
+		if (distance < -bodyBox->width.x * 0.5 || distance < -bodyBox->width.y * 0.5) {
 			Log::Info("NOT IN THE BOX");
 			return false;
 		}
 	}
+
 	Log::Info("YES IN THE BOX");
 	return true;
 }
@@ -439,21 +464,21 @@ FPoint ClosestPoint(BodyBox* bodyBox, const FPoint& point) {
 
 	for (int i = 0; i < BoxAxis.size(); ++i) {
 		float distance = m.Dot(dir, BoxAxis[i]);
-		
-		if (distance > bodyBox->width.x) {
-			distance = bodyBox->width.x;
+		 
+		if (distance > bodyBox->width.x * 0.5) {
+			distance = bodyBox->width.x * 0.5;
 		}
 		
-		if (distance > bodyBox->width.y) {
-			distance = bodyBox->width.y;
+		if (distance > bodyBox->width.y * 0.5) {
+			distance = bodyBox->width.y * 0.5;
 		}
 
-		if (distance < -bodyBox->width.x) {
-			distance = -bodyBox->width.x;
+		if (distance < -bodyBox->width.x * 0.5) {
+			distance = -bodyBox->width.x * 0.5;
 		}
 
-		if (distance < -bodyBox->width.y) {
-			distance = -bodyBox->width.y;
+		if (distance < -bodyBox->width.y * 0.5) {
+			distance = -bodyBox->width.y * 0.5;
 		}
 		result = result + (BoxAxis[i] * distance);
 	}
