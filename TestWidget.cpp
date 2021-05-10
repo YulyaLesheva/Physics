@@ -14,7 +14,7 @@
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
-
+	
 {
 	Init();
 }
@@ -32,12 +32,14 @@ void TestWidget::Init()
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 200), 0.0);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.15);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 200), 0.2);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.2);
+	bodyBox_c = BodyBox::Create("GreenLine",FPoint(Render::device.Width() * .5f, 70), 0.f);
 
 	BodyBoxes = {
 		bodyBox_a,
-		bodyBox_b
+		bodyBox_b, 
+		bodyBox_c 
 	};
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
@@ -77,7 +79,7 @@ void TestWidget::Draw()
 void TestWidget::Update(float dt)
 {
 	
-	Arbiters.clear();
+	//Arbiters.clear(); //добавить проверку
 	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
 
 	//find colliding pairs
@@ -121,13 +123,13 @@ void TestWidget::Update(float dt)
 	}
 
 	//apply impulses
-	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ApplyImpulse2D();
-	}*/
-
 	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ResolveCollision();
+		arb->ApplyImpulse2D();
 	}
+
+	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->ResolveCollision();
+	}*/
 
 	//integrate velocities
 	for (int i = 0; i < BodyBoxes.size(); ++i) {

@@ -110,12 +110,14 @@ void Arbiter::PreStep(float inv_dt) {
 	const float k_allowedPenetration = 0.01f;
 	Math m;
 
-	float k_biasFactor = true ? 0.2f : 0.0f;
-	//float k_biasFactor = 0.2f;
+	//float k_biasFactor = true ? 0.2f : 0.0f;
+	float k_biasFactor = 0.2f;
+	
 	for (int i = 0; i < numContacts; ++i) {
 		Contact* c = &allContacts[i];
 		FPoint r1 = c->position - a->position;
 		FPoint r2 = c->position - b->position;
+
 
 		//precompute normal mass, tangent mass, bias
 		float rn1 = m.Dot(r1, c->contactNormal);

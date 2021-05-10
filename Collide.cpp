@@ -134,7 +134,7 @@ float GetDepth(BodyBox* a, BodyBox* b, FPoint& axis, bool* shouldFlip) {
 	float length = max - min;
 
 	if (shouldFlip != 0) {
-		*shouldFlip = (interval_b.x > interval_a.x);
+		*shouldFlip = (interval_b.x < interval_a.x);
 	}
 
 	return (len_a + len_b) - length;
@@ -184,6 +184,7 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 	std::vector<FPoint> c1 = ClipToEdges(a, b);
 	std::vector<FPoint> c2 = ClipToEdges(b, a);
 	
+
 	std::vector<Contact> co1 = ClipToEdgesCONTACTS(a, b);
 	std::vector<Contact> co2 = ClipToEdgesCONTACTS(b, a);
 	
@@ -280,7 +281,12 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 	FPoint axis = hitNormal->Normalized();
 
 	std::vector<Contact> co1 = ClipEdgesToBodyBox(GetEdges(a), b);
+	
+	//if (co1.size() < 2) co1.clear();
+
 	std::vector<Contact> co2 = ClipEdgesToBodyBox(GetEdges(b) ,a);
+
+	//if (co2.size() < 2) co2.clear();
 
 	contacts.reserve(co1.size() + co2.size());
 	contacts.insert(contacts.end(), co1.begin(), co1.end());
@@ -294,7 +300,7 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 
 	for (int i = contacts.size() - 1; i >= 0; --i) {
 		Contact contact = contacts[i];
-		contacts[i] = contact.position + (axis * axis.GetDotProduct(pointOnPlane - contact.position));
+		//contacts[i] = contact.position + (axis * axis.GetDotProduct(pointOnPlane - contact.position));
 		for (int j = contacts.size() - 1; j > i; --j) {
 			if ((contacts[j].position - contacts[i].position).GetDotProduct(contacts[j].position
 				- contacts[i].position) < 0.0001f) {

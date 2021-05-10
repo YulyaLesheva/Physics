@@ -48,6 +48,7 @@ private:
 
 	BodyBox *bodyBox_a;
 	BodyBox *bodyBox_b;
+	BodyBox *bodyBox_c;
 	///all brand new 
 	std::vector<PhysicBody*> AllBodies;
 	std::vector<PhysicBody*> Collider1;
