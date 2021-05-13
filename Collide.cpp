@@ -281,12 +281,9 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 	FPoint axis = hitNormal->Normalized();
 
 	std::vector<Contact> co1 = ClipEdgesToBodyBox(GetEdges(a), b);
-	
-	//if (co1.size() < 2) co1.clear();
-
 	std::vector<Contact> co2 = ClipEdgesToBodyBox(GetEdges(b) ,a);
 
-	//if (co2.size() < 2) co2.clear();
+	if (co2.size() + co1.size() < 2) return 0;
 
 	contacts.reserve(co1.size() + co2.size());
 	contacts.insert(contacts.end(), co1.begin(), co1.end());
@@ -315,8 +312,6 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 		contacts[i].contactNormal = axis;
 		contacts[i].depth = separation;
 	}
-
-	//a->TESTNORMAL = axis;
 
 	Log::Info(std::to_string(numContacts));
 	//Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));

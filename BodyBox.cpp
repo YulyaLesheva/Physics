@@ -28,7 +28,7 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	if (mass > 0)
 	{
 		inverseMass = 1.0f / mass;
-		I = mass * (width.x * width.x + width.y * width.y) / 12.0f;
+		I = mass * (width.x * width.x  + width.y * width.y) / 12.0f;
 		invI = 1.0f / I;
 	}
 	else
@@ -53,7 +53,10 @@ void BodyBox::Draw() {
 }
 
 void BodyBox::Update(float dt) {
-	//if (rotationValue < 0 || rotationValue > 180) rotationValue = 0;
+	
+	if (rotationValue > 360 || rotationValue < - 360) 
+		rotationValue = 0;
+
 	//Log::Info(std::to_string(rotationValue));
 	
 	//force = GRAVITY_CONST;

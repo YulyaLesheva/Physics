@@ -53,7 +53,4 @@ struct BodyBox {
 	bool anchored;
 	void setdegrees(float deg);
 
-
-
-	FPoint TESTNORMAL;
 };

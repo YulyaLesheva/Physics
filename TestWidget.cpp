@@ -9,8 +9,15 @@
 #include "Line.h"
 #include "Collide.h"
 #include "BodyBox.h"
+#include "Math.h"
+#define GRAVITY_CONST FPoint(0, -29.82f)
 
-#define GRAVITY_CONST FPoint(0, -9.82f)
+using std::vector;
+using std::map;
+using std::pair;
+typedef map<ArbiterKey, Arbiter>::iterator ArbIter;
+typedef pair<ArbiterKey, Arbiter> ArbPair;
+
 
 TestWidget::TestWidget(const std::string& name, rapidxml::xml_node<>* elem)
 	: Widget(name)
@@ -32,14 +39,14 @@ void TestWidget::Init()
 	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
 	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
 
-	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 200), 0.2);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(300, 500), 0.2);
+	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 500), 0.0);
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(600, 500), 1.0); //0.1
 	bodyBox_c = BodyBox::Create("GreenLine",FPoint(Render::device.Width() * .5f, 70), 0.f);
 
 	BodyBoxes = {
 		bodyBox_a,
 		bodyBox_b, 
-		bodyBox_c 
+		//bodyBox_c 
 	};
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
@@ -78,57 +85,85 @@ void TestWidget::Draw()
 
 void TestWidget::Update(float dt)
 {
-	
-	//Arbiters.clear(); //добавить проверку
 	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
 
-	//find colliding pairs
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
-		BodyBox* bi = BodyBoxes[i];
-		for (int j = i; j < BodyBoxes.size(); ++j) {
+		BodyBox *bi = BodyBoxes[i];
+
+		for (int j = i + 1; j < BodyBoxes.size(); ++j) {
+
 			BodyBox* bj = BodyBoxes[j];
-			if (i == j) continue;
-			Arbiter result(bi, bj);
-			if (result.numContacts > 0) {
-				//Log::Info(std::to_string(result.numContacts));
-				Arbiters.push_back(result);
+
+			if (bi->inverseMass == 0.0f && bj->inverseMass == 0.0f)
+				continue;
+
+			Arbiter newArb(bi, bj);
+			ArbiterKey key(bi, bj);
+
+			if (newArb.numContacts > 0) {
+				ArbIter iter = arbiters.find(key);
+				if (iter == arbiters.end())
+				{
+					arbiters.insert(ArbPair(key, newArb));
+				}
+			}
+			else {
+				arbiters.erase(key);
 			}
 		}
-		//иначе, если пара есть в арбитрах, но у нее больше нет точек, то ее надо удалить. 
-	}
-	
-
-	auto YULYA = GetPlanes(bodyBox_a);
-	PointInBodyBox(MOUSEPOS, bodyBox_a);
-	
-	//add force
-	//сопротивление воздуха блять
-	for (int i = 0; i < BodyBoxes.size(); ++i) {
-		BodyBox* b = BodyBoxes[i];
-		b->AddForce(GRAVITY_CONST);
 	}
 
+	Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotationValue));
+	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotationValue));
+	
+	////add force
+	//for (int i = 0; i < BodyBoxes.size(); ++i) {
+	//	BodyBox* b = BodyBoxes[i];
+	//	b->AddForce(GRAVITY_CONST);
+	//}
+	
+	//const float damping = 0.98;
+	//FPoint acceleration = force * inverseMass;
+	//velocity += acceleration * dt;
+	//velocity *= damping;
+	
 	//integrate forces
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
 		if (b->inverseMass == 0.0f) continue;
 
+		
+		/*const float damping = 0.98f;
+		FPoint acceleration = GRAVITY_CONST * b->inverseMass;
+		b->velocity += acceleration * dt;
+		
+		b->velocity *= damping;
+		
+		b->angularVelocity += dt * b->invI * b->torque;*/
+		
+
 		b->velocity += dt * (GRAVITY_CONST + b->inverseMass * b->force);
+		b->velocity *= 0.995;
 		b->angularVelocity += dt * b->invI * b->torque;
 	}
 
 	////pre-step 
-	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->PreStep(inv_dt);
-	}
-
-	//apply impulses
-	for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ApplyImpulse2D();
-	}
-
 	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ResolveCollision();
+		arb->PreStep(inv_dt);
+	}*/
+
+	for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
+		arb->second.PreStep(inv_dt);
+	}
+
+	for (int i = 0; i < 100; ++i) {
+		for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
+			arb->second.ApplyImpulse2D();
+		}
+	}
+	//apply impulses
+	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
+		arb->ApplyImpulse2D();
 	}*/
 
 	//integrate velocities
@@ -141,28 +176,10 @@ void TestWidget::Update(float dt)
 		body->force = FPoint(0,0);
 		body->torque = 0.f;
 	}
-
-	//отдельно сделать широкую фазу и вставить метод сюда
-	
 	
 	for (auto *b : BodyBoxes) {
 		b->Update(dt);
 	}
-	
-	for (auto *b : BodyBoxes) {
-		b->ApplyForces();
-	}
-
-	
-
-	//a.lineline(b, checkPoint);
-
-	//OBBCollideOBB(bodyBox_a, bodyBox_b);
-	
-	//Log::Info("Mouse pos: " + std::to_string(MOUSEPOS.x) + "  " + std::to_string(MOUSEPOS.x));
-//	Log::Info("grey velocity " + std::to_string(bodyBox_a->velocity.y));
-//	Log::Info("yellow velocity " + std::to_string(bodyBox_b->velocity.y));
-	//auto c = CollideFeatures(bodyBox_a, bodyBox_b);
 	
 	Collider1.clear();
 	Collider2.clear();
@@ -187,53 +204,6 @@ void TestWidget::Update(float dt)
 	for (auto &b : AllBodies) {
 		b->ApplyForces();
 	}
-
-	for (int k = 0; k < impulseIteration; ++k) {
-		for (int i = 0; i < Results.size(); ++i) {
-			for (int j = 0; j < Results[i].contacts.size(); ++j) {
-				PhysicBody* a = Collider1[i];
-				PhysicBody* b = Collider2[i];
-				BodyCollision::ApplyImpulse(a, b, &Results[i], j);
-			}
-		}
-	}
-
-	for (auto &body : AllBodies) {
-		body->Update(dt);
-	}
-
-	for (auto &body : AllBodies) {
-		body->UpdatePosition(dt);
-	}
-
-	for (int i = 0; i < Results.size(); ++i) {
-		//Log::Info("Penetration value is " + std::to_string(Results[i].depth));
-		PhysicBody* a = Collider1[i];
-		PhysicBody* b = Collider2[i];
-
-		float totalMass = a->inverseMass + b->inverseMass;
-
-		if (totalMass == 0.f) continue;
-
-		FPoint corr = math::max(Results[i].depth - PenetrationSlop, 0.0f) / totalMass * LinearProjectionPercent * Results[i].normal;
-		a->_pos -= a->inverseMass * corr;
-		b->_pos += b->inverseMass * corr;
-
-		/*float totalMass = a->inverseMass + b->inverseMass;
-		if (totalMass == 0.0f) continue;
-
-		float depth = fmaxf(Results[i].depth - PenetrationSlack, 0.0f);
-		float scalar = (totalMass == 0.0f) ? 0.0f : depth / totalMass;
-		FPoint correction = Results[i].mNormal * scalar * LinearProjectionPercent;
-
-		a->_pos = a->_pos - correction * a->inverseMass;
-		b->_pos = b->_pos + correction * b->inverseMass;
-*/
-	}
-
-	for (auto &body : AllBodies) {
-		body->KeepInBorders();
-	}
 }
 
 
@@ -243,8 +213,10 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 		body->MouseDown(mouse_pos);
 	}
 
-	bodyBox_a->MouseDown(mouse_pos);
-	bodyBox_b->MouseDown(mouse_pos);
+	for (auto &body : BodyBoxes) {
+		body->MouseDown(mouse_pos);
+	}
+
 	return false;
 }
 
@@ -259,8 +231,9 @@ void TestWidget::MouseUp(const IPoint &mouse_pos)
 		body->MouseUp(mouse_pos);
 	}
 
-	bodyBox_a->MouseUp(mouse_pos);
-	bodyBox_b->MouseUp(mouse_pos);
+	for (auto &body : BodyBoxes) {
+		body->MouseUp(mouse_pos);
+	}
 }
 
 void TestWidget::AcceptMessage(const Message& message)

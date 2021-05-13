@@ -2,6 +2,9 @@
 template <typename T>
 using Sprite = std::unique_ptr<T>;
 
+#include <vector>
+#include <map>
+
 class Background;
 class Quad;
 struct Line;
@@ -10,7 +13,10 @@ class Body;
 class BodyBox;
 class PhysicBody;
 struct Arbiter;
+struct ArbiterKey;
 struct Contact;
+struct Math;
+
 
 class TestWidget : public GUI::Widget
 {
@@ -59,7 +65,7 @@ private:
 	std::vector<Contact> checkContacts;
 
 	std::vector<Arbiter> Arbiters;
-
+	std::map<ArbiterKey, Arbiter> arbiters;
 	//sleep
 	std::vector<PhysicBody*> SleepBodies;
 	std::vector<std::vector<PhysicBody*>> CollideVectorToCheckForSleep;

@@ -3,6 +3,19 @@
 #include "BodyBox.h"
 #include "Math.h"
 #include "Collide.h"
+
+ArbiterKey::ArbiterKey(BodyBox* BodyA, BodyBox* BodyB)
+{
+	if (BodyA < BodyB) {
+		a = BodyA;
+		b = BodyB;
+	}
+	else {
+		a = BodyB;
+		b = BodyA;
+	}
+}
+
 Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
 	separation(FLT_MAX),
 	colliding(false)
@@ -28,7 +41,7 @@ void Arbiter::ApplyImpulse2D() {
 
 	Math m;
 	
-	Log::Info("START IMPULSE APPLY");
+//	Log::Info("START IMPULSE APPLY");
 
 	for (int i = 0; i < numContacts; ++i) {
 		Contact* c = &allContacts[i];
@@ -110,14 +123,15 @@ void Arbiter::PreStep(float inv_dt) {
 	const float k_allowedPenetration = 0.01f;
 	Math m;
 
-	//float k_biasFactor = true ? 0.2f : 0.0f;
-	float k_biasFactor = 0.2f;
+	float k_biasFactor = true ? 0.2f : 0.0f;
+	//float k_biasFactor = 0.2f;
 	
 	for (int i = 0; i < numContacts; ++i) {
+
 		Contact* c = &allContacts[i];
+
 		FPoint r1 = c->position - a->position;
 		FPoint r2 = c->position - b->position;
-
 
 		//precompute normal mass, tangent mass, bias
 		float rn1 = m.Dot(r1, c->contactNormal);
@@ -125,7 +139,7 @@ void Arbiter::PreStep(float inv_dt) {
 		float kNormal = a->inverseMass + b->inverseMass;
 		kNormal += a->invI * (m.Dot(r1, r1) - rn1 * rn1) +
 			b->invI * (m.Dot(r2, r2) - rn2 * rn2);
-		c->massNormal = 1 / kNormal;
+		c->massNormal = 1.f / kNormal;
 
 		FPoint tangent = m.Cross(c->contactNormal, 1.0);
 		float rt1 = m.Dot(r1, tangent);

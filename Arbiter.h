@@ -24,6 +24,15 @@ struct Contact
 	FPoint contactNormal;
 };
 
+
+struct ArbiterKey
+{
+	ArbiterKey(BodyBox* BodyA, BodyBox* BodyB);
+	BodyBox* a;
+	BodyBox* b;
+};
+
+
 struct Arbiter
 {
 
@@ -50,3 +59,14 @@ struct Arbiter
 	float separation;
 
 };
+
+inline bool operator < (const ArbiterKey& a1, const ArbiterKey& a2)
+{
+	if (a1.a < a2.a)
+		return true;
+
+	if (a1.a == a2.a && a1.b < a2.b)
+		return true;
+
+	return false;
+}
