@@ -10,6 +10,7 @@
 #include "Collide.h"
 #include "BodyBox.h"
 #include "Math.h"
+#include "Random.h"
 #define GRAVITY_CONST FPoint(0, -29.82f)
 
 using std::vector;
@@ -41,12 +42,14 @@ void TestWidget::Init()
 
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 500), 0.0);
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(600, 500), 1.0); //0.1
-	bodyBox_c = BodyBox::Create("GreenLine",FPoint(Render::device.Width() * .5f, 70), 0.f);
+	bodyBox_c = BodyBox::Create("Floor",FPoint(Render::device.Width() * .5f, 70), 0.f);
+	bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
 
 	BodyBoxes = {
 		bodyBox_a,
-		bodyBox_b, 
-		//bodyBox_c 
+		//bodyBox_b, 
+		//bodyBox_c,
+		//bodyBox_d
 	};
 	//AllBodies.push_back(_greyBody);
 	//AllBodies.push_back(_yellowBody);
@@ -57,7 +60,7 @@ void TestWidget::Init()
 
 	LinearProjectionPercent = 0.25f;
 	PenetrationSlop = 0.1f;
-	impulseIteration = 10;
+	impulseIteration = 100;
 }
 
 void TestWidget::Draw()
@@ -143,28 +146,19 @@ void TestWidget::Update(float dt)
 		
 
 		b->velocity += dt * (GRAVITY_CONST + b->inverseMass * b->force);
-		b->velocity *= 0.995;
 		b->angularVelocity += dt * b->invI * b->torque;
+		b->velocity *= 0.995;
 	}
-
-	////pre-step 
-	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->PreStep(inv_dt);
-	}*/
 
 	for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
 		arb->second.PreStep(inv_dt);
 	}
 
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < impulseIteration; ++i) {
 		for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
 			arb->second.ApplyImpulse2D();
 		}
 	}
-	//apply impulses
-	/*for (auto arb = Arbiters.begin(); arb != Arbiters.end(); ++arb) {
-		arb->ApplyImpulse2D();
-	}*/
 
 	//integrate velocities
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -180,30 +174,6 @@ void TestWidget::Update(float dt)
 	for (auto *b : BodyBoxes) {
 		b->Update(dt);
 	}
-	
-	Collider1.clear();
-	Collider2.clear();
-	Results.clear();
-
-	for (int i = 0; i < AllBodies.size(); ++i) {
-		for (int j = i; j < AllBodies.size(); ++j) {
-			if (i == j) continue;
-			Manifold result;
-			result.ResetManifold(&result);
-			PhysicBody* a = (PhysicBody*)AllBodies[i];
-			PhysicBody* b = (PhysicBody*)AllBodies[j];
-			result = BodyCollision::FindCollisionFeatures(a, b);
-			if (result.colliding) {
-				Collider1.push_back(AllBodies[i]);
-				Collider2.push_back(AllBodies[j]);
-				Results.push_back(result);
-			}
-		}
-	}
-
-	for (auto &b : AllBodies) {
-		b->ApplyForces();
-	}
 }
 
 
@@ -216,8 +186,16 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 	for (auto &body : BodyBoxes) {
 		body->MouseDown(mouse_pos);
 	}
-
+	
+	CreateQuad(mouse_pos);
 	return false;
+}
+
+void TestWidget::CreateQuad(const IPoint &pos) {
+	
+	std::string str = RandomQuad();
+
+	BodyBoxes.push_back(BodyBox::Create(str, FPoint(pos), 1.0, randomRotation()));
 }
 
 void TestWidget::MouseMove(const IPoint &mouse_pos)

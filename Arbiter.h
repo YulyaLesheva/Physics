@@ -4,6 +4,19 @@ class BodyBox;
 // arbiter похож на manifold. Думаю, что им можно заменить manifold
 // имеет функции update и функцию applyImpulse;
 
+union FeaturePair
+{
+	struct Edges
+	{
+		char inEdge1;
+		char outEdge1;
+		char inEdge2;
+		char outEdge2;
+	} e;
+	int value;
+
+};
+
 
 struct Contact
 {
@@ -22,6 +35,7 @@ struct Contact
 	float bias;
 	float depth;
 	FPoint contactNormal;
+	FeaturePair feature;
 };
 
 
@@ -60,6 +74,7 @@ struct Arbiter
 
 };
 
+
 inline bool operator < (const ArbiterKey& a1, const ArbiterKey& a2)
 {
 	if (a1.a < a2.a)
@@ -70,3 +85,4 @@ inline bool operator < (const ArbiterKey& a1, const ArbiterKey& a2)
 
 	return false;
 }
+

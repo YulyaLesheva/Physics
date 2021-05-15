@@ -38,9 +38,44 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 		invI = 0.0f;
 	}
 }
+BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
+	:texture(Core::resourceManager.Get<Render::Texture>(tex)),
+	position(pos),
+	elastic(0.5),
+	rotationValue(degrees)
+{
+	rotation = 0.0;
+	velocity = FPoint(0, 0);
+	angularVelocity = 0.0f;
+	force = FPoint(0, 0);
+	torque = 0.0f;
+	friction = 0.2;
+
+	mass = FLT_MAX;
+	invI = 0.0f;
+	mass = m;
+	width = FPoint(texture->Width(), texture->Height());
+
+	if (mass > 0)
+	{
+		inverseMass = 1.0f / mass;
+		I = mass * (width.x * width.x + width.y * width.y) / 12.0f;
+		invI = 1.0f / I;
+	}
+	else
+	{
+		inverseMass = 0.0f;
+		I = FLT_MAX;
+		invI = 0.0f;
+	}
+}
 
 BodyBox* BodyBox::Create(char* tex, FPoint& pos, float m) {
 	return new BodyBox(tex, pos, m);
+}
+
+BodyBox* BodyBox::Create(std::string tex, FPoint& pos, float m, float degrees) {
+	return new BodyBox(tex, pos, m, degrees);
 }
 
 void BodyBox::Draw() {

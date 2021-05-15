@@ -485,3 +485,87 @@ FPoint ClosestPoint(BodyBox* bodyBox, const FPoint& point) {
 	}
 	return result;
 }
+
+struct ClipVertex
+{
+	ClipVertex() {
+		fp.value = 0;
+	}
+	FPoint v;
+	FeaturePair fp;
+};
+
+//        ^ y
+//        |
+//        e1
+//   v2 ------ v1
+//    |        |
+// e2 |        | e4  --> x
+//    |        |
+//   v3 ------ v4
+//        e3
+
+enum Axis
+{
+	FACE_A_X,
+	FACE_A_Y,
+	FACE_B_X,
+	FACE_B_Y
+};
+
+enum EdgeNums
+{
+	NO_EDGE = 0,
+	EDGE1,
+	EDGE2,
+	EDGE3,
+	EDGE4
+};
+
+
+
+void Flip(FeaturePair& fp) {
+	Math m;
+
+	m.Swap(fp.e.inEdge1, fp.e.inEdge2);
+	m.Swap(fp.e.outEdge1, fp.e.outEdge2);
+}
+
+int ClipSegmentToLine(std::vector<ClipVertex> vOut, std::vector<ClipVertex> vIn,
+	const FPoint& normal, float offset, char clipEdge) 
+{
+	Math m;
+
+	int numOut = 0;
+
+	float distance0 = m.Dot(normal, vIn[0].v) - offset;
+	float distance1 = m.Dot(normal, vIn[1].v) - offset;
+
+	if (distance0 <= 0.0f) vOut[numOut++] = vIn[0]; 
+	if (distance1 <= 0.0f) vOut[numOut++] = vIn[1]; 
+
+	if (distance0 * distance1 < 0.0f)
+	{
+		float interp = distance0 / (distance0 - distance1);
+		vOut[numOut].v = vIn[0].v + interp * (vIn[1].v - vIn[0].v);
+		if (distance0 > 0.0f) {
+			vOut[numOut].fp = vIn[0].fp;
+			vOut[numOut].fp.e.inEdge1 = clipEdge;
+			vOut[numOut].fp.e.inEdge2 = NO_EDGE;
+		}
+		else {
+			vOut[numOut].fp = vIn[1].fp;
+			vOut[numOut].fp.e.outEdge1 = clipEdge;
+			vOut[numOut].fp.e.outEdge2 = NO_EDGE;
+		}
+		++numOut;
+	}
+
+	return numOut;
+}
+
+
+static void ComputeIncidentEdge(ClipVertex c[2], const FPoint& h, const FPoint& pos,
+	const FPoint axis, const FPoint& normal) {
+	
+}

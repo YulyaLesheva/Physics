@@ -63,5 +63,11 @@ struct Math {
 	float Clamp(float a, float low, float high) {
 		return math::max(low, math::min(a, high));
 	}
+	
+	template<typename T> void Swap(T& a, T& b) {
+		T tmp = a;
+		a = b;
+		b = tmp;
+	}
 };
 

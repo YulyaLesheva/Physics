@@ -55,7 +55,6 @@ void Arbiter::ApplyImpulse2D() {
 		
 		//проверить почему дает 0 при коллизии. 
 
-
 		//compute normal impulse
 		float vn = m.Dot(dv, c->contactNormal);
 		

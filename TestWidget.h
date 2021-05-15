@@ -55,6 +55,10 @@ private:
 	BodyBox *bodyBox_a;
 	BodyBox *bodyBox_b;
 	BodyBox *bodyBox_c;
+	BodyBox *bodyBox_d;
+
+
+	void CreateQuad(const IPoint &pos);
 	///all brand new 
 	std::vector<PhysicBody*> AllBodies;
 	std::vector<PhysicBody*> Collider1;

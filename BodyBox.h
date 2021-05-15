@@ -2,8 +2,10 @@
 
 struct BodyBox {
 
-	BodyBox(char* texe, FPoint& pos, float m); 
+	BodyBox(char* tex, FPoint& pos, float m); 
+	BodyBox(std::string tex, FPoint& pos, float m, float degrees);
 	static BodyBox* Create(char* tex, FPoint& pos, float m);
+	static BodyBox* Create(std::string tex, FPoint& pos, float m, float degrees);
 	FPoint position;
 	FPoint velocity;
 	FPoint force;
