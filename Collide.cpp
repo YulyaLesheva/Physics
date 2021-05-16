@@ -101,20 +101,20 @@ bool OBBCollideOBB(BodyBox* a, BodyBox* b) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 
-	math.ROTATE(axisToCheck[2], a->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[3], a->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[2], a->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[3], a->rotation, FPoint(0, 0));
 
-	math.ROTATE(axisToCheck[4], b->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[5], b->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[4], b->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[5], b->rotation, FPoint(0, 0));
 
 	for (int i = 0; i < axisToCheck.size(); ++i) {
 		if (!OverlapOnAxis(a, b, axisToCheck[i])) {
-			Log::Info("No collision");
+		//	Log::Info("No collision");
 			return false;
 		}
 	}
 
-	Log::Info("Collision");
+	//Log::Info("Collision");
 	return true;
 }
 
@@ -151,11 +151,11 @@ Arbiter CollideFeatures(BodyBox* a, BodyBox* b) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 
-	math.ROTATE(axisToCheck[2], a->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[3], a->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[2], a->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[3], a->rotation, FPoint(0, 0));
 
-	math.ROTATE(axisToCheck[4], b->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[5], b->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[4], b->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[5], b->rotation, FPoint(0, 0));
 
 	FPoint* hitNormal = 0;
 	bool shouldFlip;
@@ -251,11 +251,11 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 		FPoint(0, 1),FPoint(1, 0), // х и у для второго объекта, вращаемые
 	};
 
-	math.ROTATE(axisToCheck[2], a->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[3], a->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[2], a->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[3], a->rotation, FPoint(0, 0));
 
-	math.ROTATE(axisToCheck[4], b->rotationValue, FPoint(0, 0));
-	math.ROTATE(axisToCheck[5], b->rotationValue, FPoint(0, 0));
+	math.ROTATE(axisToCheck[4], b->rotation, FPoint(0, 0));
+	math.ROTATE(axisToCheck[5], b->rotation, FPoint(0, 0));
 
 	FPoint* hitNormal = 0;
 	bool shouldFlip;
@@ -313,7 +313,7 @@ int Collide(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
 		contacts[i].depth = separation;
 	}
 
-	Log::Info(std::to_string(numContacts));
+	//Log::Info(std::to_string(numContacts));
 	//Log::Info("SECOND FUNCTION: depth is " + std::to_string(separation));
 	//Log::Info("SECOND FUNCTION: normal is " + std::to_string(axis.x) + " " + std::to_string(axis.y));
 
@@ -331,8 +331,8 @@ std::vector<Plane> GetPlanes(BodyBox* a) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 	
-	m.ROTATE(BoxAxis[0], a->rotationValue, FPoint(0, 0));
-	m.ROTATE(BoxAxis[1], a->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[0], a->rotation, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], a->rotation, FPoint(0, 0));
 	
 	std::vector<Plane> result;
 	result.resize(4);
@@ -396,8 +396,8 @@ bool PointInBodyBox(const FPoint& point, BodyBox* bodyBox) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 	
-	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
-	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[0], bodyBox->rotation, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotation, FPoint(0, 0));
 	
 	for (int i = 0; i < BoxAxis.size(); ++i) {
 		float distance = m.Dot(dir, BoxAxis[i]);
@@ -427,8 +427,8 @@ bool PointInBodyBox(const Contact& point, BodyBox* bodyBox) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 
-	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
-	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[0], bodyBox->rotation, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotation, FPoint(0, 0));
 
 	for (int i = 0; i < BoxAxis.size(); ++i) {
 		float distance = m.Dot(dir, BoxAxis[i]);
@@ -460,8 +460,8 @@ FPoint ClosestPoint(BodyBox* bodyBox, const FPoint& point) {
 		FPoint(0, 1),FPoint(1, 0),
 	};
 
-	m.ROTATE(BoxAxis[0], bodyBox->rotationValue, FPoint(0, 0));
-	m.ROTATE(BoxAxis[1], bodyBox->rotationValue, FPoint(0, 0));
+	m.ROTATE(BoxAxis[0], bodyBox->rotation, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], bodyBox->rotation, FPoint(0, 0));
 
 	for (int i = 0; i < BoxAxis.size(); ++i) {
 		float distance = m.Dot(dir, BoxAxis[i]);
@@ -568,4 +568,105 @@ int ClipSegmentToLine(std::vector<ClipVertex> vOut, std::vector<ClipVertex> vIn,
 static void ComputeIncidentEdge(ClipVertex c[2], const FPoint& h, const FPoint& pos,
 	const FPoint axis, const FPoint& normal) {
 	
+}
+
+int CollideNEW(std::vector<Contact>& contacts, BodyBox* a, BodyBox* b) {
+
+	Math m;
+
+	auto hA = 0.5f * a->width;
+	auto hB = 0.5f * b->width;
+
+	auto posA = a->position;
+	auto posB = b->position;
+
+	Matrix22 RotA(a->rotation), RotB(b->rotation);
+
+	Matrix22 RotAT = RotA.Transpose();
+	Matrix22 RotBT = RotB.Transpose();
+
+	FPoint dp = posB - posA;
+	FPoint dA = RotAT * dp;
+	FPoint dB = RotBT * dp;
+
+	Matrix22 C = RotAT * RotB;
+	Matrix22 absC = Abs(C);
+	Matrix22 absCT = absC.Transpose();
+
+	// SAT THEOREM
+	// A faces
+	auto faceA = Abs(dA) - hA - absC * hB;
+	if (faceA.x > 0.0f || faceA.y > 0.0f)
+		return 0;
+
+	// B faces
+	auto faceB = Abs(dB) - absCT * hA - hB;
+	if (faceB.x > 0.0f || faceB.y > 0.0f)
+		return 0;
+	//SAT THEOREM AND
+
+	Axis axis;
+	float separation;
+	FPoint normal;
+
+	// Box A faces
+	axis = FACE_A_X;
+	separation = faceA.x;
+	normal = dA.x > 0.0f ? RotA.col1 : -RotA.col1;
+
+	const float relativeTol = 0.95f;
+	const float absoluteTol = 0.01f;
+
+	if (faceA.y > relativeTol * separation + absoluteTol * hA.y) {
+		axis = FACE_A_Y;
+		separation = faceA.y;
+		normal = dA.y > 0.0f ? RotA.col2 : -RotA.col2;
+	}
+
+	// Box B faces
+	if (faceB.x > relativeTol * separation + absoluteTol * hB.x) {
+		axis = FACE_B_X;
+		separation = faceB.x;
+		normal = dB.x > 0.0f ? RotB.col1 : -RotB.col1;
+	}
+
+	if (faceB.y > relativeTol * separation + absoluteTol * hB.y) {
+		axis = FACE_B_Y;
+		separation = faceB.y;
+		normal = dB.y > 0.0f ? RotB.col2 : -RotB.col2;
+	}
+
+	//Clipping points
+	FPoint frontNormal, sideNormal;
+	ClipVertex incidentEdge[2];//  or std::vector<ClipVertex> incidentEdge;
+	float front, negSide, posSide;
+	char negEdge, posEdge;
+
+	switch (axis)
+	{
+	case FACE_A_X: 
+	{
+		frontNormal = normal;
+		front = m.Dot(posA, frontNormal) + hA.x;
+		sideNormal = RotA.col2;
+		float side = m.Dot(posA, sideNormal);
+		negSide = -side + hA.y;
+		posSide = side + hA.y;
+		negEdge = EDGE3;
+		posEdge = EDGE1;
+		ComputeIncidentEdge();
+	}
+		break;
+	case FACE_A_Y:
+		break;
+	case FACE_B_X:
+		break;
+	case FACE_B_Y:
+		break;
+	default:
+		break;
+	}
+	
+	// Compute clipping 
+	return 1;
 }

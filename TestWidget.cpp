@@ -47,7 +47,7 @@ void TestWidget::Init()
 
 	BodyBoxes = {
 		bodyBox_a,
-		//bodyBox_b, 
+		bodyBox_b, 
 		//bodyBox_c,
 		//bodyBox_d
 	};
@@ -116,8 +116,10 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotationValue));
-	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotationValue));
+	CollideNEW(checkContacts, bodyBox_a, bodyBox_b);
+
+	//Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotation));
+//	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotation));
 	
 	////add force
 	//for (int i = 0; i < BodyBoxes.size(); ++i) {
@@ -156,7 +158,7 @@ void TestWidget::Update(float dt)
 
 	for (int i = 0; i < impulseIteration; ++i) {
 		for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
-			arb->second.ApplyImpulse2D();
+		//	arb->second.ApplyImpulse2D();
 		}
 	}
 
@@ -165,7 +167,7 @@ void TestWidget::Update(float dt)
 		BodyBox* body = BodyBoxes[i];
 
 		body->position += dt * body->velocity;
-		body->rotationValue += dt * body->angularVelocity;
+		body->rotation += dt * body->angularVelocity;
 
 		body->force = FPoint(0,0);
 		body->torque = 0.f;
@@ -187,7 +189,7 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 		body->MouseDown(mouse_pos);
 	}
 	
-	CreateQuad(mouse_pos);
+//	CreateQuad(mouse_pos);
 	return false;
 }
 

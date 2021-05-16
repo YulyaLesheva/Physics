@@ -9,7 +9,6 @@
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
-	rotationValue(0),
 	anchored(false),
 	elastic(0.5)
 {
@@ -42,9 +41,8 @@ BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
 	:texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
 	elastic(0.5),
-	rotationValue(degrees)
+	rotation(degrees)
 {
-	rotation = 0.0;
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
 	force = FPoint(0, 0);
@@ -81,7 +79,7 @@ BodyBox* BodyBox::Create(std::string tex, FPoint& pos, float m, float degrees) {
 void BodyBox::Draw() {
 	Render::device.PushMatrix();
 	Render::device.MatrixTranslate(position);
-	Render::device.MatrixRotate(math::Vector3(0, 0, 1), rotationValue);
+	Render::device.MatrixRotate(math::Vector3(0, 0, 1), rotation);
 	Render::device.MatrixTranslate(texture->_bitmap_width * -0.5f, texture->_bitmap_height * -0.5f, 0);
 	texture->Draw();
 	Render::device.PopMatrix();
@@ -89,8 +87,8 @@ void BodyBox::Draw() {
 
 void BodyBox::Update(float dt) {
 	
-	if (rotationValue > 360 || rotationValue < - 360) 
-		rotationValue = 0;
+	if (rotation > 360 || rotation < - 360) 
+		rotation = 0;
 
 	//Log::Info(std::to_string(rotationValue));
 	
@@ -146,10 +144,10 @@ std::vector<FPoint> BodyBox::GetVertices() {
 		FPoint(max.x, min.y), FPoint(max.x, max.y)
 	};
 
-	if (rotationValue != 0.0) {
+	if (rotation != 0.0) {
 		for (int i = 0; i < vertices.size(); ++i) {
 			Math math;
-			math.ROTATE(vertices[i], rotationValue, position);
+			math.ROTATE(vertices[i], rotation, position);
 		}
 	}
 
@@ -162,10 +160,10 @@ IRect BodyBox::GetRect() {
 
 void BodyBox::KeyPressed(int keyCode) {
 	if (keyCode == VK_D) {
-		rotationValue += 15;
+		rotation += 15;
 	}
 	if (keyCode == VK_A) {
-		rotationValue -= 15;
+		rotation -= 15;
 	}
 	if (keyCode == VK_SPACE) {
 		AddMass();
@@ -188,5 +186,5 @@ bool BodyBox::MouseUp(const IPoint& mouse_pos) {
 }
 
 void BodyBox::setdegrees(float deg) {
-	rotationValue = deg;
+	rotation = deg;
 }

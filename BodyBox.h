@@ -10,7 +10,6 @@ struct BodyBox {
 	FPoint velocity;
 	FPoint force;
 
-	float rotation;
 	float angularVelocity;
 	float torque;
 
@@ -36,7 +35,7 @@ struct BodyBox {
 	void ApplyForces();
 
 	//test
-	float rotationValue;
+	float rotation;
 
 	//getters
 	FPoint GetMin();
