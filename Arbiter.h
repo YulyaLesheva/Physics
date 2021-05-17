@@ -20,12 +20,11 @@ union FeaturePair
 
 struct Contact
 {
-	Contact(FPoint point) : Pn(0.0f), Pt(0.0f), Pnb(0.0f), depth(FLT_MAX)
+	Contact() : Pn(0.0f), Pt(0.0f), Pnb(0.0f), depth(FLT_MAX)
 	{
-		position = point;
 	}
 
-	Contact() = default;
+
 	FPoint position;
 	float Pn;	// accumulated normal impulse
 	float Pt;	// accumulated tangent impulse
@@ -41,7 +40,17 @@ struct Contact
 
 struct ArbiterKey
 {
-	ArbiterKey(BodyBox* BodyA, BodyBox* BodyB);
+	ArbiterKey(BodyBox* BodyA, BodyBox* BodyB)
+	{
+		if (BodyA < BodyB) {
+			a = BodyA;
+			b = BodyB;
+		}
+		else {
+			a = BodyB;
+			b = BodyA;
+		}
+	}
 	BodyBox* a;
 	BodyBox* b;
 };
@@ -50,22 +59,21 @@ struct ArbiterKey
 struct Arbiter
 {
 
+	enum { MAX_POINTS = 2 };
+
 	Arbiter(BodyBox* bodyA, BodyBox* bodyB);
+
+	void Update(Contact* contacts, int numContacts);
 
 	void PreStep(float inv_dt);
 	void ApplyImpulse2D();
-	void ResolveCollision();
+	Contact contactsArray[MAX_POINTS];
 
-
-	std::vector<FPoint> contacts;
-	std::vector<Contact> contactsNEW;
-	std::vector<Contact> allContacts;
 	int numContacts;
 
 	BodyBox* a;
 	BodyBox* b;
 
-	bool colliding;
 	// Combined friction
 	float friction;
 	//collision features
@@ -73,7 +81,7 @@ struct Arbiter
 	float separation;
 
 };
-
+int CollideNEW(Contact* contacts, BodyBox* a, BodyBox* b);
 
 inline bool operator < (const ArbiterKey& a1, const ArbiterKey& a2)
 {

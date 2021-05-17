@@ -43,6 +43,7 @@ BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
 	elastic(0.5),
 	rotation(degrees)
 {
+	rotation = 0.0;
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
 	force = FPoint(0, 0);
@@ -66,6 +67,7 @@ BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
 		I = FLT_MAX;
 		invI = 0.0f;
 	}
+
 }
 
 BodyBox* BodyBox::Create(char* tex, FPoint& pos, float m) {
@@ -74,6 +76,35 @@ BodyBox* BodyBox::Create(char* tex, FPoint& pos, float m) {
 
 BodyBox* BodyBox::Create(std::string tex, FPoint& pos, float m, float degrees) {
 	return new BodyBox(tex, pos, m, degrees);
+}
+
+void BodyBox::Set(const FPoint& w, float m) {
+	width = w;
+	mass = m;
+
+	position.Set(0.0f, 0.0f);
+	rotation = 0.0f;
+	velocity.Set(0.0f, 0.0f);
+	angularVelocity = 0.0f;
+	force.Set(0.0f, 0.0f);
+	torque = 0.0f;
+	friction = 0.2f;
+
+	width = w;
+	mass = m;
+
+	if (mass < FLT_MAX)
+	{
+		inverseMass = 1.0f / mass;
+		I = mass * (width.x * width.x + width.y * width.y) / 12.0f;
+		invI = 1.0f / I;
+	}
+	else
+	{
+		inverseMass = 0.0f;
+		I = FLT_MAX;
+		invI = 0.0f;
+	}
 }
 
 void BodyBox::Draw() {
@@ -86,9 +117,9 @@ void BodyBox::Draw() {
 }
 
 void BodyBox::Update(float dt) {
-	
+	/*
 	if (rotation > 360 || rotation < - 360) 
-		rotation = 0;
+		rotation = 0;*/
 
 	//Log::Info(std::to_string(rotationValue));
 	

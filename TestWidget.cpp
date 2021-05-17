@@ -11,7 +11,9 @@
 #include "BodyBox.h"
 #include "Math.h"
 #include "Random.h"
-#define GRAVITY_CONST FPoint(0, -29.82f)
+#include "Arbiter.h"
+
+#define GRAVITY_CONST FPoint(0, -59.82f)
 
 using std::vector;
 using std::map;
@@ -32,34 +34,19 @@ void TestWidget::Init()
 	///_tex1 = Core::resourceManager.Get<Render::Texture>("btnStart_Text");
 
 	_background = Background::Create(Helper::UseTexture("Background"));
-
-	/*_greyBody = PhysicBody::Create(Helper::UseTexture("GreyQuad"), FPoint(200, 800), 1.0f, 1.5);
-	_yellowBody = PhysicBody::Create(Helper::UseTexture("YellowQuad"), FPoint(500, 200), 1.1f, 1.0);
-	_DarkBlueBody = PhysicBody::Create(Helper::UseTexture("DarkBlueQuad"), FPoint(122, 200), 1.1f, 1.2);
-	_PinkBody = PhysicBody::Create(Helper::UseTexture("PinkQuad"), FPoint(800, 200), 1.5f, 0.95);
-	_physicBody = PhysicBody::Create(Helper::UseTexture("Floor"), FPoint(800, 70), 0.f, 1.5f);
-	_GreenLine = PhysicBody::Create(Helper::UseTexture("GreenLine"), FPoint(Render::device.Width() * .5f, 70), 0.f, 1.5f);*/
-
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 500), 0.0);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(600, 500), 1.0); //0.1
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(700, 500), 1.5); //0.1
 	bodyBox_c = BodyBox::Create("Floor",FPoint(Render::device.Width() * .5f, 70), 0.f);
 	bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
 
 	BodyBoxes = {
 		bodyBox_a,
 		bodyBox_b, 
-		//bodyBox_c,
-		//bodyBox_d
+		bodyBox_c,
+		bodyBox_d
 	};
-	//AllBodies.push_back(_greyBody);
-	//AllBodies.push_back(_yellowBody);
-	//AllBodies.push_back(_PinkBody);
-	//AllBodies.push_back(_GreenLine);
-	//AllBodies.push_back(_physicBody);
-	//AllBodies.push_back(_DarkBlueBody);
 
-	LinearProjectionPercent = 0.25f;
-	PenetrationSlop = 0.1f;
+
 	impulseIteration = 100;
 }
 
@@ -67,10 +54,6 @@ void TestWidget::Draw()
 {
 	_background->Draw();
 	
-	for (auto &body : AllBodies) {
-		body->Draw();
-	}
-
 	for (auto *b : BodyBoxes) {
 		b->Draw();
 	}
@@ -109,6 +92,9 @@ void TestWidget::Update(float dt)
 				{
 					arbiters.insert(ArbPair(key, newArb));
 				}
+				else {
+					iter->second.Update(newArb.contactsArray, newArb.numContacts);
+				}
 			}
 			else {
 				arbiters.erase(key);
@@ -116,16 +102,15 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	CollideNEW(checkContacts, bodyBox_a, bodyBox_b);
-
-	//Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotation));
-//	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotation));
+	
+	Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotation));
+	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotation));
 	
 	////add force
-	//for (int i = 0; i < BodyBoxes.size(); ++i) {
-	//	BodyBox* b = BodyBoxes[i];
-	//	b->AddForce(GRAVITY_CONST);
-	//}
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		BodyBox* b = BodyBoxes[i];
+		b->AddForce(GRAVITY_CONST * 0.5);
+	}
 	
 	//const float damping = 0.98;
 	//FPoint acceleration = force * inverseMass;
@@ -136,20 +121,9 @@ void TestWidget::Update(float dt)
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
 		if (b->inverseMass == 0.0f) continue;
-
 		
-		/*const float damping = 0.98f;
-		FPoint acceleration = GRAVITY_CONST * b->inverseMass;
-		b->velocity += acceleration * dt;
-		
-		b->velocity *= damping;
-		
-		b->angularVelocity += dt * b->invI * b->torque;*/
-		
-
 		b->velocity += dt * (GRAVITY_CONST + b->inverseMass * b->force);
 		b->angularVelocity += dt * b->invI * b->torque;
-		b->velocity *= 0.995;
 	}
 
 	for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
@@ -158,7 +132,7 @@ void TestWidget::Update(float dt)
 
 	for (int i = 0; i < impulseIteration; ++i) {
 		for (ArbIter arb = arbiters.begin(); arb != arbiters.end(); ++arb) {
-		//	arb->second.ApplyImpulse2D();
+		arb->second.ApplyImpulse2D();
 		}
 	}
 
@@ -189,7 +163,7 @@ bool TestWidget::MouseDown(const IPoint &mouse_pos)
 		body->MouseDown(mouse_pos);
 	}
 	
-//	CreateQuad(mouse_pos);
+	CreateQuad(mouse_pos);
 	return false;
 }
 

@@ -106,7 +106,7 @@ struct Matrix22
 
 
 //for 2D Vectors 
-inline FPoint operator * (const Matrix22& A, const FPoint& v) {
+inline FPoint operator * (const Matrix22& A, const FPoint& v){
 	return FPoint(A.col1.x * v.x + A.col2.x * v.y, A.col1.y * v.x + A.col2.y * v.y);
 }
 
@@ -130,4 +130,8 @@ inline Matrix22 Abs(const Matrix22& A) {
 inline float Abs(float a)
 {
 	return a > 0.0f ? a : -a;
+}
+
+inline float Sign(float x) {
+	return x < 0.0f ? -1.0f : 1.0f;
 }

@@ -1,11 +1,13 @@
 #pragma once
 
+
 struct BodyBox {
 
 	BodyBox(char* tex, FPoint& pos, float m); 
 	BodyBox(std::string tex, FPoint& pos, float m, float degrees);
 	static BodyBox* Create(char* tex, FPoint& pos, float m);
 	static BodyBox* Create(std::string tex, FPoint& pos, float m, float degrees);
+	
 	FPoint position;
 	FPoint velocity;
 	FPoint force;
@@ -28,6 +30,9 @@ struct BodyBox {
 		force += f;
 	}
 	Render::Texture* texture;
+
+	//SETTER 
+	void Set(const FPoint& w, float m);
 
 	//FUNCTIONS
 	void Draw();

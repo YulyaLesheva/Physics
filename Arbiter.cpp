@@ -4,21 +4,8 @@
 #include "Math.h"
 #include "Collide.h"
 
-ArbiterKey::ArbiterKey(BodyBox* BodyA, BodyBox* BodyB)
-{
-	if (BodyA < BodyB) {
-		a = BodyA;
-		b = BodyB;
-	}
-	else {
-		a = BodyB;
-		b = BodyA;
-	}
-}
-
 Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
-	separation(FLT_MAX),
-	colliding(false)
+	separation(FLT_MAX)
 {
 	if (BodyA < BodyB) {
 		a = BodyA;
@@ -30,43 +17,75 @@ Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
 	}
 	
 	//добавить оператор сравнения для двух тел
-	numContacts = Collide(allContacts, a, b);
+	numContacts = CollideNEW(contactsArray, a, b);
 	friction = sqrtf(a->friction * b->friction);
+}
+void Arbiter::Update(Contact* newContacts, int numNewContacts) {
+	
+	Contact mergedContacts[2];
+
+	for (int i = 0; i < numNewContacts; ++i){
+		Contact* cNew = newContacts + i;
+		int k = -1;
+		for (int j = 0; j < numContacts; ++j){
+			Contact* cOld = contactsArray + j;
+			if (cNew->feature.value == cOld->feature.value)
+			{
+				k = j;
+				break;
+			}
+		}
+
+		if (k > -1){
+			Contact* c = mergedContacts + i;
+			Contact* cOld = contactsArray + k;
+			*c = *cNew;
+			if (true){
+				c->Pn = cOld->Pn;
+				c->Pt = cOld->Pt;
+				c->Pnb = cOld->Pnb;
+			}
+			else{
+				c->Pn = 0.0f;
+				c->Pt = 0.0f;
+				c->Pnb = 0.0f;
+			}
+		}
+		else{
+			mergedContacts[i] = newContacts[i];
+		}
+	}
+	for (int i = 0; i < numNewContacts; ++i)
+		contactsArray[i] = mergedContacts[i];
+
+	numContacts = numNewContacts;
 }
 
 void Arbiter::ApplyImpulse2D() {
 
-	BodyBox* body_a = a;
-	BodyBox* body_b = b;
-
+	BodyBox* b1 = a;
+	BodyBox* b2 = b;
 	Math m;
-	
-//	Log::Info("START IMPULSE APPLY");
+	for (int i = 0; i < numContacts; ++i)
+	{
+		Contact* c = contactsArray+ i;
+		c->r1 = c->position - b1->position;
+		c->r2 = c->position - b2->position;
 
-	for (int i = 0; i < numContacts; ++i) {
-		Contact* c = &allContacts[i];
-		//сделать класс контактс, конструктор которого будет как контакт(х. у)
-		c->r1 = c->position - body_a->position;
-		c->r2 = c->position - body_b->position;
-	
-		//relative velocity at contact
-		FPoint dv = body_b->velocity + m.Cross(body_b->angularVelocity, c->r2)
-			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
-		
-		//проверить почему дает 0 при коллизии. 
+		// Relative velocity at contact
+		auto dv = b2->velocity + m.Cross(b2->angularVelocity, c->r2)
+			- b1->velocity - m.Cross(b1->angularVelocity, c->r1);
 
-		//compute normal impulse
+		// Compute normal impulse
 		float vn = m.Dot(dv, c->contactNormal);
-		
-		if (vn >= 0) {
-			return;
-		} 
-		
+
 		float dPn = c->massNormal * (-vn + c->bias);
-		
-		if (true) {// if (World::accumulateImpulses)
+
+		if (true)
+		{
+			// Clamp the accumulated impulse
 			float Pn0 = c->Pn;
-			c->Pn = math::max(Pn0 + dPn, 0.f);
+			c->Pn = math::max(Pn0 + dPn, 0.0f);
 			dPn = c->Pn - Pn0;
 		}
 		else
@@ -74,86 +93,87 @@ void Arbiter::ApplyImpulse2D() {
 			dPn = math::max(dPn, 0.0f);
 		}
 
-		//apply contact impulse
-		FPoint Pn = dPn * c->contactNormal;
-	
-		body_a->velocity -= body_a->inverseMass * Pn;
-		body_a->angularVelocity -= body_a->invI * m.Cross(c->r1, Pn);
+		// Apply contact impulse
+		//тут начинается ошибка, почему в PN
+		auto Pn = dPn * c->contactNormal;
 
-		body_b->velocity += body_b->inverseMass * Pn;
-		body_b->angularVelocity += body_b->invI * m.Cross(c->r2, Pn);
+		b1->velocity -= b1->inverseMass * Pn;
+		b1->angularVelocity -= b1->invI * m.Cross(c->r1, Pn);
 
-		//relative velocity at contact
-		dv = body_b->velocity + m.Cross(body_b->angularVelocity, c->r2)
-			- body_a->velocity - m.Cross(body_a->angularVelocity, c->r1);
+		b2->velocity += b2->inverseMass * Pn;
+		b2->angularVelocity += b2->invI * m.Cross(c->r2, Pn);
 
-		FPoint tangent = m.Cross(c->contactNormal, 1.0f);
+		// Relative velocity at contact
+		dv = b2->velocity + m.Cross(b2->angularVelocity, c->r2)
+			- b1->velocity - m.Cross(b1->angularVelocity, c->r1);
+
+		auto tangent = m.Cross(c->contactNormal, 1.0f);
 		float vt = m.Dot(dv, tangent);
 		float dPt = c->massTangent * (-vt);
 
-		if (true) { //if (World::accumulateImpulses)
-
-			//compute friction impulse 
+		if (true)
+		{
+			// Compute friction impulse
 			float maxPt = friction * c->Pn;
-			
-			//clamp friction 
+
+			// Clamp friction
 			float oldTangentImpulse = c->Pt;
 			c->Pt = m.Clamp(oldTangentImpulse + dPt, -maxPt, maxPt);
 			dPt = c->Pt - oldTangentImpulse;
 		}
-		else {
+		else
+		{
 			float maxPt = friction * dPn;
 			dPt = m.Clamp(dPt, -maxPt, maxPt);
 		}
-		//apply impulse
 
-		FPoint  Pt = dPt * tangent;
+		// Apply contact impulse
+		auto Pt = dPt * tangent;
 
-		body_a->velocity -= body_a->inverseMass * Pt;
-		body_a->angularVelocity -= body_a->invI * m.Cross(c->r1, Pt);
+		b1->velocity -= b1->inverseMass * Pt;
+		b1->angularVelocity -= b1->invI * m.Cross(c->r1, Pt);
 
-		body_b->velocity += body_b->inverseMass * Pt;
-		body_b->angularVelocity += body_b->invI * m.Cross(c->r2, Pt);
+		b2->velocity += b2->inverseMass * Pt;
+		b2->angularVelocity += b2->invI * m.Cross(c->r2, Pt);
 	}
 }
 
 void Arbiter::PreStep(float inv_dt) {
-	
-	const float k_allowedPenetration = 0.01f;
 	Math m;
-
+	const float k_allowedPenetration = 0.01f;
 	float k_biasFactor = true ? 0.2f : 0.0f;
-	//float k_biasFactor = 0.2f;
-	
-	for (int i = 0; i < numContacts; ++i) {
 
-		Contact* c = &allContacts[i];
+	for (int i = 0; i < numContacts; ++i)
+	{
+		Contact* c = contactsArray + i;
 
-		FPoint r1 = c->position - a->position;
-		FPoint r2 = c->position - b->position;
+		auto r1 = c->position - a->position;
+		auto r2 = c->position - b->position;
 
-		//precompute normal mass, tangent mass, bias
+		// Precompute normal mass, tangent mass, and bias.
 		float rn1 = m.Dot(r1, c->contactNormal);
 		float rn2 = m.Dot(r2, c->contactNormal);
 		float kNormal = a->inverseMass + b->inverseMass;
 		kNormal += a->invI * (m.Dot(r1, r1) - rn1 * rn1) +
 			b->invI * (m.Dot(r2, r2) - rn2 * rn2);
-		c->massNormal = 1.f / kNormal;
+		c->massNormal = 1.0f / kNormal;
 
-		FPoint tangent = m.Cross(c->contactNormal, 1.0);
+		auto tangent = m.Cross(c->contactNormal, 1.0f);
 		float rt1 = m.Dot(r1, tangent);
 		float rt2 = m.Dot(r2, tangent);
 		float kTangent = a->inverseMass + b->inverseMass;
-		kTangent += a->invI * (m.Dot(r1, r1) - rt1 * rt1) +
-			b->invI * (m.Dot(r2, r2) - rt2 * rt2);
+
+		kTangent += a->invI * (m.Dot(r1, r1) - rt1 * rt1)
+			+ b->invI * (m.Dot(r2, r2) - rt2 * rt2);
 		c->massTangent = 1.0f / kTangent;
 
-		c->bias = -k_biasFactor * inv_dt
-			* math::min(0.0f, c->depth + k_allowedPenetration);
+		c->bias = -k_biasFactor * inv_dt *
+			math::min(0.0f, c->depth + k_allowedPenetration);
 
-		if (true) { //if (World::accumulateImpulses)
-			// Apply normal and friction impulse
-			FPoint P = c->Pn * c->contactNormal + c->Pt * tangent;
+		if (true)
+		{
+			// Apply normal + friction impulse//тут ошибка. почему PN
+			auto P = c->Pn * c->contactNormal + c->Pt * tangent;
 
 			a->velocity -= a->inverseMass * P;
 			a->angularVelocity -= a->invI * m.Cross(r1, P);
@@ -162,36 +182,4 @@ void Arbiter::PreStep(float inv_dt) {
 			b->angularVelocity += b->invI * m.Cross(r2, P);
 		}
 	}
-}
-
-void Arbiter::ResolveCollision() {
-
-	BodyBox* body_a = a;
-	BodyBox* body_b = b;
-
-	Math m;
-	//мб потому чтоо это удаляется? 
-
-	auto c = allContacts[0];
-
-	auto invMassSum = body_a->inverseMass + body_b->inverseMass;
-
-	FPoint relativeVel = body_b->velocity - body_a->velocity;
-	FPoint relativeNorm = c.contactNormal;
-	relativeNorm.Normalize();
-
-	float e = fminf(body_a->elastic, body_b->elastic);
-	float numerator = (-(1 + e) * m.Dot(relativeVel, relativeNorm));
-	float j = (invMassSum == 0.f) ? 0.0f : numerator / invMassSum;
-
-	if (allContacts.size() > 0.0f && j != 0.0f) {
-		j /= allContacts.size();
-		//j /= 0.8f;
-	}
-
-	FPoint impulse = relativeNorm * j;
-	
-	body_a->velocity -= impulse * body_a->inverseMass;
-	body_b->velocity += impulse * body_b->inverseMass;
-
 }

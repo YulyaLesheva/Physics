@@ -57,7 +57,6 @@ private:
 	BodyBox *bodyBox_c;
 	BodyBox *bodyBox_d;
 
-
 	void CreateQuad(const IPoint &pos);
 	///all brand new 
 	std::vector<PhysicBody*> AllBodies;
