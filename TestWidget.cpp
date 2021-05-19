@@ -13,7 +13,7 @@
 #include "Random.h"
 #include "Arbiter.h"
 
-#define GRAVITY_CONST FPoint(0, -59.82f)
+#define GRAVITY_CONST FPoint(0, -9.82f)
 
 using std::vector;
 using std::map;
@@ -38,6 +38,8 @@ void TestWidget::Init()
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(700, 500), 1.5); //0.1
 	bodyBox_c = BodyBox::Create("Floor",FPoint(Render::device.Width() * .5f, 70), 0.f);
 	bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
+
+	//bodyBox_b->setdegrees(15);
 
 	BodyBoxes = {
 		bodyBox_a,
@@ -109,7 +111,7 @@ void TestWidget::Update(float dt)
 	////add force
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
-		b->AddForce(GRAVITY_CONST * 0.5);
+		//b->AddForce(GRAVITY_CONST * 0.5);
 	}
 	
 	//const float damping = 0.98;
@@ -171,7 +173,7 @@ void TestWidget::CreateQuad(const IPoint &pos) {
 	
 	std::string str = RandomQuad();
 
-	BodyBoxes.push_back(BodyBox::Create(str, FPoint(pos), 1.0, randomRotation()));
+	BodyBoxes.push_back(BodyBox::Create(str, FPoint(pos), 10.0, randomRotation()));
 }
 
 void TestWidget::MouseMove(const IPoint &mouse_pos)

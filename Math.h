@@ -7,6 +7,10 @@ struct Math {
 		return (degree * (math::PI / 180));
 	}
 
+	float RAD2DEG(float& radians) {
+		return radians * (180.0 / math::PI);
+	}
+
 	void ROTATE(FPoint& vector, float& angleDegrees, FPoint& origin) {
 
 		float x = vector.x - origin.x;

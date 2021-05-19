@@ -2,7 +2,7 @@
 #include "BodyBox.h"
 #include "Math.h"
 
-#define GRAVITY_CONST FPoint(0, -9.82f)
+#define GRAVITY_CONST FPoint(0, -29.82f)
 
 //than mass closer to 0, than object is heaver 
 
@@ -16,7 +16,7 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
 	force = FPoint(0,0);
-	torque = 0.0f;
+	torque = 0.0;//0
 	friction = 0.2;
 	
 	mass = FLT_MAX;
@@ -40,10 +40,9 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
 	:texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
-	elastic(0.5),
-	rotation(degrees)
+	elastic(0.5)
 {
-	rotation = 0.0;
+	rotation = math->DEG2RAD(degrees);
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
 	force = FPoint(0, 0);
@@ -110,37 +109,19 @@ void BodyBox::Set(const FPoint& w, float m) {
 void BodyBox::Draw() {
 	Render::device.PushMatrix();
 	Render::device.MatrixTranslate(position);
-	Render::device.MatrixRotate(math::Vector3(0, 0, 1), rotation);
+	Render::device.MatrixRotate(math::Vector3(0, 0, 1), math->RAD2DEG(rotation));
 	Render::device.MatrixTranslate(texture->_bitmap_width * -0.5f, texture->_bitmap_height * -0.5f, 0);
 	texture->Draw();
 	Render::device.PopMatrix();
 }
 
 void BodyBox::Update(float dt) {
-	/*
-	if (rotation > 360 || rotation < - 360) 
+	
+	Math m;
+	/*if (rotation > 360 || rotation < - 360) 
 		rotation = 0;*/
 
-	//Log::Info(std::to_string(rotationValue));
-	
-	//force = GRAVITY_CONST;
-
-	/*velocity += dt * (GRAVITY_CONST + inverseMass * force);
-	position += dt * velocity;
-	force = FPoint(0, 0);*/
-	//www.codeproject.com/Articles/1214829/Making-a-D-Physics-Engine-Shapes-Worlds-and-Integr
-	//FPoint acceleration = force / mass + GRAVITY_CONST;        // Gravity will always act on the body
-	//velocity += acceleration * dt;
-	//position += velocity * dt;
-	//force = FPoint(0, 0);
-	//почему то масса не влияет на скорость. как это исправить? 
-
-	//const float damping = 0.98;
-	//FPoint acceleration = force * inverseMass;
-	//velocity += acceleration * dt;
-	//velocity *= damping;
-
-	//position += velocity;
+	//angularVelocity -= m.DEG2RAD(rotation) * 0.05;
 
 	if (anchored) {
 		IPoint mouse_position = Core::mainInput.GetMousePos();
@@ -217,5 +198,5 @@ bool BodyBox::MouseUp(const IPoint& mouse_pos) {
 }
 
 void BodyBox::setdegrees(float deg) {
-	rotation = deg;
+	rotation += math->DEG2RAD(deg);
 }

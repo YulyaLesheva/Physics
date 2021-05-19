@@ -151,7 +151,7 @@ int CollideNEW(Contact* contacts, BodyBox* a, BodyBox* b) {
 	FPoint posA = a->position;
 	FPoint posB = b->position;
 
-	Matrix22 RotA(m.DEG2RAD(a->rotation)), RotB(m.DEG2RAD(b->rotation));
+	Matrix22 RotA(a->rotation), RotB(b->rotation);
 
 	Matrix22 RotAT = RotA.Transpose();
 	Matrix22 RotBT = RotB.Transpose();

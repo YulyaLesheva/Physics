@@ -1,6 +1,6 @@
 #pragma once
 
-
+struct Math;
 struct BodyBox {
 
 	BodyBox(char* tex, FPoint& pos, float m); 
@@ -41,6 +41,8 @@ struct BodyBox {
 
 	//test
 	float rotation;
+	//MATH 
+	Math* math;
 
 	//getters
 	FPoint GetMin();
