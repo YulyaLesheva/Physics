@@ -2,9 +2,25 @@
 #include "BodyBox.h"
 #include "Math.h"
 
-#define GRAVITY_CONST FPoint(0, -29.82f)
+#define GRAVITY_CONST FPoint(0, -59.82f)
 
 //than mass closer to 0, than object is heaver 
+BodyBox::BodyBox() {
+	rotation = 0.0;
+	velocity = FPoint(0, 0);
+	angularVelocity = 0.0f;
+	force = FPoint(0, 0);
+	torque = 0.0;//0
+	friction = 0.2;
+
+	mass = FLT_MAX;
+	invI = 0.0f;
+	mass = 0;
+	
+	inverseMass = 0.0f;
+	I = FLT_MAX;
+	invI = 0.0f;
+}
 
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
@@ -108,7 +124,7 @@ void BodyBox::Set(const FPoint& w, float m) {
 
 void BodyBox::Draw() {
 	Render::device.PushMatrix();
-	Render::device.MatrixTranslate(position);
+	Render::device.MatrixTranslate(position);	
 	Render::device.MatrixRotate(math::Vector3(0, 0, 1), math->RAD2DEG(rotation));
 	Render::device.MatrixTranslate(texture->_bitmap_width * -0.5f, texture->_bitmap_height * -0.5f, 0);
 	texture->Draw();

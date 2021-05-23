@@ -17,7 +17,7 @@ Arbiter::Arbiter(BodyBox* BodyA, BodyBox* BodyB):
 	}
 	
 	//добавить оператор сравнения для двух тел
-	numContacts = CollideNEW(contactsArray, a, b);
+	numContacts = CollideBox(contactsArray, a, b);
 	friction = sqrtf(a->friction * b->friction);
 }
 void Arbiter::Update(Contact* newContacts, int numNewContacts) {

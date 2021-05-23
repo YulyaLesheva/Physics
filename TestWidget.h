@@ -1,6 +1,8 @@
 #pragma once
 template <typename T>
+
 using Sprite = std::unique_ptr<T>;
+
 
 #include <vector>
 #include <map>
@@ -16,6 +18,7 @@ struct Arbiter;
 struct ArbiterKey;
 struct Contact;
 struct Math;
+struct Boundaries;
 
 
 class TestWidget : public GUI::Widget
@@ -42,46 +45,23 @@ private:
 private:
 	Sprite<Background> _background;
 
-	PhysicBody* _greyBody;
-	PhysicBody* _yellowBody;
-	PhysicBody* _DarkBlueBody;
-	PhysicBody* _PinkBody;
-	PhysicBody* _Floor;
-	PhysicBody* _physicBody;
-	PhysicBody* _GreenLine;
-	std::vector<PhysicBody*>  CheckVector;
-	Body* _justBody;
-
 	BodyBox *bodyBox_a;
 	BodyBox *bodyBox_b;
 	BodyBox *bodyBox_c;
 	BodyBox *bodyBox_d;
-
+	BodyBox *bodyBox_e;
+	Boundaries *boundary;
+	
 	void CreateQuad(const IPoint &pos);
+	bool OutOfScreen(BodyBox* body);
+	template <typename T1> void DeleteFromScreen(T1 object);
 	///all brand new 
-	std::vector<PhysicBody*> AllBodies;
-	std::vector<PhysicBody*> Collider1;
-	std::vector<PhysicBody*> Collider2;
-	std::vector<Manifold> Results;
 
 	std::vector<BodyBox*> BodyBoxes;
-	std::vector<Contact> checkContacts;
-
+	
 	std::vector<Arbiter> Arbiters;
 	std::map<ArbiterKey, Arbiter> arbiters;
-	//sleep
-	std::vector<PhysicBody*> SleepBodies;
-	std::vector<std::vector<PhysicBody*>> CollideVectorToCheckForSleep;
-	std::vector<std::vector<PhysicBody*>> PairsOfSleepingBodies;
 	
-
-	float LinearProjectionPercent;
-	float PenetrationSlop;
 	int impulseIteration;
-
-	Line* lineA;
-	Line* lineB;
-
-	FPoint MOUSEPOS;
 
 };

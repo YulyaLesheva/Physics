@@ -4,9 +4,11 @@ struct Math;
 struct BodyBox {
 
 	BodyBox(char* tex, FPoint& pos, float m); 
+	BodyBox();
 	BodyBox(std::string tex, FPoint& pos, float m, float degrees);
 	static BodyBox* Create(char* tex, FPoint& pos, float m);
 	static BodyBox* Create(std::string tex, FPoint& pos, float m, float degrees);
+	static BodyBox* Create() { return new BodyBox(); };
 	
 	FPoint position;
 	FPoint velocity;
@@ -15,7 +17,7 @@ struct BodyBox {
 	float angularVelocity;
 	float torque;
 
-	float const elastic;
+	float elastic;
 	FPoint width;
 
 	float friction;
@@ -34,6 +36,9 @@ struct BodyBox {
 	//SETTER 
 	void Set(const FPoint& w, float m);
 
+	void SetTexture(Render::Texture* tex) {
+		texture = tex;
+	};
 	//FUNCTIONS
 	void Draw();
 	void Update(float dt);

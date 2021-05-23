@@ -12,8 +12,9 @@
 #include "Math.h"
 #include "Random.h"
 #include "Arbiter.h"
+#include "Boundaries.h"
 
-#define GRAVITY_CONST FPoint(0, -9.82f)
+#define GRAVITY_CONST FPoint(0, -39.82f)
 
 using std::vector;
 using std::map;
@@ -38,24 +39,31 @@ void TestWidget::Init()
 	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(700, 500), 1.5); //0.1
 	bodyBox_c = BodyBox::Create("Floor",FPoint(Render::device.Width() * .5f, 70), 0.f);
 	bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
-
+	bodyBox_e = BodyBox::Create("Boundaries", FPoint(500, 500), 0.0); //0.1
+	boundary = Boundaries::Create(40);
 	//bodyBox_b->setdegrees(15);
 
 	BodyBoxes = {
 		bodyBox_a,
 		bodyBox_b, 
 		bodyBox_c,
-		bodyBox_d
+		bodyBox_d,
+		//boundary
+		//bodyBox_e,
 	};
-
-
-	impulseIteration = 100;
+		
+	//TEST
+	auto bsize =  boundary->GetWidth(UP);
+	auto bpos = boundary->GetPosition(boundary->up);
+	impulseIteration = 10;
 }
 
 void TestWidget::Draw()
 {
 	_background->Draw();
 	
+	boundary->Draw();
+
 	for (auto *b : BodyBoxes) {
 		b->Draw();
 	}
@@ -104,15 +112,12 @@ void TestWidget::Update(float dt)
 		}
 	}
 
-	
-	Log::Info("Grey angle: " + std::to_string(bodyBox_a->rotation));
-	Log::Info("Yellow angle: " + std::to_string(bodyBox_b->rotation));
-	
 	////add force
-	for (int i = 0; i < BodyBoxes.size(); ++i) {
+	//acceleartion 
+	/*for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
-		//b->AddForce(GRAVITY_CONST * 0.5);
-	}
+		b->AddForce(GRAVITY_CONST * 2);
+	}*/
 	
 	//const float damping = 0.98;
 	//FPoint acceleration = force * inverseMass;
@@ -152,14 +157,32 @@ void TestWidget::Update(float dt)
 	for (auto *b : BodyBoxes) {
 		b->Update(dt);
 	}
+
+	for (int i = 0; i < BodyBoxes.size(); ++i) {
+		if (OutOfScreen(BodyBoxes[i])) {
+			BodyBoxes.erase(BodyBoxes.begin() + i);
+			Log::Info("erased");
+		}
+	}
 }
 
 
+bool TestWidget::OutOfScreen(BodyBox* body) {
+
+	auto w = Render::device.Width();
+	auto h = Render::device.Width();
+	auto offset = math::max(body->width.x, body->width.y);
+
+	if (body->position.x > w + offset) return true;
+	if (body->position.x < 0 - offset) return true;
+	if (body->position.y > h + offset) return true;
+	if (body->position.y < 0 - offset) return true;
+	
+	return false;
+}
+
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
-	for (auto &body : AllBodies) {
-		body->MouseDown(mouse_pos);
-	}
 
 	for (auto &body : BodyBoxes) {
 		body->MouseDown(mouse_pos);
@@ -178,15 +201,10 @@ void TestWidget::CreateQuad(const IPoint &pos) {
 
 void TestWidget::MouseMove(const IPoint &mouse_pos)
 {
-	MOUSEPOS = mouse_pos;
 }
 
 void TestWidget::MouseUp(const IPoint &mouse_pos)
 {
-	for (auto &body : AllBodies) {
-		body->MouseUp(mouse_pos);
-	}
-
 	for (auto &body : BodyBoxes) {
 		body->MouseUp(mouse_pos);
 	}

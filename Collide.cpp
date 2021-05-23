@@ -4,6 +4,7 @@
 #include "Collide.h"
 #include "Math.h"
 #include "Arbiter.h"
+#include "Boundaries.h"
 #include "Line.h"
 
 
@@ -140,7 +141,7 @@ static void ComputeIncidentEdge(ClipVertex c[2], const FPoint& h, const FPoint& 
 	c[1].v = pos + Rot * c[1].v;
 }
 
-int CollideNEW(Contact* contacts, BodyBox* a, BodyBox* b) {
+int CollideBox(Contact* contacts, BodyBox* a, BodyBox* b) {
 
 	Math m;
 
@@ -315,4 +316,184 @@ int CollideNEW(Contact* contacts, BodyBox* a, BodyBox* b) {
 	}
 
 	return numContacts;
+}
+
+int CollideBoundary(Contact* contacts, BodyBox* a, Boundaries* b) {
+	Math m;
+
+	auto boundaries = b->allBoundaries;
+
+	for (int i = 0; i < boundaries.size(); ++i) {
+		// Setup
+		FPoint hA = 0.5f * a->width;
+		FPoint hB = 0.5f * b->GetWidth(boundaries[i]);
+
+		FPoint posA = a->position;
+		FPoint posB = b->GetPosition(boundaries[i]);
+
+		Matrix22 RotA(a->rotation), RotB(0);
+
+		Matrix22 RotAT = RotA.Transpose();
+		Matrix22 RotBT = RotB.Transpose();
+
+		FPoint dp = posB - posA;
+		FPoint dA = RotAT * dp;
+		FPoint dB = RotBT * dp;
+
+		Matrix22 C = RotAT * RotB;
+		Matrix22 absC = Abs(C);
+		Matrix22 absCT = absC.Transpose();
+
+		// Box A faces
+		FPoint faceA = Abs(dA) - hA - absC * hB;
+		if (faceA.x > 0.0f || faceA.y > 0.0f)
+			return 0;
+
+		// Box B faces
+		FPoint faceB = Abs(dB) - absCT * hA - hB;
+		if (faceB.x > 0.0f || faceB.y > 0.0f)
+			return 0;
+
+		// Find best axis
+		Axis axis;
+		float separation;
+		FPoint normal;
+
+		// Box A faces
+		axis = FACE_A_X;
+		separation = faceA.x;
+		normal = dA.x > 0.0f ? RotA.col1 : -RotA.col1;
+
+		const float relativeTol = 0.95f;
+		const float absoluteTol = 0.01f;
+
+		if (faceA.y > relativeTol * separation + absoluteTol * hA.y)
+		{
+			axis = FACE_A_Y;
+			separation = faceA.y;
+			normal = dA.y > 0.0f ? RotA.col2 : -RotA.col2;
+		}
+
+		// Box B faces
+		if (faceB.x > relativeTol * separation + absoluteTol * hB.x)
+		{
+			axis = FACE_B_X;
+			separation = faceB.x;
+			normal = dB.x > 0.0f ? RotB.col1 : -RotB.col1;
+		}
+
+		if (faceB.y > relativeTol * separation + absoluteTol * hB.y)
+		{
+			axis = FACE_B_Y;
+			separation = faceB.y;
+			normal = dB.y > 0.0f ? RotB.col2 : -RotB.col2;
+		}
+
+		// Setup clipping plane data based on the separating axis
+		FPoint frontNormal, sideNormal;
+		ClipVertex incidentEdge[2];
+		float front, negSide, posSide;
+		char negEdge, posEdge;
+
+		// Compute the clipping lines and the line segment to be clipped.
+		switch (axis)
+		{
+		case FACE_A_X:
+		{
+			frontNormal = normal;
+			front = m.Dot(posA, frontNormal) + hA.x;
+			sideNormal = RotA.col2;
+			float side = m.Dot(posA, sideNormal);
+			negSide = -side + hA.y;
+			posSide = side + hA.y;
+			negEdge = EDGE3;
+			posEdge = EDGE1;
+			ComputeIncidentEdge(incidentEdge, hB, posB, RotB, frontNormal);
+		}
+		break;
+
+		case FACE_A_Y:
+		{
+			frontNormal = normal;
+			front = m.Dot(posA, frontNormal) + hA.y;
+			sideNormal = RotA.col1;
+			float side = m.Dot(posA, sideNormal);
+			negSide = -side + hA.x;
+			posSide = side + hA.x;
+			negEdge = EDGE2;
+			posEdge = EDGE4;
+			ComputeIncidentEdge(incidentEdge, hB, posB, RotB, frontNormal);
+		}
+		break;
+
+		case FACE_B_X:
+		{
+			frontNormal = -normal;
+			front = m.Dot(posB, frontNormal) + hB.x;
+			sideNormal = RotB.col2;
+			float side = m.Dot(posB, sideNormal);
+			negSide = -side + hB.y;
+			posSide = side + hB.y;
+			negEdge = EDGE3;
+			posEdge = EDGE1;
+			ComputeIncidentEdge(incidentEdge, hA, posA, RotA, frontNormal);
+		}
+		break;
+
+		case FACE_B_Y:
+		{
+			frontNormal = -normal;
+			front = m.Dot(posB, frontNormal) + hB.y;
+			sideNormal = RotB.col1;
+			float side = m.Dot(posB, sideNormal);
+			negSide = -side + hB.x;
+			posSide = side + hB.x;
+			negEdge = EDGE2;
+			posEdge = EDGE4;
+			ComputeIncidentEdge(incidentEdge, hA, posA, RotA, frontNormal);
+		}
+		break;
+		}
+
+		// clip other face with 5 box planes (1 face plane, 4 edge planes)
+
+		ClipVertex clipPoints1[2];
+		ClipVertex clipPoints2[2];
+		int np;
+
+		// Clip to box side 1
+		np = ClipSegmentToLine(clipPoints1, incidentEdge, -sideNormal, negSide, negEdge);
+
+		if (np < 2)
+			return 0;
+
+		// Clip to negative box side 1
+		np = ClipSegmentToLine(clipPoints2, clipPoints1, sideNormal, posSide, posEdge);
+
+		if (np < 2)
+			return 0;
+
+		// Now clipPoints2 contains the clipping points.
+		// Due to roundoff, it is possible that clipping removes all points.
+
+		int numContacts = 0;
+		for (int i = 0; i < 2; ++i)
+		{
+			float separation = m.Dot(frontNormal, clipPoints2[i].v) - front;
+
+			if (separation <= 0)
+			{
+				contacts[numContacts].depth = separation;
+				contacts[numContacts].contactNormal = normal;
+				// slide contact point onto reference face (easy to cull)
+				contacts[numContacts].position = clipPoints2[i].v - separation * frontNormal;
+				contacts[numContacts].feature = clipPoints2[i].fp;
+				if (axis == FACE_B_X || axis == FACE_B_Y)
+					Flip(contacts[numContacts].feature);
+				++numContacts;
+			}
+		}
+		return numContacts;
+	}
+
 }
