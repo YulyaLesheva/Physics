@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "BodyBox.h"
 #include "Math.h"
-
+#include "Collide.h"
 #define GRAVITY_CONST FPoint(0, -59.82f)
 
 //than mass closer to 0, than object is heaver 
-BodyBox::BodyBox() {
+BodyBox::BodyBox()
+{
 	rotation = 0.0;
 	velocity = FPoint(0, 0);
 	angularVelocity = 0.0f;
@@ -25,8 +26,7 @@ BodyBox::BodyBox() {
 BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 	texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
-	anchored(false),
-	elastic(0.5)
+	anchored(false)
 {
 	rotation = 0.0;
 	velocity = FPoint(0, 0);
@@ -52,11 +52,14 @@ BodyBox::BodyBox(char* tex, FPoint& pos, float m):
 		I = FLT_MAX;
 		invI = 0.0f;
 	}
+
 }
+
+
 BodyBox::BodyBox(std::string tex, FPoint& pos, float m, float degrees)
 	:texture(Core::resourceManager.Get<Render::Texture>(tex)),
 	position(pos),
-	elastic(0.5)
+	anchored(false)
 {
 	rotation = math->DEG2RAD(degrees);
 	velocity = FPoint(0, 0);
@@ -126,7 +129,7 @@ void BodyBox::Draw() {
 	Render::device.PushMatrix();
 	Render::device.MatrixTranslate(position);	
 	Render::device.MatrixRotate(math::Vector3(0, 0, 1), math->RAD2DEG(rotation));
-	Render::device.MatrixTranslate(texture->_bitmap_width * -0.5f, texture->_bitmap_height * -0.5f, 0);
+	Render::device.MatrixTranslate(width.x * -0.5f, width.y * -0.5f, 0);
 	texture->Draw();
 	Render::device.PopMatrix();
 }
@@ -199,13 +202,12 @@ void BodyBox::KeyPressed(int keyCode) {
 }
 
 bool BodyBox::MouseDown(const IPoint& mouse_pos) {
-	if (GetRect().Contains(mouse_pos)) {
+	if (PointInBodyBox(mouse_pos, this)) {
 		anchored = true;
 		return true;
 	}
-	else {
-		return false;
-	}
+
+	return false;
 }
 
 bool BodyBox::MouseUp(const IPoint& mouse_pos) {
@@ -213,6 +215,6 @@ bool BodyBox::MouseUp(const IPoint& mouse_pos) {
 	return false;
 }
 
-void BodyBox::setdegrees(float deg) {
+void BodyBox::SetDegrees(float deg) {
 	rotation += math->DEG2RAD(deg);
 }

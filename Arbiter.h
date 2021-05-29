@@ -58,7 +58,6 @@ struct ArbiterKey
 
 struct Arbiter
 {
-
 	enum { MAX_POINTS = 2 };
 
 	Arbiter(BodyBox* bodyA, BodyBox* bodyB);
@@ -81,7 +80,6 @@ struct Arbiter
 	float separation;
 
 };
-int CollideNEW(Contact* contacts, BodyBox* a, BodyBox* b);
 
 inline bool operator < (const ArbiterKey& a1, const ArbiterKey& a2)
 {

@@ -1,5 +1,4 @@
 #pragma once
-
 struct Math;
 struct BodyBox {
 
@@ -9,7 +8,7 @@ struct BodyBox {
 	static BodyBox* Create(char* tex, FPoint& pos, float m);
 	static BodyBox* Create(std::string tex, FPoint& pos, float m, float degrees);
 	static BodyBox* Create() { return new BodyBox(); };
-	
+
 	FPoint position;
 	FPoint velocity;
 	FPoint force;
@@ -17,7 +16,6 @@ struct BodyBox {
 	float angularVelocity;
 	float torque;
 
-	float elastic;
 	FPoint width;
 
 	float friction;
@@ -64,6 +62,6 @@ struct BodyBox {
 	bool MouseUp(const IPoint& mouse_pos);
 
 	bool anchored;
-	void setdegrees(float deg);
+	void SetDegrees(float deg);
 
 };

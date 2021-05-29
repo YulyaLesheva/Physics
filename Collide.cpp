@@ -497,3 +497,35 @@ int CollideBoundary(Contact* contacts, BodyBox* a, Boundaries* b) {
 	}
 
 }
+
+bool PointInBodyBox(const FPoint &point, BodyBox *body) {
+	
+	Math m;
+
+	FPoint dir = point - body->position;
+
+	std::vector<FPoint> BoxAxis = {
+		FPoint(0, 1),FPoint(1, 0),
+	};
+
+	m.ROTATE(BoxAxis[0], body->rotation, FPoint(0, 0));
+	m.ROTATE(BoxAxis[1], body->rotation, FPoint(0, 0));
+
+	for (int i = 0; i < BoxAxis.size(); ++i) {
+		float distance = m.Dot(dir, BoxAxis[i]);
+
+		if (distance > body->width.x * 0.5 || distance > body->width.y * 0.5) {
+			//Log::Info("NOT IN THE BOX");
+			return false;
+		}
+
+		if (distance < -body->width.x * 0.5 || distance < -body->width.y * 0.5) {
+			//Log::Info("NOT IN THE BOX");
+			return false;
+		}
+	}
+
+	//Log::Info("YES IN THE BOX");
+	return true;
+}
+

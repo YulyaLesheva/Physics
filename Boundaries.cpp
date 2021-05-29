@@ -27,6 +27,7 @@ Boundaries* Boundaries::Create(int thickPx) {
 
 void Boundaries::Draw() {
 	Render::device.PushMatrix();
+
 	Render::BeginColor(Color(100, 200, 100, 255)); // Color(Red, Green, Blue, Alpha)
 	//Render::device.MatrixTranslate(GetWidth(UP).x * -0.5f, GetWidth(UP).y * -0.5f, 0);
 	Render::DrawRect(up);

@@ -20,3 +20,5 @@ int CollideBoundary(Contact* contacts, BodyBox* a, Boundaries* b);
 static void ComputeIncidentEdge(ClipVertex c[2], const FPoint& h, const FPoint& pos,
 	const Matrix22 Rot, const FPoint& normal);
 
+bool PointInBodyBox(const FPoint &point, BodyBox *body);
+

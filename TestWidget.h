@@ -1,8 +1,7 @@
 #pragma once
 template <typename T>
-
 using Sprite = std::unique_ptr<T>;
-
+enum { MAX_BOUND = 4 };
 
 #include <vector>
 #include <map>
@@ -50,18 +49,27 @@ private:
 	BodyBox *bodyBox_c;
 	BodyBox *bodyBox_d;
 	BodyBox *bodyBox_e;
-	Boundaries *boundary;
+	BodyBox *bodyBox_up;
+	BodyBox *bodyBox_down;
+	BodyBox *bodyBox_left;
+	BodyBox *bodyBox_right;
 	
-	void CreateQuad(const IPoint &pos);
-	bool OutOfScreen(BodyBox* body);
-	template <typename T1> void DeleteFromScreen(T1 object);
-	///all brand new 
+	BodyBox *bodyBox_rect1;
+	BodyBox *bodyBox_rect2;
+	BodyBox *bodyBox_rect3;
+	
 
+	void SweepAndPrune();
+	void CreateQuad(const IPoint &pos, float angle);
+	bool OutOfScreen(BodyBox* body);
+	///all brand new 
 	std::vector<BodyBox*> BodyBoxes;
 	
 	std::vector<Arbiter> Arbiters;
 	std::map<ArbiterKey, Arbiter> arbiters;
 	
 	int impulseIteration;
+
+	FPoint mousePos;
 
 };

@@ -16,8 +16,8 @@ struct Math {
 		float x = vector.x - origin.x;
 		float y = vector.y - origin.y;
 
-		float cos = (float)math::cos(DEG2RAD(angleDegrees));
-		float sin = (float)math::sin(DEG2RAD(angleDegrees));
+		float cos = (float)math::cos(angleDegrees);
+		float sin = (float)math::sin(angleDegrees);
 
 		float xPrime = (x * cos) - (y * sin);
 		float yPrime = (x * sin) + (y * cos);

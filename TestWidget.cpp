@@ -14,7 +14,7 @@
 #include "Arbiter.h"
 #include "Boundaries.h"
 
-#define GRAVITY_CONST FPoint(0, -39.82f)
+#define GRAVITY_CONST FPoint(0, -69.82f)
 
 using std::vector;
 using std::map;
@@ -36,38 +36,54 @@ void TestWidget::Init()
 
 	_background = Background::Create(Helper::UseTexture("Background"));
 	bodyBox_a = BodyBox::Create("GreyQuad", FPoint(300, 500), 0.0);
-	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(700, 500), 1.5); //0.1
+	bodyBox_b = BodyBox::Create("YellowQuad", FPoint(700, 500), 70.f); //0.1
 	bodyBox_c = BodyBox::Create("Floor",FPoint(Render::device.Width() * .5f, 70), 0.f);
-	bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
-	bodyBox_e = BodyBox::Create("Boundaries", FPoint(500, 500), 0.0); //0.1
-	boundary = Boundaries::Create(40);
-	//bodyBox_b->setdegrees(15);
+	//bodyBox_d = BodyBox::Create("PinkQuad", FPoint(900, 500), 1.0); //0.1
+	
+	bodyBox_up = BodyBox::Create("Width", FPoint(Render::device.Width() * .5f, Render::device.Height()), 0.0);
+	//bodyBox_down = BodyBox::Create("Width", FPoint(Render::device.Width() * .5f, 0), 0.0);
+	bodyBox_left = BodyBox::Create("Height", FPoint(0, Render::device.Height() * .5f), 0.0);
+	bodyBox_right = BodyBox::Create("Height", FPoint(Render::device.Width(), Render::device.Height() * .5f), 0.0);
+	
+	bodyBox_rect1 = BodyBox::Create("YellowRect", FPoint(200, 250), 3.0);
+	bodyBox_rect2 = BodyBox::Create("PinkRect", FPoint(300, 250), 3.0);
+	bodyBox_rect3 = BodyBox::Create("GreenRect", FPoint(400, 250), 3.0);
+
+
+
+	bodyBox_a->SetDegrees(-30);
 
 	BodyBoxes = {
 		bodyBox_a,
 		bodyBox_b, 
 		bodyBox_c,
-		bodyBox_d,
-		//boundary
-		//bodyBox_e,
+	//	bodyBox_d,
+		bodyBox_up,
+	//	bodyBox_down,
+		bodyBox_left,
+		bodyBox_right,
+		bodyBox_rect1,
+		bodyBox_rect2,
+		bodyBox_rect3,
 	};
 		
 	//TEST
-	auto bsize =  boundary->GetWidth(UP);
-	auto bpos = boundary->GetPosition(boundary->up);
 	impulseIteration = 10;
+	
+	auto starty = 150;
+	for (int i = 0; i < 9; ++i) {
+		CreateQuad(IPoint(915,starty), 0);
+		starty += 50;
+	}
 }
 
 void TestWidget::Draw()
 {
 	_background->Draw();
 	
-	boundary->Draw();
-
 	for (auto *b : BodyBoxes) {
 		b->Draw();
 	}
-	
 	
 	//Render::BeginColor(Color(29, 26, 49, 255)); // Color(Red, Green, Blue, Alpha)
 	//Render::BindFont("arial");
@@ -79,10 +95,7 @@ void TestWidget::Draw()
 
 }
 
-void TestWidget::Update(float dt)
-{
-	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
-
+void TestWidget::SweepAndPrune() {
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox *bi = BodyBoxes[i];
 
@@ -111,19 +124,14 @@ void TestWidget::Update(float dt)
 			}
 		}
 	}
+}
+void TestWidget::Update(float dt)
+{
+	float inv_dt = dt > 0.0f ? 1.0f / dt : 0.0f;
 
-	////add force
-	//acceleartion 
-	/*for (int i = 0; i < BodyBoxes.size(); ++i) {
-		BodyBox* b = BodyBoxes[i];
-		b->AddForce(GRAVITY_CONST * 2);
-	}*/
-	
-	//const float damping = 0.98;
-	//FPoint acceleration = force * inverseMass;
-	//velocity += acceleration * dt;
-	//velocity *= damping;
-	
+	//sweep and pure algorithm
+	SweepAndPrune();
+
 	//integrate forces
 	for (int i = 0; i < BodyBoxes.size(); ++i) {
 		BodyBox* b = BodyBoxes[i];
@@ -164,8 +172,11 @@ void TestWidget::Update(float dt)
 			Log::Info("erased");
 		}
 	}
-}
 
+	mousePos = Core::mainInput.GetMousePos();
+
+	PointInBodyBox(mousePos, bodyBox_a);
+}
 
 bool TestWidget::OutOfScreen(BodyBox* body) {
 
@@ -183,24 +194,31 @@ bool TestWidget::OutOfScreen(BodyBox* body) {
 
 bool TestWidget::MouseDown(const IPoint &mouse_pos)
 {
-
 	for (auto &body : BodyBoxes) {
 		body->MouseDown(mouse_pos);
 	}
-	
-	CreateQuad(mouse_pos);
-	return false;
-}
 
-void TestWidget::CreateQuad(const IPoint &pos) {
+	for (auto &body : BodyBoxes) {
+		if (!PointInBodyBox(mouse_pos, body)) {
+			CreateQuad(mouse_pos, randomRotation());
+
+		}
+		return false;
+	}
+	return false;
+
+}
+void TestWidget::CreateQuad(const IPoint &pos, float angle) {
 	
 	std::string str = RandomQuad();
 
-	BodyBoxes.push_back(BodyBox::Create(str, FPoint(pos), 10.0, randomRotation()));
+	BodyBoxes.push_back(BodyBox::Create(str, FPoint(pos), 10.0, angle));
 }
 
 void TestWidget::MouseMove(const IPoint &mouse_pos)
 {
+	mousePos = mouse_pos;
+	Log::Info(std::to_string(mousePos.x) + " " + std::to_string(mousePos.y));
 }
 
 void TestWidget::MouseUp(const IPoint &mouse_pos)

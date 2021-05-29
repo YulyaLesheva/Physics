@@ -81,16 +81,14 @@ void Arbiter::ApplyImpulse2D() {
 
 		float dPn = c->massNormal * (-vn + c->bias);
 
-		if (true)
-		{
+		if (true){
 			// Clamp the accumulated impulse
 			float Pn0 = c->Pn;
 			c->Pn = math::max(Pn0 + dPn, 0.0f);
 			dPn = c->Pn - Pn0;
 		}
-		else
-		{
-			dPn = math::max(dPn, 0.0f);
+		else{
+		dPn = math::max(dPn, 0.0f);
 		}
 
 		// Apply contact impulse
@@ -111,23 +109,21 @@ void Arbiter::ApplyImpulse2D() {
 		float vt = m.Dot(dv, tangent);
 		float dPt = c->massTangent * (-vt);
 
-		if (true)
-		{
-			// Compute friction impulse
+		if (true){
+		
 			float maxPt = friction * c->Pn;
 
-			// Clamp friction
+			// friction
 			float oldTangentImpulse = c->Pt;
 			c->Pt = m.Clamp(oldTangentImpulse + dPt, -maxPt, maxPt);
 			dPt = c->Pt - oldTangentImpulse;
 		}
-		else
-		{
+		else{
 			float maxPt = friction * dPn;
 			dPt = m.Clamp(dPt, -maxPt, maxPt);
 		}
 
-		// Apply contact impulse
+		//contact impulse
 		auto Pt = dPt * tangent;
 
 		b1->velocity -= b1->inverseMass * Pt;
@@ -143,8 +139,8 @@ void Arbiter::PreStep(float inv_dt) {
 	const float k_allowedPenetration = 0.01f;
 	float k_biasFactor = true ? 0.2f : 0.0f;
 
-	for (int i = 0; i < numContacts; ++i)
-	{
+	for (int i = 0; i < numContacts; ++i){
+		
 		Contact* c = contactsArray + i;
 
 		auto r1 = c->position - a->position;
@@ -183,3 +179,4 @@ void Arbiter::PreStep(float inv_dt) {
 		}
 	}
 }
+
